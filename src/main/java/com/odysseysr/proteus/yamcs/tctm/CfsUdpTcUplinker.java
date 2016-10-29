@@ -23,7 +23,7 @@ import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.protobuf.Commanding.CommandId;
 import org.yamcs.protobuf.Pvalue.ParameterValue;
 import org.yamcs.protobuf.Yamcs.NamedObjectId;
-import org.yamcs.tctm.TcUplinker;
+import org.yamcs.tctm.TcDataLink;
 import org.yamcs.time.TimeService;
 import org.yamcs.utils.TimeEncoding;
 
@@ -34,7 +34,7 @@ import com.google.common.util.concurrent.AbstractService;
  * @author nm
  *
  */
-public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcUplinker,  SystemParametersProducer {
+public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDataLink,  SystemParametersProducer {
 		
     protected DatagramChannel datagramChannel=null;
     protected String host="whirl";

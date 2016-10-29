@@ -23,13 +23,13 @@ import org.yamcs.parameter.SystemParametersCollector;
 import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.protobuf.Pvalue.ParameterValue;
 import org.yamcs.protobuf.Yamcs.NamedObjectId;
-import org.yamcs.tctm.TmPacketSource;
+import org.yamcs.tctm.TmPacketDataLink;
 import org.yamcs.tctm.TmSink;
 import org.yamcs.time.TimeService;
 
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 
-public class CfsUdpTmProvider extends AbstractExecutionThreadService implements TmPacketSource,  SystemParametersProducer {
+public class CfsUdpTmProvider extends AbstractExecutionThreadService implements TmPacketDataLink,  SystemParametersProducer {
 
 	public enum CfeTimeStampFormat {
 		CFE_SB_TIME_32_16_SUBS,
