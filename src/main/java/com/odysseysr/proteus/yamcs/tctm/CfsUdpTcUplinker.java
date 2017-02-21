@@ -34,8 +34,7 @@ import com.google.common.util.concurrent.AbstractService;
  * @author nm
  *
  */
-public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDataLink,  SystemParametersProducer {
-		
+public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDataLink,  SystemParametersProducer {	
     protected DatagramChannel datagramChannel=null;
     protected String host="whirl";
     protected int port=10003;
@@ -113,7 +112,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     protected void disconnect() {
         if(datagramChannel==null) return;
         try {
-        	datagramChannel.close();
+            datagramChannel.close();
             selector.close();
             datagramChannel=null;
         } catch (IOException e) {
@@ -171,8 +170,8 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         ByteBuffer bb=null;
         
         int newLength = pc.getBinary().length - 10;
-		byte cfsCmd[] = new byte[newLength];		
-		cfsCmd = Arrays.copyOf(pc.getBinary(), newLength);
+        byte cfsCmd[] = new byte[newLength];		
+        cfsCmd = Arrays.copyOf(pc.getBinary(), newLength);
         bb=ByteBuffer.allocate(newLength);
         bb.put(pc.getBinary(), 0, 6);
         bb.put(pc.getBinary(), 16, pc.getBinary().length - 16);
@@ -190,8 +189,8 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
 
             if(isSocketOpen()) {
                 try {
-                	datagramChannel.send(bb, new InetSocketAddress(host,port));
-                	datagramChannel.write(bb);
+                    datagramChannel.send(bb, new InetSocketAddress(host,port));
+                    datagramChannel.write(bb);
                     tcCount++;
                     sent=true;
                 } catch (IOException e) {
@@ -334,8 +333,6 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
             sysParamCollector.registerProvider(this, null);
             sv_linkStatus_id = NamedObjectId.newBuilder().setName(sysParamCollector.getNamespace()+"/"+name+"/linkStatus").build();
             sp_dataCount_id = NamedObjectId.newBuilder().setName(sysParamCollector.getNamespace()+"/"+name+"/dataCount").build();
-
-
         } else {
             log.info("System variables collector not defined for instance {} ", yamcsInstance);
         }
