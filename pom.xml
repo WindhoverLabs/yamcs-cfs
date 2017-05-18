@@ -66,18 +66,6 @@
   </reporting>
 
   <repositories>
-    <repository>
-      <id>yamcs</id>
-      <name>yamcs</name>
-      <releases>
-        <enabled>true</enabled>
-        <checksumPolicy>ignore</checksumPolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <url>file://${project.basedir}/yamcs-client-3.2.1/lib/</url>
-    </repository>
 
     <repository>
       <id>repository.jboss.org</id>
