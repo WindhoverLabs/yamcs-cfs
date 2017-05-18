@@ -76,7 +76,7 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <url>file://${project.basedir}/../yamcs/lib</url>
+      <url>file://${project.basedir}/yamcs-client-3.2.1/lib/</url>
     </repository>
 
     <repository>
