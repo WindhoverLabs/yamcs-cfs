@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.yamcs:yamcs-api:3.2.3-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/yamcs/yamcs-api/3.2.3-SNAPSHOT/yamcs-api-3.2.3-20170521.185003-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/yamcs/yamcs-api/3.2.3-SNAPSHOT/yamcs-api-3.2.3-20170521.185003-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/yamcs/yamcs-api/3.2.3-SNAPSHOT/yamcs-api-3.2.3-20170521.185003-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

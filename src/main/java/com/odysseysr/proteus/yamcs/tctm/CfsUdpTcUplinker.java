@@ -46,7 +46,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     protected volatile boolean disabled=false;
     protected int minimumTcPacketLength=48; //the minimum size of the CCSDS packets uplinked
     volatile long tcCount;
-    private NamedObjectId sv_linkStatus_id, sp_dataCount_id;
+    private String sv_linkStatus_id, sp_dataCount_id;
 
     private SystemParametersCollector sysParamCollector;
     protected Logger log=LoggerFactory.getLogger(this.getClass().getName());
@@ -325,23 +325,24 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     public long getDataCount() {
         return tcCount;
     }
-
-
+    
     protected void setupSysVariables() {
         this.sysParamCollector = SystemParametersCollector.getInstance(yamcsInstance);
         if(sysParamCollector!=null) {
             sysParamCollector.registerProvider(this, null);
-            sv_linkStatus_id = NamedObjectId.newBuilder().setName(sysParamCollector.getNamespace()+"/"+name+"/linkStatus").build();
-            sp_dataCount_id = NamedObjectId.newBuilder().setName(sysParamCollector.getNamespace()+"/"+name+"/dataCount").build();
+            sv_linkStatus_id = sysParamCollector.getNamespace()+"/"+name+"/linkStatus";
+            sp_dataCount_id = sysParamCollector.getNamespace()+"/"+name+"/dataCount";
+
+
         } else {
             log.info("System variables collector not defined for instance {} ", yamcsInstance);
         }
-
     }
-    public Collection<ParameterValue> getSystemParameters() {
-        long time = getCurrentTime();
-        ParameterValue linkStatus = SystemParametersCollector.getPV(sv_linkStatus_id, time, getLinkStatus());
-        ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
+
+    public Collection<org.yamcs.parameter.ParameterValue> getSystemParameters() {
+        long time = timeService.getMissionTime();
+        org.yamcs.parameter.ParameterValue linkStatus = SystemParametersCollector.getPV(sv_linkStatus_id, time, getLinkStatus());
+        org.yamcs.parameter.ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
         return Arrays.asList(linkStatus, dataCount);
     }
 }

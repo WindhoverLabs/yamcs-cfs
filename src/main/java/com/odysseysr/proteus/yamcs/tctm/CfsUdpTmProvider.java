@@ -30,12 +30,12 @@ import org.yamcs.time.TimeService;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 
 public class CfsUdpTmProvider extends AbstractExecutionThreadService implements TmPacketDataLink,  SystemParametersProducer {
-    public enum CfeTimeStampFormat {
+    protected enum CfeTimeStampFormat {
         CFE_SB_TIME_32_16_SUBS,
         CFE_SB_TIME_32_32_SUBS,
         CFE_SB_TIME_32_32_M_20
     }
-    
+
     protected volatile long packetcount = 0;
     protected DatagramSocket tmSocket;
     protected String host="localhost";
@@ -59,7 +59,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     private SystemParametersCollector sysParamCollector;
     ParameterValue svConnectionStatus;
     List<ParameterValue> sysVariables= new ArrayList<ParameterValue>();
-    private NamedObjectId sv_linkStatus_id, sp_dataCount_id;
+    private String sv_linkStatus_id, sp_dataCount_id;
     final String yamcsInstance;
     final String name;
     final TimeService timeService;
@@ -363,20 +363,19 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         this.sysParamCollector = SystemParametersCollector.getInstance(yamcsInstance);
         if(sysParamCollector!=null) {
             sysParamCollector.registerProvider(this, null);
-            sv_linkStatus_id = NamedObjectId.newBuilder().setName(sysParamCollector.getNamespace()+"/"+name+"/linkStatus").build();
-            sp_dataCount_id = NamedObjectId.newBuilder().setName(sysParamCollector.getNamespace()+"/"+name+"/dataCount").build();
+            sv_linkStatus_id = sysParamCollector.getNamespace()+"/"+name+"/linkStatus";
+            sp_dataCount_id = sysParamCollector.getNamespace()+"/"+name+"/dataCount";
 
 
         } else {
             log.info("System variables collector not defined for instance {} ", yamcsInstance);
         }
-
     }
 
-    public Collection<ParameterValue> getSystemParameters() {
+    public Collection<org.yamcs.parameter.ParameterValue> getSystemParameters() {
         long time = timeService.getMissionTime();
-        ParameterValue linkStatus = SystemParametersCollector.getPV(sv_linkStatus_id, time, getLinkStatus());
-        ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
+        org.yamcs.parameter.ParameterValue linkStatus = SystemParametersCollector.getPV(sv_linkStatus_id, time, getLinkStatus());
+        org.yamcs.parameter.ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
         return Arrays.asList(linkStatus, dataCount);
     }
 }

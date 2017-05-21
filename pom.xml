@@ -24,13 +24,13 @@
       <dependency>
         <groupId>org.yamcs</groupId>
         <artifactId>yamcs-api</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.3-SNAPSHOT</version>
       </dependency>
 
       <dependency>
         <groupId>org.yamcs</groupId>
         <artifactId>yamcs-core</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.3-SNAPSHOT</version>
       </dependency>
 
       <!-- TEST DEPENDENCIES -->
@@ -66,26 +66,20 @@
   </reporting>
 
   <repositories>
+    <repository>
+      <id>my-internal-site</id>
+      <url>file:///opt/releases/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
 
     <repository>
       <id>repository.jboss.org</id>
       <url>http://repository.jboss.org/nexus/content/groups/public/</url>
       <snapshots>
         <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>yamcs-mvn-repo-releases</id>
-      <url>https://raw.github.com/yamcs/mvn-repo/master/releases/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>yamcs-mvn-repo-snapshots</id>
-      <url>https://raw.github.com/yamcs/mvn-repo/master/snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
       </snapshots>
     </repository>
   </repositories>
