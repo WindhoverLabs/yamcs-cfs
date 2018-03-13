@@ -1,4 +1,4 @@
-package com.odysseysr.proteus.yamcs.tctm;
+package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -38,6 +38,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     protected DatagramChannel datagramChannel=null;
     protected String host="whirl";
     protected int port=10003;
+    protected short gndSystemApid = 0;
     protected CommandHistoryPublisher commandHistoryListener;
     protected Selector selector; 
     SelectionKey selectionKey;
@@ -59,6 +60,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         this.yamcsInstance=yamcsInstance;
         host = c.getString(spec, "tcHost");
         port = c.getInt(spec, "tcPort");
+        gndSystemApid=(short)c.getInt(spec, "gndSysApid");
         this.name = name;
         
         try {
@@ -182,35 +184,75 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         boolean sent=false;
         int seqCount=seqAndChecksumFiller.fill(bb, pc.getCommandId().getGenerationTime());
         bb.rewind();
-        while (!sent&&(retries>0)) {
-            if (!isSocketOpen()) {
-                openSocket();
-            }
-
-            if(isSocketOpen()) {
-                try {
-                    datagramChannel.send(bb, new InetSocketAddress(host,port));
-                    datagramChannel.write(bb);
-                    tcCount++;
-                    sent=true;
-                } catch (IOException e) {
-                    log.warn("Error writing to TC socket to "+host+":"+port+": "+e.getMessage());
-                    try {
-                        if(datagramChannel.isOpen()) datagramChannel.close();
-                        selector.close();
-                        datagramChannel=null;
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+        
+        /* Check to see if this command is for the CfsUdpTcUplinker plugin. */
+        short msgID = bb.getShort();
+        log.info("**********************");
+        log.info("msgID = {}   gndSystemApid = {}", msgID, gndSystemApid);
+        if(msgID == ((short)0x1800 | (short)gndSystemApid)) {
+           /* This is for the plugin to execute directly. */
+           sent = true;
+           
+           /* Skip ahead to the command code. */
+           bb.getShort();
+           bb.getShort();
+           short cmdCode = bb.getShort();
+           
+           switch(cmdCode)
+           {
+               case 0:
+               {
+                   StringBuilder sb = new StringBuilder();
+                   byte curValue = bb.get();
+                   while(curValue != 0)
+                   {
+                       sb.append(Character.toString((char)curValue));
+                       curValue = bb.get();
+                   }
+                   
+                   host = sb.toString();
+                   log.info("Setting vehicle address to {}", host);   
+                   openSocket();
+                   break;
+               }
+                   
+               default:
+                   log.info("Received unexpected command code for execution.");
+           }
+        } else {
+            bb.rewind();
+         
+            while (!sent&&(retries>0)) {
+                if (!isSocketOpen()) {
+                    openSocket();
                 }
-            }
-            retries--;
-            if(!sent && (retries>0)) {
-                try {
-                    log.warn("Command not sent, retrying in 2 seconds");
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    log.warn("exception "+ e.toString()+" thrown when sleeping 2 sec");
+
+                if(isSocketOpen()) {
+                    try {
+                        datagramChannel.send(bb, new InetSocketAddress(host,port));
+                        datagramChannel.write(bb);
+                        tcCount++;
+                        sent=true;
+                    } catch (IOException e) {
+                        log.warn("Error writing to TC socket to "+host+":"+port+": "+e.getMessage());
+                        try {
+                            if(datagramChannel.isOpen()) datagramChannel.close();
+                            selector.close();
+                            datagramChannel=null;
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    
+                }
+                retries--;
+                if(!sent && (retries>0)) {
+                    try {
+                        log.warn("Command not sent, retrying in 2 seconds");
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        log.warn("exception "+ e.toString()+" thrown when sleeping 2 sec");
+                    }
                 }
             }
         }
@@ -325,7 +367,8 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     public long getDataCount() {
         return tcCount;
     }
-    
+
+
     protected void setupSysVariables() {
         this.sysParamCollector = SystemParametersCollector.getInstance(yamcsInstance);
         if(sysParamCollector!=null) {

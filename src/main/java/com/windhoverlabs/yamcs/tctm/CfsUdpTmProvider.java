@@ -1,4 +1,4 @@
-package com.odysseysr.proteus.yamcs.tctm;
+package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,6 +50,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     private int CFE_SB_TLM_HDR_SIZE = 6;
     private int OS_MAX_API_NAME = 20;
     private int CFE_EVS_MAX_MESSAGE_LENGTH = 122;
+    private short gndSystemApid = 0;
     
     private int CFE_EVS_DEBUG_BIT       = 0x0001;
     private int CFE_EVS_INFORMATION_BIT = 0x0002;
@@ -83,6 +84,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         port=c.getInt(spec, "tmPort");
         this.timeService = YamcsServer.getTimeService(instance);
         OS_MAX_API_NAME=c.getInt(spec, "OS_MAX_API_NAME");
+        gndSystemApid=(short)c.getInt(spec, "gndSysApid");
         
         if(strTimestampFormat.equals("CFE_SB_TIME_32_16_SUBS")) {
             this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_16_SUBS;
@@ -226,10 +228,67 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     public void setTmSink(TmSink tmSink) {
         this.tmSink=tmSink;
     }
+    
+    
+    
+    
+    
+    public void sendCurrentStatus() {
+        ByteBuffer bb = ByteBuffer.allocate(1000);
+        
+        /* Set endian to big endian for the CCSDS header. */
+        bb.order(ByteOrder.BIG_ENDIAN);
+        /* Packet ID */
+        bb.putInt(gndSystemApid);
+        
+        /* Message ID */
+        bb.putShort((short)(0x0800 | gndSystemApid));
+        
+        /* Sequence */
+        bb.putShort((short)0x0000);
+        
+        /* Secondary telemetry header. */
+        /* Course time. */
+        bb.putInt(0);
+        /* Fine time. */
+        bb.putShort((short)0);
+        
+        /* Set endian back to little endian for the payload */
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        
+        /* First, store the vehicle address. */
+        byte[] vehicleAddress = host.getBytes();
+        int length = vehicleAddress.length;
+        for(int i = 0; i < 255; ++i) {
+            if(i < length) {
+                bb.put((byte)vehicleAddress[i]);
+            } else {
+                bb.put((byte)0);
+            }
+        }
+        bb.put((byte)0);
+        
+        /* Vehicle telemetry port. */
+        bb.putInt(port);
+        
+        PacketWithTime pkt = new PacketWithTime(timeService.getMissionTime(), CfsTlmPacket.getInstant(bb), bb.array());
+        
+        tmSink.processPacket(pkt);
+
+    }
 
     public void run() {
         setupSysVariables();
+        sendCurrentStatus();
         while(isRunning()) {
+            //try {
+            //    Thread.sleep(1000);
+            //    sendCurrentStatus();
+            //}
+            //catch(InterruptedException e)
+            //{
+            //    log.info("Thread.sleep or sendCurrentStatus failed.");
+            //}
             PacketWithTime pwrt=getNextPacket();
             if(pwrt==null) break;
             tmSink.processPacket(pwrt);
