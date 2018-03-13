@@ -1,4 +1,4 @@
-package com.odysseysr.proteus.yamcs.tctm;
+package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -325,6 +325,16 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     public long getDataCount() {
         return tcCount;
     }
+    
+    
+    protected void sendCurrentStatus() {
+        log.info("********************************************");
+        log.info("********************************************");
+        log.info("********************************************");
+        log.info("********************************************");
+        log.info("********************************************");
+        log.info("********************************************");
+    }
 
 
     protected void setupSysVariables() {
@@ -338,6 +348,8 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         }
 
     }
+
+    
     public Collection<ParameterValue> getSystemParameters() {
         long time = getCurrentTime();
         ParameterValue linkStatus = SystemParametersCollector.getPV(sv_linkStatus_id, time, getLinkStatus());

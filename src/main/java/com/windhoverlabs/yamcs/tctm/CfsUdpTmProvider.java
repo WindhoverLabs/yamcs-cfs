@@ -1,4 +1,4 @@
-package com.odysseysr.proteus.yamcs.tctm;
+package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -229,6 +229,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
 
     public void run() {
         setupSysVariables();
+        sendCurrentStatus();
         while(isRunning()) {
             PacketWithTime pwrt=getNextPacket();
             if(pwrt==null) break;

@@ -1,4 +1,4 @@
-package com.odysseysr.proteus.yamcs_cfs;
+package com.windhoverlabs.yamcs_cfs;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

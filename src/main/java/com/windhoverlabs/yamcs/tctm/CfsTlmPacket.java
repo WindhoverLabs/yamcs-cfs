@@ -1,4 +1,4 @@
-package com.odysseysr.proteus.yamcs.tctm;
+package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 import org.yamcs.utils.CcsdsPacket;
 import org.yamcs.utils.TimeEncoding;
-import com.odysseysr.proteus.yamcs.tctm.CfsUdpTmProvider;
+import com.windhoverlabs.yamcs.tctm.CfsUdpTmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
