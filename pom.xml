@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.odysseysr.proteus</groupId>
+  <groupId>com.windhoverlabs</groupId>
   <artifactId>yamcs-cfs</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
 
   <packaging>jar</packaging>
   <name>Telemetry and Command provider for Core Flight Software</name>
@@ -24,13 +24,13 @@
       <dependency>
         <groupId>org.yamcs</groupId>
         <artifactId>yamcs-api</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.2</version>
       </dependency>
 
       <dependency>
         <groupId>org.yamcs</groupId>
         <artifactId>yamcs-core</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.2</version>
       </dependency>
 
       <!-- TEST DEPENDENCIES -->
@@ -66,26 +66,20 @@
   </reporting>
 
   <repositories>
+    <repository>
+      <id>my-internal-site</id>
+      <url>file:///opt/releases/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
 
     <repository>
       <id>repository.jboss.org</id>
       <url>http://repository.jboss.org/nexus/content/groups/public/</url>
       <snapshots>
         <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>yamcs-mvn-repo-releases</id>
-      <url>https://raw.github.com/yamcs/mvn-repo/master/releases/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>yamcs-mvn-repo-snapshots</id>
-      <url>https://raw.github.com/yamcs/mvn-repo/master/snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
       </snapshots>
     </repository>
   </repositories>
