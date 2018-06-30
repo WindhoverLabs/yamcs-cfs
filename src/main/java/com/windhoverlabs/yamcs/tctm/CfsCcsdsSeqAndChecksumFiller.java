@@ -1,4 +1,4 @@
-package com.odysseysr.proteus.yamcs.tctm;
+package com.windhoverlabs.yamcs.tctm;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;

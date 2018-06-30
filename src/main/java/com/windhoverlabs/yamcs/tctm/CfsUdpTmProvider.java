@@ -1,4 +1,4 @@
-package com.odysseysr.proteus.yamcs.tctm;
+package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,12 +30,12 @@ import org.yamcs.time.TimeService;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 
 public class CfsUdpTmProvider extends AbstractExecutionThreadService implements TmPacketDataLink,  SystemParametersProducer {
-    public enum CfeTimeStampFormat {
+    protected enum CfeTimeStampFormat {
         CFE_SB_TIME_32_16_SUBS,
         CFE_SB_TIME_32_32_SUBS,
         CFE_SB_TIME_32_32_M_20
     }
-    
+
     protected volatile long packetcount = 0;
     protected DatagramSocket tmSocket;
     protected String host="localhost";
@@ -50,6 +50,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     private int CFE_SB_TLM_HDR_SIZE = 6;
     private int OS_MAX_API_NAME = 20;
     private int CFE_EVS_MAX_MESSAGE_LENGTH = 122;
+    private short gndSystemApid = 0;
     
     private int CFE_EVS_DEBUG_BIT       = 0x0001;
     private int CFE_EVS_INFORMATION_BIT = 0x0002;
@@ -59,7 +60,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     private SystemParametersCollector sysParamCollector;
     ParameterValue svConnectionStatus;
     List<ParameterValue> sysVariables= new ArrayList<ParameterValue>();
-    private NamedObjectId sv_linkStatus_id, sp_dataCount_id;
+    private String sv_linkStatus_id, sp_dataCount_id;
     final String yamcsInstance;
     final String name;
     final TimeService timeService;
@@ -83,6 +84,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         port=c.getInt(spec, "tmPort");
         this.timeService = YamcsServer.getTimeService(instance);
         OS_MAX_API_NAME=c.getInt(spec, "OS_MAX_API_NAME");
+        gndSystemApid=(short)c.getInt(spec, "gndSysApid");
         
         if(strTimestampFormat.equals("CFE_SB_TIME_32_16_SUBS")) {
             this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_16_SUBS;
@@ -226,10 +228,67 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     public void setTmSink(TmSink tmSink) {
         this.tmSink=tmSink;
     }
+    
+    
+    
+    
+    
+    public void sendCurrentStatus() {
+        ByteBuffer bb = ByteBuffer.allocate(1000);
+        
+        /* Set endian to big endian for the CCSDS header. */
+        bb.order(ByteOrder.BIG_ENDIAN);
+        /* Packet ID */
+        bb.putInt(gndSystemApid);
+        
+        /* Message ID */
+        bb.putShort((short)(0x0800 | gndSystemApid));
+        
+        /* Sequence */
+        bb.putShort((short)0x0000);
+        
+        /* Secondary telemetry header. */
+        /* Course time. */
+        bb.putInt(0);
+        /* Fine time. */
+        bb.putShort((short)0);
+        
+        /* Set endian back to little endian for the payload */
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        
+        /* First, store the vehicle address. */
+        byte[] vehicleAddress = host.getBytes();
+        int length = vehicleAddress.length;
+        for(int i = 0; i < 255; ++i) {
+            if(i < length) {
+                bb.put((byte)vehicleAddress[i]);
+            } else {
+                bb.put((byte)0);
+            }
+        }
+        bb.put((byte)0);
+        
+        /* Vehicle telemetry port. */
+        bb.putInt(port);
+        
+        PacketWithTime pkt = new PacketWithTime(timeService.getMissionTime(), CfsTlmPacket.getInstant(bb), bb.array());
+        
+        tmSink.processPacket(pkt);
+
+    }
 
     public void run() {
         setupSysVariables();
+        sendCurrentStatus();
         while(isRunning()) {
+            //try {
+            //    Thread.sleep(1000);
+            //    sendCurrentStatus();
+            //}
+            //catch(InterruptedException e)
+            //{
+            //    log.info("Thread.sleep or sendCurrentStatus failed.");
+            //}
             PacketWithTime pwrt=getNextPacket();
             if(pwrt==null) break;
             tmSink.processPacket(pwrt);
@@ -363,20 +422,19 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         this.sysParamCollector = SystemParametersCollector.getInstance(yamcsInstance);
         if(sysParamCollector!=null) {
             sysParamCollector.registerProvider(this, null);
-            sv_linkStatus_id = NamedObjectId.newBuilder().setName(sysParamCollector.getNamespace()+"/"+name+"/linkStatus").build();
-            sp_dataCount_id = NamedObjectId.newBuilder().setName(sysParamCollector.getNamespace()+"/"+name+"/dataCount").build();
+            sv_linkStatus_id = sysParamCollector.getNamespace()+"/"+name+"/linkStatus";
+            sp_dataCount_id = sysParamCollector.getNamespace()+"/"+name+"/dataCount";
 
 
         } else {
             log.info("System variables collector not defined for instance {} ", yamcsInstance);
         }
-
     }
 
-    public Collection<ParameterValue> getSystemParameters() {
+    public Collection<org.yamcs.parameter.ParameterValue> getSystemParameters() {
         long time = timeService.getMissionTime();
-        ParameterValue linkStatus = SystemParametersCollector.getPV(sv_linkStatus_id, time, getLinkStatus());
-        ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
+        org.yamcs.parameter.ParameterValue linkStatus = SystemParametersCollector.getPV(sv_linkStatus_id, time, getLinkStatus());
+        org.yamcs.parameter.ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
         return Arrays.asList(linkStatus, dataCount);
     }
 }
