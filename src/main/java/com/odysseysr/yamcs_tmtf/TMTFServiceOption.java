@@ -43,44 +43,45 @@ package com.odysseysr.yamcs_tmtf;
  *
  */
 public enum TMTFServiceOption {
-	VC_PACKET(true),
-	VC_ACCESS(false),
-	VC_FRAME_SECONDARY_HEADER(true),
-	VC_OPERATIONAL_CONTROL_FIELD(true),
-	VC_FRAME(false),
-	MC_FRAME_SECONDARY_HEADER(false),
-	MC_OPERATIONAL_CONTROL_FIELD(false),
-	MC_FRAME(true),
-	
+    VC_PACKET(true),
+    VC_ACCESS(false),
+    VC_FRAME_SECONDARY_HEADER(true),
+    VC_OPERATIONAL_CONTROL_FIELD(true),
+    VC_FRAME(false),
+    MC_FRAME_SECONDARY_HEADER(false),
+    MC_OPERATIONAL_CONTROL_FIELD(false),
+    MC_FRAME(true),
+    
 ;
-	public boolean enabled;
-	private TMTFServiceOption(boolean enabled) {
-		this.enabled=enabled;
-	}
-	public boolean isValidConfiguration() {
-		// A
-		if (MC_FRAME.enabled) {
-			if (MC_FRAME_SECONDARY_HEADER.enabled) return false;
-			if (MC_OPERATIONAL_CONTROL_FIELD.enabled) return false;
-		}
-		// B
-		if (VC_FRAME_SECONDARY_HEADER.enabled 
-				&& MC_FRAME_SECONDARY_HEADER.enabled) return false;
-		
-		// C
-		if (VC_OPERATIONAL_CONTROL_FIELD.enabled && 
-				MC_OPERATIONAL_CONTROL_FIELD.enabled) return false;
-		
-		// D
-		if (VC_FRAME.enabled) {
-			if (VC_PACKET.enabled) return false;
-			if (VC_ACCESS.enabled) return false;
-			if (VC_FRAME_SECONDARY_HEADER.enabled) return false;
-		}
-		
-		// E
-		if (VC_PACKET.enabled && VC_ACCESS.enabled) return false;
-		
-		return true;
-	}
+    public boolean enabled;
+    private TMTFServiceOption(boolean enabled){
+        this.enabled=enabled;
+    }
+
+    public boolean isValidConfiguration(){
+        // A
+        if (MC_FRAME.enabled) {
+            if (MC_FRAME_SECONDARY_HEADER.enabled) return false;
+            if (MC_OPERATIONAL_CONTROL_FIELD.enabled) return false;
+        }
+        // B
+        if (VC_FRAME_SECONDARY_HEADER.enabled 
+                && MC_FRAME_SECONDARY_HEADER.enabled) return false;
+        
+        // C
+        if (VC_OPERATIONAL_CONTROL_FIELD.enabled && 
+                MC_OPERATIONAL_CONTROL_FIELD.enabled) return false;
+        
+        // D
+        if (VC_FRAME.enabled) {
+            if (VC_PACKET.enabled) return false;
+            if (VC_ACCESS.enabled) return false;
+            if (VC_FRAME_SECONDARY_HEADER.enabled) return false;
+        }
+        
+        // E
+        if (VC_PACKET.enabled && VC_ACCESS.enabled) return false;
+        
+        return true;
+    }
 }
