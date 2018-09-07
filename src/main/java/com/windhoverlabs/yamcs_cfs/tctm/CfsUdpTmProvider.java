@@ -36,11 +36,16 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         CFE_SB_TIME_32_32_SUBS,
         CFE_SB_TIME_32_32_M_20
     }
+    protected enum endiannessType {
+        LITTLE_ENDIAN,
+        BIG_ENDIAN
+    }
     protected volatile long packetcount = 0;
     protected DatagramSocket tmSocket;
     protected String host="localhost";
     protected int port=10031;
     protected static CfeTimeStampFormat timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_32_SUBS;
+    protected static endiannessType endianness = endiannessType.LITTLE_ENDIAN;
     protected int timestampLength = 8;
     protected volatile boolean disabled=false;
     protected EventProducer eventProducer;
@@ -83,6 +88,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
 
         YConfiguration c=YConfiguration.getConfiguration("cfs");
         String strTimestampFormat = c.getString(spec, "timestampFormat");
+        String strEndianness = c.getString(spec, "endianness");
         host=c.getString(spec, "tmHost");
 
         port=c.getInt(spec, "tmPort");
@@ -99,8 +105,6 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         TMTFReader.TMTF_HEADER_LENGTH = c.getInt(spec,"TMTFHeaderLength");
         gndSystemApid=(short)c.getInt(spec, "gndSysApid");
 
-        
-        
         if(strTimestampFormat.equals("CFE_SB_TIME_32_16_SUBS")) {
             this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_16_SUBS;
             this.timestampLength = 6;
@@ -116,6 +120,15 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
             this.timestampLength = 8;
         }
         
+        if(strEndianness.equals("LITTLE_ENDIAN")) {
+            this.endianness = endiannessType.LITTLE_ENDIAN;
+        } else if(strEndianness.equals("BIG_ENDIAN")) {
+            this.endianness = endiannessType.BIG_ENDIAN;
+        } else {
+            log.warn("endianness not defined or is incorrect, using the default value LITTLE_ENDIAN");
+            this.endianness = endiannessType.LITTLE_ENDIAN;
+        }
+        
         eventProducer=EventProducerFactory.getEventProducer(this.yamcsInstance);
     }
     
@@ -124,10 +137,19 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         return timestampFormat;
     }
     
+    public static endiannessType getEndianness()
+    {
+        return endianness;
+    }
+    
     public boolean isEventMsg(byte rawPacket[]) {
         ByteBuffer bb = ByteBuffer.wrap(rawPacket);
         int msgID = bb.getShort();
-        if(msgID == eventMsgID) {
+        // Partitions 2-4 add 0x0200, 0x0400, or 0x0600
+        if(msgID == eventMsgID 
+           || msgID == eventMsgID + (0x0200) 
+           || msgID == eventMsgID + (0x0400) 
+           || msgID == eventMsgID + (0x0600) ) {
             return true;
         }
         
@@ -174,8 +196,15 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         ByteBuffer bb = ByteBuffer.wrap(rawPacket);
         
         bb.position(6);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        
+        if(endianness == endiannessType.LITTLE_ENDIAN) {
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+        } else if(endianness == endiannessType.BIG_ENDIAN) {
+            bb.order(ByteOrder.BIG_ENDIAN);
+        } else
+        {
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+        }
+            
         long coarseTime = 0;
         long fineTime = 0;
 
@@ -243,10 +272,6 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     public void setTmSink(TmSink tmSink) {
         this.tmSink=tmSink;
     }
-    
-    
-    
-    
     
     public void sendCurrentStatus() {
         ByteBuffer bb = ByteBuffer.allocate(1000);
