@@ -30,16 +30,20 @@ import org.yamcs.time.TimeService;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.odysseysr.yamcs_tmtf.TMTFReader;
 
-public class CfsUdpTmProvider extends AbstractExecutionThreadService implements TmPacketDataLink,  SystemParametersProducer {
+public class CfsUdpTmProvider extends AbstractExecutionThreadService implements TmPacketDataLink, SystemParametersProducer {
+
+    /* Enumeration for timestamp format. */
     protected enum CfeTimeStampFormat {
         CFE_SB_TIME_32_16_SUBS,
         CFE_SB_TIME_32_32_SUBS,
         CFE_SB_TIME_32_32_M_20
     }
+    /* Enumeration for endianness. */
     protected enum endiannessType {
         LITTLE_ENDIAN,
         BIG_ENDIAN
     }
+
     protected volatile long packetcount = 0;
     protected DatagramSocket tmSocket;
     protected String host="localhost";
@@ -60,7 +64,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     private ArrayList<byte[]> packetArray = new ArrayList<byte[]>();
 
     private TMTFReader tmtfReader = new TMTFReader();
-	private int CFE_EVS_DEBUG_BIT       = 0x0001;
+    private int CFE_EVS_DEBUG_BIT       = 0x0001;
     private int CFE_EVS_INFORMATION_BIT = 0x0002;
     private int CFE_EVS_ERROR_BIT       = 0x0004;
     private int CFE_EVS_CRITICAL_BIT    = 0x0008;
@@ -73,38 +77,58 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     final String name;
     final TimeService timeService;
 
-    protected CfsUdpTmProvider(String instance, String name) {// dummy constructor needed by subclass constructors
+    /* Dummy constructor needed by subclass constructors. */
+    protected CfsUdpTmProvider(String instance, String name) {
         this.yamcsInstance = instance;
         this.name = name;
         this.timeService = YamcsServer.getTimeService(instance);
-        
-        eventProducer=EventProducerFactory.getEventProducer(this.yamcsInstance);
+
+        eventProducer = EventProducerFactory.getEventProducer(this.yamcsInstance);
         eventProducer.setSource("CFS");
     }
 
-    public CfsUdpTmProvider(String instance, String name, String spec) throws ConfigurationException  {
+    /* Constructor. */
+    public CfsUdpTmProvider(String instance, String name, String spec) throws ConfigurationException {
         this.yamcsInstance = instance;
         this.name = name;
-
-        YConfiguration c=YConfiguration.getConfiguration("cfs");
-        String strTimestampFormat = c.getString(spec, "timestampFormat");
-        String strEndianness = c.getString(spec, "endianness");
-        host=c.getString(spec, "tmHost");
-
-        port=c.getInt(spec, "tmPort");
-        System.out.println(port+"");
         this.timeService = YamcsServer.getTimeService(instance);
-        OS_MAX_API_NAME=c.getInt(spec, "OS_MAX_API_NAME");
-        deframeTMTFMessages = c.getBoolean(spec,"framingEnabled");
-        TMTFReader.MAX_MESSAGE_LENGTH = c.getInt(spec,"framingMaxMessageLength");
-        TMTFReader.FECF_FLAG = c.getBoolean(spec,"FECF_flag");
-        TMTFReader.FECF_LENGTH = c.getInt(spec,"FECF_length");
-        TMTFReader.TMTF_HEADER_START = c.getInt(spec,"TMTFHeaderStart");
-        TMTFReader.OCF_LENGTH = c.getInt(spec,"OCF_length");
-        TMTFReader.CCSDS_HEADER_LENGTH = c.getInt(spec,"CCSDSHeaderLength");
-        TMTFReader.TMTF_HEADER_LENGTH = c.getInt(spec,"TMTFHeaderLength");
-        gndSystemApid=(short)c.getInt(spec, "gndSysApid");
+        eventProducer = EventProducerFactory.getEventProducer(this.yamcsInstance);
 
+        /* Load the cfs.yaml configuration file. */
+        YConfiguration c = YConfiguration.getConfiguration("cfs");
+        /* Get the timestamp format as a string. */
+        String strTimestampFormat = c.getString(spec, "timestampFormat");
+        /* Get the endianness as a string. */
+        String strEndianness = c.getString(spec, "endianness");
+        /* Get the host IP. */
+        host = c.getString(spec, "tmHost");
+        /* Get the telemetry port. */
+        port = c.getInt(spec, "tmPort");
+        /* Print the telemetry port. */
+        System.out.println(port+"");
+        /* Get the value for CFS OS max app name length. */
+        OS_MAX_API_NAME = c.getInt(spec, "OS_MAX_API_NAME");
+        /* Get the ground system APID. */
+        gndSystemApid = (short)c.getInt(spec, "gndSysApid");
+
+        /* Get framing enabled/disabled. */
+        deframeTMTFMessages = c.getBoolean(spec,"framingEnabled");
+        /* Get max message length. */
+        TMTFReader.MAX_MESSAGE_LENGTH = c.getInt(spec,"framingMaxMessageLength");
+        /* Frame Error Control Field (FECF) flag.  */
+        TMTFReader.FECF_FLAG = c.getBoolean(spec,"FECF_flag");
+        /* Frame Error Control Field (FECF) length.  */
+        TMTFReader.FECF_LENGTH = c.getInt(spec,"FECF_length");
+        /* Header start position. */
+        TMTFReader.TMTF_HEADER_START = c.getInt(spec,"TMTFHeaderStart");
+        /* Operational control field length. */
+        TMTFReader.OCF_LENGTH = c.getInt(spec,"OCF_length");
+        /* CCSDS header length. */
+        TMTFReader.CCSDS_HEADER_LENGTH = c.getInt(spec,"CCSDSHeaderLength");
+        /* TMTF header length. */
+        TMTFReader.TMTF_HEADER_LENGTH = c.getInt(spec,"TMTFHeaderLength");
+
+        /* Decode timestamp format. */
         if(strTimestampFormat.equals("CFE_SB_TIME_32_16_SUBS")) {
             this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_16_SUBS;
             this.timestampLength = 6;
@@ -119,7 +143,8 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
             this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_32_SUBS;
             this.timestampLength = 8;
         }
-        
+
+        /* Decode endianness. */
         if(strEndianness.equals("LITTLE_ENDIAN")) {
             this.endianness = endiannessType.LITTLE_ENDIAN;
         } else if(strEndianness.equals("BIG_ENDIAN")) {
@@ -128,24 +153,25 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
             log.warn("endianness not defined or is incorrect, using the default value LITTLE_ENDIAN");
             this.endianness = endiannessType.LITTLE_ENDIAN;
         }
-        
-        eventProducer=EventProducerFactory.getEventProducer(this.yamcsInstance);
     }
-    
+
+    /* Getter for time stamp format configuration. */
     public static CfeTimeStampFormat getTimeStampFormat()
     {
         return timestampFormat;
     }
-    
+
+    /* Getter for endianness configuration. */
     public static endiannessType getEndianness()
     {
         return endianness;
     }
-    
+
+    /* Determines if a message is an CFE EVS event message. */
     public boolean isEventMsg(byte rawPacket[]) {
         ByteBuffer bb = ByteBuffer.wrap(rawPacket);
         int msgID = bb.getShort();
-        // Partitions 2-4 add 0x0200, 0x0400, or 0x0600
+        /* Partitions 2-4 add 0x0200, 0x0400, or 0x0600 */
         if(msgID == eventMsgID 
            || msgID == eventMsgID + (0x0200) 
            || msgID == eventMsgID + (0x0400) 
@@ -191,7 +217,8 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         uint8   Spare2;                              
     } CFE_EVS_Packet_t;
     */
-    
+
+    /* Process an event message for the event viewer. */
     public void ProcessEventMsg(byte rawPacket[]) {
         ByteBuffer bb = ByteBuffer.wrap(rawPacket);
         
@@ -270,7 +297,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     }
 
     public void setTmSink(TmSink tmSink) {
-        this.tmSink=tmSink;
+        this.tmSink = tmSink;
     }
     
     public void sendCurrentStatus() {
@@ -307,14 +334,10 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
             }
         }
         bb.put((byte)0);
-        
         /* Vehicle telemetry port. */
         bb.putInt(port);
-        
         PacketWithTime pkt = new PacketWithTime(timeService.getMissionTime(), CfsTlmPacket.getInstant(bb), bb.array());
-        
         tmSink.processPacket(pkt);
-
     }
 
     public void run() {
@@ -335,35 +358,37 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         }
     }
 
-    
     public void refreshPacketArray() throws IOException {
         byte rawFrame[] = new byte[65535];
         int length;
         length = readWithBlocking(rawFrame,0,65535);
         ArrayList<byte[]> containedPackets = new ArrayList<byte[]>();
         try {
-        	containedPackets= tmtfReader.deframeFrame(rawFrame, length);
-        	// sign that the TMTFReader is out of sync with the messages. New one needed
-        	if (containedPackets == null) {
-        		log.warn("Skip in VC frame count detected. Frames have been lost. All partial data discarded.");
-        		tmtfReader = new TMTFReader();
-        		containedPackets = tmtfReader.deframeFrame(rawFrame, length);
-        		// if it is still null, the frame is invalid and needs to be skipped
-        	}
-        	
+            containedPackets = tmtfReader.deframeFrame(rawFrame, length);
+            /* Sign that the TMTFReader is out of sync with the messages. New one needed. */
+            if (containedPackets == null) {
+                log.warn("Skip in VC frame count detected. Frames have been lost. All partial data discarded.");
+                tmtfReader = new TMTFReader();
+                containedPackets = tmtfReader.deframeFrame(rawFrame, length);
+                /* if it is still null, the frame is invalid and needs to be skipped */
+            }
         } catch (Exception e) {
-        	// This is a bad programming practice but it is highly probable that
-        	// an error may occur here. That does not deserve the death of the 
-        	// stack but rather simply another try next time. 
-        	e.printStackTrace();
+            // This is a bad programming practice but it is highly probable that
+            // an error may occur here. That does not deserve the death of the 
+            // stack but rather simply another try next time. 
+            e.printStackTrace();
         }
-        if (containedPackets!=null) {
-        	packetArray.addAll(containedPackets);
+        if (containedPackets != null) {
+            packetArray.addAll(containedPackets);
         }
     }
+
     public PacketWithTime getNextPacket() {
-        ByteBuffer bb=null;
+        ByteBuffer bb = null;
+        int bytesReceived = 0;
+
         while (isRunning()) {
+            bytesReceived = 0;
             while(disabled) {
                 if(!isRunning()) return null;
                 try {
@@ -379,23 +404,17 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                     log.info("TM connection established to "+host+" port "+port);
                 } 
                 byte rawPacket[] = new byte[65535];
-                int bytesReceived;
+                /* If framing is enabled. */
                 if (this.deframeTMTFMessages) {
-	                if (!(packetArray.size()>0)) {
-	                	refreshPacketArray();
-	                	if (!(packetArray.size()>0)) {
-	                		continue;
-	                	}
-	                }
-		            rawPacket = packetArray.get(0); 
-		            bytesReceived = packetArray.get(0).length;
-		            packetArray.remove(0);
+                    bytesReceived = readWithFraming(rawPacket);
                 }else {
-                	bytesReceived = readWithBlocking(rawPacket,0,65535);
+                    bytesReceived = readWithBlocking(rawPacket,0,65535);
                 }
                 
                 if(bytesReceived <= 0)
+                {
                     continue;
+                }
 
                 rawPacket = Arrays.copyOf(rawPacket, bytesReceived);
 
@@ -448,6 +467,21 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         DatagramPacket packet = new DatagramPacket(b, pos, n); //, address);
         tmSocket.receive(packet);
         return packet.getLength();
+    }
+
+    protected int readWithFraming(byte[] b) throws IOException {
+        int receivedLength = 0;
+
+        if (!(packetArray.size()>0)) {
+            refreshPacketArray();
+            if (!(packetArray.size()>0)) {
+                return 0;
+            }
+        }
+        b = packetArray.get(0); 
+        receivedLength = packetArray.get(0).length;
+        packetArray.remove(0);
+        return receivedLength;
     }
 
     public String getLinkStatus() {
@@ -518,14 +552,5 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         org.yamcs.parameter.ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
         return Arrays.asList(linkStatus, dataCount);
     }
-    
-    public boolean isDeframeTMTFMessages() {
-		return deframeTMTFMessages;
-	}
-
-	public void setDeframeTMTFMessages(boolean deframeTMTFMessages) {
-		this.deframeTMTFMessages = deframeTMTFMessages;
-	}
-
 }
 
