@@ -358,17 +358,18 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         }
     }
 
-    public void refreshPacketArray(byte[] b, int n) throws IOException {
+    public void refreshPacketArray() throws IOException {
+        byte rawFrame[] = new byte[65535];
         int length;
-        length = readWithBlocking(rawFrame,0,n);
+        length = readWithBlocking(rawFrame,0,65535);
         ArrayList<byte[]> containedPackets = new ArrayList<byte[]>();
         try {
-            containedPackets = tmtfReader.deframeFrame(b, length);
+            containedPackets = tmtfReader.deframeFrame(rawFrame, length);
             /* Sign that the TMTFReader is out of sync with the messages. New one needed. */
             if (containedPackets == null) {
                 log.warn("Skip in VC frame count detected. Frames have been lost. All partial data discarded.");
                 tmtfReader = new TMTFReader();
-                containedPackets = tmtfReader.deframeFrame(b, length);
+                containedPackets = tmtfReader.deframeFrame(rawFrame, length);
                 /* if it is still null, the frame is invalid and needs to be skipped */
             }
         } catch (Exception e) {
@@ -405,7 +406,15 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                 byte rawPacket[] = new byte[65535];
                 /* If framing is enabled. */
                 if (this.deframeTMTFMessages) {
-                    bytesReceived = readWithFraming(rawPacket);
+                    if (!(packetArray.size()>0)) {
+                        refreshPacketArray();
+                        if (!(packetArray.size()>0)) {
+                            continue;
+                        }
+                    }
+                    rawPacket = packetArray.get(0); 
+                    bytesReceived = packetArray.get(0).length;
+                    packetArray.remove(0);
                 }else {
                     bytesReceived = readWithBlocking(rawPacket,0,65535);
                 }
@@ -466,21 +475,6 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         DatagramPacket packet = new DatagramPacket(b, pos, n); //, address);
         tmSocket.receive(packet);
         return packet.getLength();
-    }
-
-    protected int readWithFraming(byte[] b, int n) throws IOException {
-        int receivedLength = 0;
-
-        if (!(packetArray.size() > 0)) {
-            refreshPacketArray(b, n);
-            if (!(packetArray.size() > 0)) {
-                return 0;
-            }
-        }
-        b = packetArray.get(0); 
-        receivedLength = packetArray.get(0).length;
-        packetArray.remove(0);
-        return receivedLength;
     }
 
     public String getLinkStatus() {
