@@ -113,8 +113,15 @@ public class TMTFReader{
         // Initialize the header based off the first 6 octets of the message
         TMTFHeader header = createHeader(message);
         
-        if (!ensureValidFrame(message,messagelength, header)) return packets;
-        if (hasMissedPackets(header)) return null;
+        if (!ensureValidFrame(message,messagelength, header)) 
+        {
+            return packets;
+        }
+
+        if (hasMissedPackets(header)) 
+        {
+            return null;
+        }
         this.totalFrameCount++;
 
         byte[] data = getDataFromMessage(message, messagelength);
@@ -201,17 +208,21 @@ public class TMTFReader{
         return false;
     }
 
-    public boolean ensureValidFrame(byte[] message, int messagelength, TMTFHeader header){
-        if (message.length<(TMTF_HEADER_LENGTH + CCSDS_HEADER_LENGTH)) {
-            log.warn("Invalid message recived. Length: "+messagelength);
+    public boolean ensureValidFrame(byte[] message, int messagelength, TMTFHeader header) {
+        if (message.length < (TMTF_HEADER_LENGTH + CCSDS_HEADER_LENGTH)) {
+            log.warn("Invalid message recived. Length: " + messagelength);
             return false;
         }
         // Packet must have data
-        if (header.noDataInMessage || header.onlyIdleData) return false;
-        
+        if (header.noDataInMessage || header.onlyIdleData) 
+        {
+            return false;
+        }
         // sync flag must be 0
-        if (header.syncFlag) return false;
-        
+        if (header.syncFlag) 
+        {
+            return false;
+        }
         // TODO: implement more validity checks
         return true;
     }

@@ -358,18 +358,17 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         }
     }
 
-    public void refreshPacketArray() throws IOException {
-        byte rawFrame[] = new byte[65535];
+    public void refreshPacketArray(byte[] b, int n) throws IOException {
         int length;
-        length = readWithBlocking(rawFrame,0,65535);
+        length = readWithBlocking(rawFrame,0,n);
         ArrayList<byte[]> containedPackets = new ArrayList<byte[]>();
         try {
-            containedPackets = tmtfReader.deframeFrame(rawFrame, length);
+            containedPackets = tmtfReader.deframeFrame(b, length);
             /* Sign that the TMTFReader is out of sync with the messages. New one needed. */
             if (containedPackets == null) {
                 log.warn("Skip in VC frame count detected. Frames have been lost. All partial data discarded.");
                 tmtfReader = new TMTFReader();
-                containedPackets = tmtfReader.deframeFrame(rawFrame, length);
+                containedPackets = tmtfReader.deframeFrame(b, length);
                 /* if it is still null, the frame is invalid and needs to be skipped */
             }
         } catch (Exception e) {
@@ -469,12 +468,12 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         return packet.getLength();
     }
 
-    protected int readWithFraming(byte[] b) throws IOException {
+    protected int readWithFraming(byte[] b, int n) throws IOException {
         int receivedLength = 0;
 
-        if (!(packetArray.size()>0)) {
-            refreshPacketArray();
-            if (!(packetArray.size()>0)) {
+        if (!(packetArray.size() > 0)) {
+            refreshPacketArray(b, n);
+            if (!(packetArray.size() > 0)) {
                 return 0;
             }
         }
