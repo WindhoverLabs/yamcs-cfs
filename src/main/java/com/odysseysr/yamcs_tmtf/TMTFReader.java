@@ -87,10 +87,11 @@ public class TMTFReader{
     public static boolean FECF_FLAG = false;
     public static int MAX_MESSAGE_LENGTH = 5000;
     
-    protected Logger log=LoggerFactory.getLogger(this.getClass().getName());
+    protected Logger log = LoggerFactory.getLogger(this.getClass().getName());
     
     boolean process = true;
-    
+
+    /* Constructor. */
     public TMTFReader(){
     
     }
@@ -323,7 +324,7 @@ public class TMTFReader{
         return result;
     }
 
-    public byte[] grabFromArray(byte[] arry, int start, int end){
+    public byte[] grabFromArray(byte[] arry, int start, int end) {
         return Arrays.copyOfRange(arry, start, end);
     }
 

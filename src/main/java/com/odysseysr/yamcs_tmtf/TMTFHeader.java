@@ -4,13 +4,12 @@
 package com.odysseysr.yamcs_tmtf;
 
 import java.nio.ByteBuffer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TMTFHeader{
+public class TMTFHeader {
 
-    protected Logger log=LoggerFactory.getLogger(this.getClass().getName());
+    protected Logger log = LoggerFactory.getLogger(this.getClass().getName());
     int TFVersion;
     int SCID;
     int VCID;
@@ -27,18 +26,20 @@ public class TMTFHeader{
     int secondaryHeaderLength = -1;
     boolean noDataInMessage=false;
     boolean onlyIdleData=false;
-    
-    public TMTFHeader(byte[] header){
+
+    /* Constructor. */
+    public TMTFHeader(byte[] header) {
         ByteBuffer b = ByteBuffer.wrap(header);
         initialize(b);
     }
 
-    public TMTFHeader(ByteBuffer header){
+    /* Constructor. */
+    public TMTFHeader(ByteBuffer header) {
         initialize(header);
     }
 
-    private void initialize(ByteBuffer b){
-        if (b.array().length != TMTFReader.TMTF_HEADER_LENGTH){
+    private void initialize(ByteBuffer b) {
+        if (b.array().length != TMTFReader.TMTF_HEADER_LENGTH) {
             log.warn("TMTFHeader.initialize(..) failed. Incorrect buffer length.");
         }
         /* TODO: Add checks to assure reasonable data was read. */
@@ -73,10 +74,13 @@ public class TMTFHeader{
      * Frame count: stored at both 6 and 7 (identical 0-0xFF) 
     */
 
-    public boolean isDataValid(){
-        // CCSDS 132.0-B-2 (4.1.2.2.2)
-        if (this.TFVersion != 0) return false;
-        // TODO : Implement more checks
+    public boolean isDataValid() {
+        /* CCSDS 132.0-B-2 (4.1.2.2.2). */
+        if (this.TFVersion != 0) 
+        {
+            return false;
+        }
+        /* TODO : Implement more checks. */
         return true;
     }
 
