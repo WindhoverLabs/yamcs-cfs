@@ -178,7 +178,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
            || msgID == eventMsgID + (0x0600) ) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -221,33 +221,35 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     /* Process an event message for the event viewer. */
     public void ProcessEventMsg(byte rawPacket[]) {
         ByteBuffer bb = ByteBuffer.wrap(rawPacket);
-        
+
         bb.position(6);
+        /* Check target endianness configuration. */
         if(endianness == endiannessType.LITTLE_ENDIAN) {
+            /* Set byte order as little endian. */
             bb.order(ByteOrder.LITTLE_ENDIAN);
         } else if(endianness == endiannessType.BIG_ENDIAN) {
+            /* Set byte order as big endian. */
             bb.order(ByteOrder.BIG_ENDIAN);
         } else
         {
             bb.order(ByteOrder.LITTLE_ENDIAN);
         }
-            
+
         long coarseTime = 0;
         long fineTime = 0;
 
+        /* Decode time format. */
         switch(timestampFormat) {
             case CFE_SB_TIME_32_16_SUBS: {
                 coarseTime = bb.getInt();
                 fineTime = bb.getShort();
                 break;
             }
-                
             case CFE_SB_TIME_32_32_SUBS: {
                 coarseTime = bb.getInt();
                 fineTime = bb.getInt();
                 break;
             }
-                
             case CFE_SB_TIME_32_32_M_20: {
                 coarseTime = bb.getInt();
                 fineTime = bb.getInt();
@@ -287,7 +289,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                 eventProducer.sendInfo("CRITICAL", "" + eventID + " / " + message);
             }
         } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
+            /* TODO Auto-generated catch block */
             e.printStackTrace();
         }
     }
@@ -373,9 +375,9 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                 /* if it is still null, the frame is invalid and needs to be skipped */
             }
         } catch (Exception e) {
-            // This is a bad programming practice but it is highly probable that
-            // an error may occur here. That does not deserve the death of the 
-            // stack but rather simply another try next time. 
+            /* This is a bad programming practice but it is highly probable that
+               an error may occur here. That does not deserve the death of the 
+               stack but rather simply another try next time. */
             e.printStackTrace();
         }
         if (containedPackets != null) {
@@ -416,16 +418,17 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                     bytesReceived = packetArray.get(0).length;
                     packetArray.remove(0);
                 }else {
+                    /* Framing is disabled. */
                     bytesReceived = readWithBlocking(rawPacket,0,65535);
                 }
-                
+
                 if(bytesReceived <= 0)
                 {
                     continue;
                 }
 
                 rawPacket = Arrays.copyOf(rawPacket, bytesReceived);
-
+                /* If the packet is an event message. */
                 if(isEventMsg(rawPacket)) {
                     ProcessEventMsg(rawPacket);
                 }

@@ -25,7 +25,7 @@ public class TMTFHeader{
     int segmentLengthID;
     int firstHeaderPointer;
     int secondaryHeaderLength = -1;
-    boolean noDataInMessage=false;;
+    boolean noDataInMessage=false;
     boolean onlyIdleData=false;
     
     public TMTFHeader(byte[] header){
@@ -41,8 +41,8 @@ public class TMTFHeader{
         if (b.array().length != TMTFReader.TMTF_HEADER_LENGTH){
             log.warn("TMTFHeader.initialize(..) failed. Incorrect buffer length.");
         }
-        // TODO: Add checks to assure reasonable data was read. 
-        // EX: TFVersion can only be within the range of 0-4. ((~0x3F)>>6)
+        /* TODO: Add checks to assure reasonable data was read. */
+        /* EX: TFVersion can only be within the range of 0-4. ((~0x3F)>>6) */
         TFVersion = readTFVersion(b);
         SCID = readSCID(b);
         VCID = readVCID(b);
@@ -80,72 +80,82 @@ public class TMTFHeader{
         return true;
     }
 
-    private int readTFVersion(ByteBuffer message){
+    /* Read Transfer Frame Version Number (TFVN). */
+    private int readTFVersion(ByteBuffer message) {
         return ((message.get(0) & (~0x3F)) >>> 6);
     }
 
-    private int readSCID(ByteBuffer message){
+    /* Read Spacecraft Identifier (SCID). */
+    private int readSCID(ByteBuffer message) {
         return (int)((short)(message.get(0) & (~0xC0)) << 4) |
             ((message.get(1) & (~0x0F)) >>> 4); 
     }
 
-    private int readVCID(ByteBuffer message){
+    /* Virtual Channel Identifier (VCID). */
+    private int readVCID(ByteBuffer message) {
         return ((message.get(1) & (~0xF1)) >>> 1);
     }
 
-    private boolean readOCFFlag(ByteBuffer message){
+    /* Read Operational Control Field (OCF) Flag. */
+    private boolean readOCFFlag(ByteBuffer message) {
         return (message.get(1) & (~0x01)) == 1 ? true : false;
     }
 
-    private int readMCID(ByteBuffer message){
-        // as implemented in tmtf.c
+    /* Read Master Channel Identifier (MCID). */
+    private int readMCID(ByteBuffer message) {
+        /* as implemented in tmtf.c */
         return (message.get(0) << 8 | message.get(1) >>> 4);
     }
 
-    private int readGVID(ByteBuffer message){
-        // as implemented in tmtf.c
+    /* Read Global Virtual Channel Identifier (GVCID). */
+    private int readGVID(ByteBuffer message) {
+        /* as implemented in tmtf.c */
         return (message.get(0) << 8 | message.get(1) & 0xFE);
     }
 
-    private int readMcFrameCount(ByteBuffer message){
+    /* Read Master Channel frame count. */
+    private int readMcFrameCount(ByteBuffer message) {
         return ((message.get(2) & 0xFF));
     }
 
-    private int readVcFrameCount(ByteBuffer message){
+    /* Read Virtual Channel frame count. */
+    private int readVcFrameCount(ByteBuffer message) {
         return ((message.get(3) & 0xFF));
     }
 
-    private boolean readSecondaryHeaderFlag(ByteBuffer message){
+    /* Read secondary header flag. */
+    private boolean readSecondaryHeaderFlag(ByteBuffer message) {
         return ((message.get(4) & 0x80) >>> 7) == 1 ? true : false;
     }
 
-    private boolean readSyncFlag(ByteBuffer message){
+    /* Read sync flag. */
+    private boolean readSyncFlag(ByteBuffer message) {
         return ((message.get(4) & 0x40) >>> 6) == 1 ? true : false;
     }
 
-    private boolean readPacketOrderFlag(ByteBuffer message){
+    /* Read packet order flag. */
+    private boolean readPacketOrderFlag(ByteBuffer message) {
         return ((message.get(4) & (~0xDF) >>> 5)) == 1 ? true : false;
     }
 
-    private int readSegmentLengthID(ByteBuffer message){
+    /* Read segment length identifier. */
+    private int readSegmentLengthID(ByteBuffer message) {
         return ((message.get(4) & (~0xE7) >>> 3));
     }
 
-    private int readFirstHeaderPointer(ByteBuffer message){
+    /* Read first header pointer field. */
+    private int readFirstHeaderPointer(ByteBuffer message) {
         return ((short)(message.get(4) & (~0xF8)) << 8) | 
             (short)(message.get(5) & 0xFF); 
     }
 
-    private int readSecondaryHeaderLength(byte message){
+    /* Read secondary header length field. */
+    private int readSecondaryHeaderLength(byte message) {
         return (message & (0x3F));
     }
 
-    /**
-     * FIXME: unimplemented
-     * @return 0
-     * @deprecated
-     */
-    private int readCRC(ByteBuffer message){
+    /* TODO Read Frame Error Control Field (FECF). */
+    private int readFECF(ByteBuffer message) {
         return 0;
     }
 }
