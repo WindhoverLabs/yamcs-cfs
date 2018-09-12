@@ -46,16 +46,16 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
 
     protected volatile long packetcount = 0;
     protected DatagramSocket tmSocket;
-    protected String host="localhost";
-    protected int port=10031;
+    protected String host = "localhost";
+    protected int port = 10031;
     protected static CfeTimeStampFormat timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_32_SUBS;
     protected static endiannessType endianness = endiannessType.LITTLE_ENDIAN;
     protected int timestampLength = 8;
-    protected volatile boolean disabled=false;
+    protected volatile boolean disabled = false;
     protected EventProducer eventProducer;
     protected int eventMsgID = 0x0808;
     protected boolean deframeTMTFMessages = true;
-    protected Logger log=LoggerFactory.getLogger(this.getClass().getName());
+    protected Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private TmSink tmSink;
     private int CFE_SB_TLM_HDR_SIZE = 6;
     private int OS_MAX_API_NAME = 20;
@@ -71,7 +71,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     
     private SystemParametersCollector sysParamCollector;
     ParameterValue svConnectionStatus;
-    List<ParameterValue> sysVariables= new ArrayList<ParameterValue>();
+    List<ParameterValue> sysVariables = new ArrayList<ParameterValue>();
     private String sv_linkStatus_id, sp_dataCount_id;
     final String yamcsInstance;
     final String name;
@@ -171,11 +171,11 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     public boolean isEventMsg(byte rawPacket[]) {
         ByteBuffer bb = ByteBuffer.wrap(rawPacket);
         int msgID = bb.getShort();
-        /* Partitions 2-4 add 0x0200, 0x0400, or 0x0600 */
+        /* Partitions 2-4 add 0x0200, 0x0400, or 0x0600. */
         if(msgID == eventMsgID 
            || msgID == eventMsgID + (0x0200) 
            || msgID == eventMsgID + (0x0400) 
-           || msgID == eventMsgID + (0x0600) ) {
+           || msgID == eventMsgID + (0x0600)) {
             return true;
         }
 
@@ -354,8 +354,8 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
             //{
             //    log.info("Thread.sleep or sendCurrentStatus failed.");
             //}
-            PacketWithTime pwrt=getNextPacket();
-            if(pwrt==null) break;
+            PacketWithTime pwrt = getNextPacket();
+            if(pwrt == null) break;
             tmSink.processPacket(pwrt);
         }
     }
@@ -363,7 +363,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     public void refreshPacketArray() throws IOException {
         byte rawFrame[] = new byte[65535];
         int length;
-        length = readWithBlocking(rawFrame,0,65535);
+        length = readWithBlocking(rawFrame, 0, 65535);
         ArrayList<byte[]> containedPackets = new ArrayList<byte[]>();
         try {
             containedPackets = tmtfReader.deframeFrame(rawFrame, length);
@@ -401,16 +401,16 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                 }
             }
             try {
-                if (tmSocket==null) {
+                if (tmSocket == null) {
                     openSocket();
-                    log.info("TM connection established to "+host+" port "+port);
+                    log.info("TM connection established to " + host + " port " + port);
                 } 
                 byte rawPacket[] = new byte[65535];
                 /* If framing is enabled. */
                 if (this.deframeTMTFMessages) {
-                    if (!(packetArray.size()>0)) {
+                    if (!(packetArray.size() > 0)) {
                         refreshPacketArray();
-                        if (!(packetArray.size()>0)) {
+                        if (!(packetArray.size() > 0)) {
                             continue;
                         }
                     }
@@ -419,7 +419,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                     packetArray.remove(0);
                 }else {
                     /* Framing is disabled. */
-                    bytesReceived = readWithBlocking(rawPacket,0,65535);
+                    bytesReceived = readWithBlocking(rawPacket, 0, 65535);
                 }
 
                 if(bytesReceived <= 0)
@@ -445,18 +445,22 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                 packetcount++;
                 break;
             } catch (IOException e) {
-                log.info("Cannot open or read from TM socket at "+host+":"+port+": "+e+"; retrying in 10 seconds.");
-                try {tmSocket.close();} catch (Exception e2) {}
-                tmSocket=null;
+                log.info("Cannot open or read from TM socket at " + host + ":" + port + ": " + e + "; retrying in 10 seconds.");
+                try {
+                    tmSocket.close();
+                } catch (Exception e2) {
+                
+                }
+                tmSocket = null;
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e1) {
-                    log.warn("exception "+ e1.toString()+" thrown when sleeping 10 sec");
+                    log.warn("exception " + e1.toString() + " thrown when sleeping 10 sec");
                     return null;
                 }
             }
         }
-        if(bb!=null) {
+        if(bb != null) {
             return new PacketWithTime(timeService.getMissionTime(), CfsTlmPacket.getInstant(bb), bb.array());
         } 
         return null;
@@ -482,7 +486,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
 
     public String getLinkStatus() {
         if (disabled) return "DISABLED";
-        if (tmSocket==null) {
+        if (tmSocket == null) {
             return "UNAVAIL";
         } else {
             return "OK";
@@ -491,22 +495,22 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
 
     @Override
     public void triggerShutdown() {
-        if(tmSocket!=null) {
+        if(tmSocket != null) {
             tmSocket.close();
-            tmSocket=null;
+            tmSocket = null;
         }
     }
 
     public void disable() {
-        disabled=true;
-        if(tmSocket!=null) {
+        disabled = true;
+        if(tmSocket != null) {
             tmSocket.close();
-            tmSocket=null;
+            tmSocket = null;
         }
     }
 
     public void enable() {
-        disabled=false;
+        disabled = false;
     }
 
     public boolean isDisabled() {
@@ -517,7 +521,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         if(disabled) {
             return String.format("DISABLED (should connect to %s:%d)", host, port);
         }
-        if (tmSocket==null) {
+        if (tmSocket == null) {
             return String.format("Not connected to %s:%d", host, port);
         } else {
             return String.format("OK, connected to %s:%d, received %d packets", host, port, packetcount);
@@ -531,12 +535,10 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
 
     protected void setupSysVariables() {
         this.sysParamCollector = SystemParametersCollector.getInstance(yamcsInstance);
-        if(sysParamCollector!=null) {
+        if(sysParamCollector != null) {
             sysParamCollector.registerProvider(this, null);
-            sv_linkStatus_id = sysParamCollector.getNamespace()+"/"+name+"/linkStatus";
-            sp_dataCount_id = sysParamCollector.getNamespace()+"/"+name+"/dataCount";
-
-
+            sv_linkStatus_id = sysParamCollector.getNamespace() + "/" + name + "/linkStatus";
+            sp_dataCount_id = sysParamCollector.getNamespace() + "/" + name + "/dataCount";
         } else {
             log.info("System variables collector not defined for instance {} ", yamcsInstance);
         }

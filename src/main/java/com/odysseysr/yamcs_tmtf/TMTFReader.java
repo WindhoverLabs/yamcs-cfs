@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * @see io_lib/../tmtf.c
  * 
  */
-public class TMTFReader{
+public class TMTFReader {
     // All of these variables are read in cfs.yaml and should be treated
     // like they are final (as indicated by the all-capitalized name)
     // Lengths of each header definition
@@ -86,13 +86,13 @@ public class TMTFReader{
     // must be the same as per the implementation on the framer. 
     public static boolean FECF_FLAG = false;
     public static int MAX_MESSAGE_LENGTH = 5000;
-    
+
     protected Logger log = LoggerFactory.getLogger(this.getClass().getName());
-    
+
     boolean process = true;
 
     /* Constructor. */
-    public TMTFReader(){
+    public TMTFReader() {
     
     }
     
@@ -103,13 +103,13 @@ public class TMTFReader{
     // Length needed to complete the packet (as outlined in its prior message)
     private int lengthNeeded = 0;
     // Count of the last Vc Frame (used for preventing frame loss) 
-    private int lastVcFrameCount=-1;
+    private int lastVcFrameCount = -1;
     // Count of total frames processes (used for initialization purposes)
-    private int totalFrameCount =0;
+    private int totalFrameCount = 0;
     // Determines whether the prior message had a CCSDS header that was placed at the end of the message
-    private boolean hadCCSDSHeaderOverflow=false;
-    
-    public ArrayList<byte[]> deframeFrame(byte[] message, int messagelength){
+    private boolean hadCCSDSHeaderOverflow = false;
+
+    public ArrayList<byte[]> deframeFrame(byte[] message, int messagelength) {
         ArrayList<byte[]> packets = new ArrayList<byte[]>();
         // Initialize the header based off the first 6 octets of the message
         TMTFHeader header = createHeader(message);
@@ -129,63 +129,63 @@ public class TMTFReader{
         int datalength = messagelength;
         datalength -= this.getServicesLength(header);
         int pos = 0;
-        pos=this.moveBySecondaryHeader(pos, header, data);
+        pos = this.moveBySecondaryHeader(pos, header, data);
         
         if (!hadOverflow) {
             pastMessage = null;
             pos = header.firstHeaderPointer;
         }
-        datalength-=TMTF_HEADER_START;
+        datalength -= TMTF_HEADER_START;
         
         int length;
         int endpos;
-        while (pos<datalength) {
+        while (pos < datalength) {
             if (pos+(CCSDS_HEADER_LENGTH+1) >= datalength) {
-                this.hadCCSDSHeaderOverflow=true;
-                this.hadOverflow=true;
-                this.lengthNeeded=datalength-pos;
+                this.hadCCSDSHeaderOverflow = true;
+                this.hadOverflow = true;
+                this.lengthNeeded = datalength - pos;
                 this.pastMessage = grabFromArray(data, pos, datalength);
                 return packets;
             }
             if (this.hadCCSDSHeaderOverflow) {
                 data = combineArrays(pastMessage, data);
                 pos = 0;
-                pos=this.moveBySecondaryHeader(pos, header, data);
+                pos = this.moveBySecondaryHeader(pos, header, data);
                 datalength += pastMessage.length;
-                this.hadCCSDSHeaderOverflow=false;
-                this.pastMessage=null;
-                this.hadOverflow=false;
+                this.hadCCSDSHeaderOverflow = false;
+                this.pastMessage = null;
+                this.hadOverflow = false;
             }
             length = getPacketLength(pos, data, datalength);
             if (length < 1 || length > MAX_MESSAGE_LENGTH) {
-                log.warn("Invalid message length. Larger than MAX_MESSAGE_LENGTH: "+length);
+                log.warn("Invalid message length. Larger than MAX_MESSAGE_LENGTH: " + length);
             }
             endpos = pos + length;
             if (endpos > datalength) {
                 hadOverflow = true;
-                lengthNeeded = endpos-datalength;
-                if (pastMessage!=null) {
-                    pastMessage = combineArrays(pastMessage, grabFromArray(data,pos,endpos-lengthNeeded));
+                lengthNeeded = endpos - datalength;
+                if (pastMessage != null) {
+                    pastMessage = combineArrays(pastMessage, grabFromArray(data, pos, endpos - lengthNeeded));
                 }else {
-                    pastMessage = grabFromArray(data, pos, endpos-lengthNeeded);
+                    pastMessage = grabFromArray(data, pos, endpos - lengthNeeded);
                 }
                 return packets;
             }else {
-                lengthNeeded=0;
-                hadOverflow=false;
+                lengthNeeded = 0;
+                hadOverflow = false;
             }
-            byte[] packet = createPacket(pos, data, endpos,datalength);
+            byte[] packet = createPacket(pos, data, endpos, datalength);
             //if (!isIdlePacket(packet)) {
                 packets.add(packet);
             //}
             pos = endpos;
         }
-        lengthNeeded=0;
-        hadOverflow=false;
+        lengthNeeded = 0;
+        hadOverflow = false;
         return packets;
     }
 
-    public int getServicesLength(TMTFHeader header){
+    public int getServicesLength(TMTFHeader header) {
         int length = 0;
         length += (TMTF_HEADER_START+TMTF_HEADER_LENGTH);
         if (header.OCFFlag) {
@@ -197,14 +197,14 @@ public class TMTFReader{
         return length;
     }
 
-    public boolean hasMissedPackets(TMTFHeader header){
+    public boolean hasMissedPackets(TMTFHeader header) {
         if (totalFrameCount == 0 ) {
-            this.lastVcFrameCount=header.VcFrameCount;
+            this.lastVcFrameCount = header.VcFrameCount;
         }else {
-            if (header.VcFrameCount != lastVcFrameCount+1) {
+            if (header.VcFrameCount != lastVcFrameCount + 1) {
                 return true;
             }
-            this.lastVcFrameCount=header.VcFrameCount == 255? -1 : header.VcFrameCount;
+            this.lastVcFrameCount = header.VcFrameCount == 255 ? -1 : header.VcFrameCount;
         }
         return false;
     }
@@ -231,10 +231,10 @@ public class TMTFReader{
     public byte[] createPacket(int pos, byte[] data, int endpos, int datalength){
         byte[] packet;
         if (pastMessage != null) {
-            packet = combineArrays(pastMessage, grabFromArray(data,pos,endpos));
+            packet = combineArrays(pastMessage, grabFromArray(data, pos, endpos));
             pastMessage = null;
-            hadOverflow=false;
-            lengthNeeded=0;
+            hadOverflow = false;
+            lengthNeeded = 0;
         } else {
             packet = grabFromArray(data, pos, endpos);
         }
@@ -248,20 +248,20 @@ public class TMTFReader{
      * @param datalength total length of the data (excludes start and end)
      * @return
      */
-    public int getPacketLength(int pos, byte[] data, int datalength){
+    public int getPacketLength(int pos, byte[] data, int datalength) {
         int length;
         
         if (hadOverflow) {
             length = lengthNeeded;
         }else {
-            byte[] packetHeader = grabFromArray(data, pos, pos+CCSDS_HEADER_LENGTH);
+            byte[] packetHeader = grabFromArray(data, pos, pos + CCSDS_HEADER_LENGTH);
             length = readCCSDSLength(packetHeader);
             length += CCSDS_HEADER_LENGTH;
         }
         return length;
     }
 
-    public int moveBySecondaryHeader(int pos, TMTFHeader header, byte[] data){
+    public int moveBySecondaryHeader(int pos, TMTFHeader header, byte[] data) {
         if (header.secondaryHeaderFlag) {
             log.warn("CfsTMTFReader is not prepared to deal with secondary header. Header Ignored.");
             header.initializeSecondaryHeaderLength(data[TMTF_HEADER_LENGTH]);
@@ -278,12 +278,12 @@ public class TMTFReader{
      * @see CCSDS Space Packet Protocol (4.1.2.5)
      * @param pheader header for space packet
      */
-    public int readCCSDSLength(byte[] pheader){
+    public int readCCSDSLength(byte[] pheader) {
         int val = 0;
         val = val | pheader[4] & 0xFF;
         val = val << 8;
         val = val | pheader[5] & 0xFF;
-        val+=1;
+        val += 1;
         return val;
     }
 
@@ -294,7 +294,7 @@ public class TMTFReader{
      * @see CCSDS Space Packet Protocol (4.1.2.3.4.4)
      * @param pHeader header for space packet
      */
-    public boolean isIdlePacket(byte[] pHeader){
+    public boolean isIdlePacket(byte[] pHeader) {
         int APID = 0;
         APID = pHeader[0] & 0x07;
         APID<<=8;
@@ -302,25 +302,25 @@ public class TMTFReader{
         return (APID == (2^11 - 1));
     }
 
-    public TMTFHeader createHeader(byte[] message){
+    public TMTFHeader createHeader(byte[] message) {
         byte[] header = new byte[TMTF_HEADER_LENGTH];
-        for (int i=0; i<TMTF_HEADER_LENGTH; i++) {
-            header[i]=message[i+TMTF_HEADER_START];
+        for (int i = 0; i < TMTF_HEADER_LENGTH; i++) {
+            header[i]=message[i + TMTF_HEADER_START];
         }
         return new TMTFHeader(header);
     }
 
-    public byte[] getDataFromMessage(byte[] message, int messagelength){
-        byte[] data = new byte[message.length-TMTF_HEADER_LENGTH];
-        for (int x=0; x<messagelength; x++) {
-            data[x] = message[x+TMTF_HEADER_START+TMTF_HEADER_LENGTH];
+    public byte[] getDataFromMessage(byte[] message, int messagelength) {
+        byte[] data = new byte[message.length - TMTF_HEADER_LENGTH];
+        for (int x = 0; x < messagelength; x++) {
+            data[x] = message[x + TMTF_HEADER_START + TMTF_HEADER_LENGTH];
         }
         return data;
     }
 
-    public byte[] combineArrays(byte[] a, byte[] b){
+    public byte[] combineArrays(byte[] a, byte[] b) {
         byte[] result = Arrays.copyOf(a, a.length + b.length);
-        System.arraycopy(b,0, result, a.length, b.length); 
+        System.arraycopy(b, 0, result, a.length, b.length); 
         return result;
     }
 

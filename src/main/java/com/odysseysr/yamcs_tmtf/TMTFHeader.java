@@ -149,7 +149,7 @@ public class TMTFHeader {
 
     /* Read first header pointer field. */
     private int readFirstHeaderPointer(ByteBuffer message) {
-        return ((short)(message.get(4) & (~0xF8)) << 8) | 
+        return ((short)(message.get(4) & (~0xF8)) << 8) |
             (short)(message.get(5) & 0xFF); 
     }
 
