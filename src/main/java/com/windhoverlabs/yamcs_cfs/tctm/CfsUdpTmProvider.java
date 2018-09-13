@@ -29,6 +29,8 @@ import org.yamcs.time.TimeService;
 
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.odysseysr.yamcs_tmtf.TMTFReader;
+import com.windhoverlabs.yamcs_cfs.tctm.CfsUdpTmFileTransfer;
+
 
 public class CfsUdpTmProvider extends AbstractExecutionThreadService implements TmPacketDataLink, SystemParametersProducer {
 
@@ -62,6 +64,12 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     private int CFE_EVS_MAX_MESSAGE_LENGTH = 122;
     private short gndSystemApid = 0;
     private ArrayList<byte[]> packetArray = new ArrayList<byte[]>();
+
+    private boolean fileTransferEnabled = true;
+    private int CF_SPACE_TO_GND_PDU_MID = 0x1FFE;
+    private String fileTransferAddress = "localhost";
+    private int fileTransferPort = 11111;
+    private CfsUdpTmFileTransfer filePipe;
 
     private TMTFReader tmtfReader = new TMTFReader();
     private int CFE_EVS_DEBUG_BIT       = 0x0001;
@@ -105,7 +113,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         /* Get the telemetry port. */
         port = c.getInt(spec, "tmPort");
         /* Print the telemetry port. */
-        System.out.println(port+"");
+        System.out.println(port + "");
         /* Get the value for CFS OS max app name length. */
         OS_MAX_API_NAME = c.getInt(spec, "OS_MAX_API_NAME");
         /* Get the ground system APID. */
@@ -114,19 +122,45 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         /* Get framing enabled/disabled. */
         deframeTMTFMessages = c.getBoolean(spec,"framingEnabled");
         /* Get max message length. */
-        TMTFReader.MAX_MESSAGE_LENGTH = c.getInt(spec,"framingMaxMessageLength");
+        TMTFReader.MAX_MESSAGE_LENGTH = c.getInt(spec, "framingMaxMessageLength");
         /* Frame Error Control Field (FECF) flag.  */
-        TMTFReader.FECF_FLAG = c.getBoolean(spec,"FECF_flag");
+        TMTFReader.FECF_FLAG = c.getBoolean(spec, "FECF_flag");
         /* Frame Error Control Field (FECF) length.  */
-        TMTFReader.FECF_LENGTH = c.getInt(spec,"FECF_length");
+        TMTFReader.FECF_LENGTH = c.getInt(spec, "FECF_length");
         /* Header start position. */
-        TMTFReader.TMTF_HEADER_START = c.getInt(spec,"TMTFHeaderStart");
+        TMTFReader.TMTF_HEADER_START = c.getInt(spec, "TMTFHeaderStart");
         /* Operational control field length. */
-        TMTFReader.OCF_LENGTH = c.getInt(spec,"OCF_length");
+        TMTFReader.OCF_LENGTH = c.getInt(spec, "OCF_length");
         /* CCSDS header length. */
-        TMTFReader.CCSDS_HEADER_LENGTH = c.getInt(spec,"CCSDSHeaderLength");
+        TMTFReader.CCSDS_HEADER_LENGTH = c.getInt(spec, "CCSDSHeaderLength");
         /* TMTF header length. */
-        TMTFReader.TMTF_HEADER_LENGTH = c.getInt(spec,"TMTFHeaderLength");
+        TMTFReader.TMTF_HEADER_LENGTH = c.getInt(spec, "TMTFHeaderLength");
+
+        try {
+            /* Get CF_SPACE_TO_GND_PDU_MID message ID. */
+            CF_SPACE_TO_GND_PDU_MID = c.getInt(spec, "CF_SPACE_TO_GND_PDU_MID");
+            /* Get the file transfer IP. */
+            fileTransferAddress = c.getString(spec, "cfTmHost");
+            /* Get the file transfer port. */
+            fileTransferPort = c.getInt(spec, "cfTmPort");
+        }
+        catch (Exception e) {
+            fileTransferEnabled = false;
+            log.warn("CFDP file transfer is not configured.");
+        }
+
+        if(fileTransferEnabled == true)
+        {
+            try {
+                filePipe = new CfsUdpTmFileTransfer(fileTransferPort, fileTransferAddress);
+                log.info("CF_SPACE_TO_GND_PDU_MID " + CF_SPACE_TO_GND_PDU_MID);
+                log.info("File transfer forwarding to " + fileTransferAddress + ":" + fileTransferPort);
+            }
+            catch (Exception e) {
+                fileTransferEnabled = false;
+                log.warn("CfsUdpTmFileTransfer constructor threw an exception.");
+            }
+        }
 
         /* Decode timestamp format. */
         if(strTimestampFormat.equals("CFE_SB_TIME_32_16_SUBS")) {
@@ -176,6 +210,21 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
            || msgID == eventMsgID + (0x0200) 
            || msgID == eventMsgID + (0x0400) 
            || msgID == eventMsgID + (0x0600)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /* Determines if a message is a CF (CFDP) PDU message. */
+    public boolean isFileTransferMsg(byte rawPacket[]) {
+        ByteBuffer bb = ByteBuffer.wrap(rawPacket);
+        int msgID = bb.getShort();
+        /* Partitions 2-4 add 0x0200, 0x0400, or 0x0600. */
+        if(msgID == eventMsgID 
+           || msgID == CF_SPACE_TO_GND_PDU_MID + (0x0200) 
+           || msgID == CF_SPACE_TO_GND_PDU_MID + (0x0400) 
+           || msgID == CF_SPACE_TO_GND_PDU_MID + (0x0600)) {
             return true;
         }
 
@@ -291,6 +340,17 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         } catch (UnsupportedEncodingException e) {
             /* TODO Auto-generated catch block */
             e.printStackTrace();
+        }
+    }
+
+    /* Process a file transfer message. */
+    public void ProcessFileTransferMsg(byte rawPacket[]) {
+        try {
+            filePipe.send(rawPacket);
+        }
+        catch (Exception e) {
+            fileTransferEnabled = false;
+            log.warn("File transfer send failed. File transfer disabled.");
         }
     }
 
@@ -432,8 +492,15 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                 if(isEventMsg(rawPacket)) {
                     ProcessEventMsg(rawPacket);
                 }
-
-                bb=ByteBuffer.allocate(bytesReceived + 4);
+            
+                if(fileTransferEnabled == true)
+                {               
+                    if(isFileTransferMsg(rawPacket)) {
+                        ProcessFileTransferMsg(rawPacket);
+                    }
+                }
+ 
+                bb = ByteBuffer.allocate(bytesReceived + 4);
                 bb.putInt(0);
                 bb.put(rawPacket);
                 bb.rewind();
