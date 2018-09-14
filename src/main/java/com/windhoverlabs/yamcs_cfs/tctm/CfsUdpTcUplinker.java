@@ -39,6 +39,10 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     protected String host="whirl";
     protected int port=10003;
     protected short gndSystemApid = 0;
+    private boolean fileTransferEnabled = true;
+    private int CF_INCOMING_PDU_MID = 0x0FFD;
+    private String fileTransferAddress = "localhost";
+    private int fileTransferPort = 22222;
     protected CommandHistoryPublisher commandHistoryListener;
     protected Selector selector; 
     SelectionKey selectionKey;
@@ -68,7 +72,32 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         } catch (ConfigurationException e) {
             log.debug("minimumTcPacketLength not defined, using the default value "+minimumTcPacketLength);
         }
-    
+
+        try {
+            /* Get CF_INCOMING_PDU_MID message ID. */
+            CF_INCOMING_PDU_MID = c.getInt(spec, "CF_INCOMING_PDU_MID");
+            /* Get the file transfer IP. */
+            fileTransferAddress = c.getString(spec, "cfTcHost");
+            /* Get the file transfer port. */
+            fileTransferPort = c.getInt(spec, "cfTcPort");
+        }
+        catch (Exception e) {
+            fileTransferEnabled = false;
+            log.warn("CFDP ground to space file transfer is not configured.");
+        }
+
+        if(fileTransferEnabled == true)
+        {
+            try {
+                /* Initialize CfsUdpTcFileTransfer here. */
+                log.info("CF_INCOMING_PDU_MID " + CF_INCOMING_PDU_MID);
+                log.info("File transfer forwarding to " + fileTransferAddress + ":" + fileTransferPort);
+            }
+            catch (Exception e) {
+                fileTransferEnabled = false;
+                log.warn("CfsUdpTmFileTransfer constructor threw an exception.");
+            }
+        }
         timeService = YamcsServer.getTimeService(yamcsInstance);
     }
 

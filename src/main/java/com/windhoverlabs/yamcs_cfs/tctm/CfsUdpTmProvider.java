@@ -146,7 +146,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         }
         catch (Exception e) {
             fileTransferEnabled = false;
-            log.warn("CFDP file transfer is not configured.");
+            log.warn("CFDP space to ground file transfer is not configured.");
         }
 
         if(fileTransferEnabled == true)
