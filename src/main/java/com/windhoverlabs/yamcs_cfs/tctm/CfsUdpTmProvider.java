@@ -221,7 +221,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         ByteBuffer bb = ByteBuffer.wrap(rawPacket);
         int msgID = bb.getShort();
         /* Partitions 2-4 add 0x0200, 0x0400, or 0x0600. */
-        if(msgID == eventMsgID 
+        if(msgID == CF_SPACE_TO_GND_PDU_MID 
            || msgID == CF_SPACE_TO_GND_PDU_MID + (0x0200) 
            || msgID == CF_SPACE_TO_GND_PDU_MID + (0x0400) 
            || msgID == CF_SPACE_TO_GND_PDU_MID + (0x0600)) {
@@ -497,6 +497,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
                 {               
                     if(isFileTransferMsg(rawPacket)) {
                         ProcessFileTransferMsg(rawPacket);
+                        log.info("Downlinking file transfer message to ground.");
                     }
                 }
  

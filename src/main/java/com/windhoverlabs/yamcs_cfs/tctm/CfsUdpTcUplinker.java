@@ -236,8 +236,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         
         /* Check to see if this command is for the CfsUdpTcUplinker plugin. */
         short msgID = bb.getShort();
-        log.info("**********************");
-        log.info("msgID = {}   gndSystemApid = {}", msgID, gndSystemApid);
+        log.info("Sending msgID = {}   gndSystemApid = {}", msgID, gndSystemApid);
         if(msgID == ((short)0x1800 | (short)gndSystemApid)) {
            /* This is for the plugin to execute directly. */
            sent = true;
@@ -313,6 +312,46 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         }
     }
 
+    public boolean sendFileTransferCommand(ByteBuffer bb, int retries)
+    {
+        boolean sent = false;
+
+        while (!sent&&(retries>0)) {
+            if (!isSocketOpen()) {
+                openSocket();
+            }
+
+            if(isSocketOpen()) {
+                try {
+                    datagramChannel.send(bb, new InetSocketAddress(host,port));
+                    datagramChannel.write(bb);
+                    sent = true;
+                } catch (IOException e) {
+                    log.warn("Error writing to TC socket to " + host + ":" + port + ": " + e.getMessage());
+                    try {
+                        if(datagramChannel.isOpen()) datagramChannel.close();
+                        selector.close();
+                        datagramChannel = null;
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                
+            }
+            retries--;
+            if(!sent && (retries > 0)) {
+                try {
+                    log.warn("Command not sent, retrying in 2 seconds");
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    log.warn("exception " + e.toString() + " thrown when sleeping 2 sec");
+                }
+            }
+        }
+    return sent;
+    }
+
+
     protected void handleAcks(CommandId cmdId, int seqCount ) {
         timer.schedule(new TcAck(cmdId,"Final_Sequence_Count", Integer.toString(seqCount)), 200, TimeUnit.MILLISECONDS);
         timer.schedule(new TcAckStatus(cmdId,"Acknowledge_FSC","ACK: OK"), 400, TimeUnit.MILLISECONDS);
@@ -364,30 +403,41 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     }
 
     public void run() {
-        byte buffer[] = new byte[65535];
 
         if(!isRunning() || disabled) return;
         if (!isSocketOpen()) {
             openSocket();
         }
+        /* Listen for file transfer uplink messages. */
+        listenForFileTransfer();
+    }
+
+    public void listenForFileTransfer() {
+        byte buffer[] = new byte[65535];
+        boolean sent = false;
+        final int retries = 5;
+
         while(isListeningFileTransfer)
         {
             try {
                 int outLength = filePipe.receive(buffer);
                 byte outBuffer[] = Arrays.copyOf(buffer, outLength);
-                log.info("File transfer uplinker received length " + outLength + " " + Arrays.toString(outBuffer));
+                log.info("Uplinking file transfer message from ground.");
                 /* Only forward file transfer messages. */
                 if(isFileTransferMsg(outBuffer))
                 {
-                    PreparedCommand pc = new PreparedCommand(outBuffer);
-                    this.sendTc(pc);
+                    sent = sendFileTransferCommand(ByteBuffer.wrap(outBuffer), retries);
+                    if(sent != true)
+                    {
+                        log.warn("Error sending file transfer uplink command.");
+                    }
                 }
             }
             catch (IOException e) {
                 log.warn("Error receiving file transfer commands, disabling.");
                 isListeningFileTransfer = false;
             }
-        }
+        } 
     }
 
     @Override
