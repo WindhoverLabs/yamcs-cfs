@@ -28,37 +28,40 @@ import org.yamcs.time.TimeService;
 import org.yamcs.utils.TimeEncoding;
 
 import com.google.common.util.concurrent.AbstractService;
+import com.windhoverlabs.yamcs_cfs.tctm.CfsUdpTcFileTransfer;
 
 /**
  * Sends raw ccsds packets on Tcp socket.
  * @author nm
  *
  */
-public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDataLink,  SystemParametersProducer {	
+public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDataLink,  SystemParametersProducer {
     protected DatagramChannel datagramChannel = null;
     protected String host = "whirl";
     protected int port = 10003;
     protected short gndSystemApid = 0;
     private boolean fileTransferEnabled = true;
+    private boolean isListening = true;
     private int CF_INCOMING_PDU_MID = 0x0FFD;
     private String fileTransferAddress = "localhost";
     private int fileTransferPort = 22222;
     protected CommandHistoryPublisher commandHistoryListener;
     protected Selector selector; 
     SelectionKey selectionKey;
-    protected CfsCcsdsSeqAndChecksumFiller seqAndChecksumFiller=new CfsCcsdsSeqAndChecksumFiller();
+    protected CfsCcsdsSeqAndChecksumFiller seqAndChecksumFiller = new CfsCcsdsSeqAndChecksumFiller();
     protected ScheduledThreadPoolExecutor timer;
     protected volatile boolean disabled = false;
     protected int minimumTcPacketLength = 48; //the minimum size of the CCSDS packets uplinked
     volatile long tcCount;
     private String sv_linkStatus_id, sp_dataCount_id;
-
+    private CfsUdpTcFileTransfer filePipe;
     private SystemParametersCollector sysParamCollector;
     protected Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private String yamcsInstance;
     private String name;
     TimeService timeService;
-    
+
+    /* Constructor. */
     public CfsUdpTcUplinker(String yamcsInstance, String name, String spec) throws ConfigurationException {
         YConfiguration c = YConfiguration.getConfiguration("cfs");
         this.yamcsInstance = yamcsInstance;
@@ -89,7 +92,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         if(fileTransferEnabled == true)
         {
             try {
-                /* Initialize CfsUdpTcFileTransfer here. */
+                filePipe = new CfsUdpTcFileTransfer(fileTransferPort, fileTransferAddress);
                 log.info("CF_INCOMING_PDU_MID " + CF_INCOMING_PDU_MID);
                 log.info("File transfer forwarding to " + fileTransferAddress + ":" + fileTransferPort);
             }
@@ -116,6 +119,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
             return TimeEncoding.fromUnixTime(System.currentTimeMillis());
         }
     }
+
     @Override
     protected void doStart() {
         setupSysVariables();
@@ -151,6 +155,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
             log.warn("Exception caught when checking if the socket to " + host + ":" + port + " is open:", e);
         }
     }
+
     /**
      * we check if the socket is open by trying a select on the read part of it
      * @return
@@ -203,7 +208,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         int newLength = pc.getBinary().length - 10;
         byte cfsCmd[] = new byte[newLength];
         cfsCmd = Arrays.copyOf(pc.getBinary(), newLength);
-        bb=ByteBuffer.allocate(newLength);
+        bb = ByteBuffer.allocate(newLength);
         bb.put(pc.getBinary(), 0, 6);
         bb.put(pc.getBinary(), 16, pc.getBinary().length - 16);
         bb.putShort(4, (short)(newLength - 7)); // fix packet length
@@ -344,9 +349,23 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     }
 
     public void run() {
+        byte buffer[] = new byte[65535];
+
         if(!isRunning() || disabled) return;
         if (!isSocketOpen()) {
             openSocket();
+        }
+        while(isListening)
+        {
+            try {
+                byte outBuffer[] = filePipe.receive(buffer);
+                PreparedCommand pc = new PreparedCommand(outBuffer);
+                this.sendTc(pc); 
+            }
+            catch (IOException e) {
+                log.warn("Error receiving file transfer commands, disabling.");
+                isListening = false;
+            }
         }
     }
 
@@ -392,11 +411,9 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         }
     }
 
-
     public long getDataCount() {
         return tcCount;
     }
-
 
     protected void setupSysVariables() {
         this.sysParamCollector = SystemParametersCollector.getInstance(yamcsInstance);
