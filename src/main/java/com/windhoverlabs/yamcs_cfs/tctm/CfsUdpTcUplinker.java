@@ -35,9 +35,9 @@ import com.google.common.util.concurrent.AbstractService;
  *
  */
 public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDataLink,  SystemParametersProducer {	
-    protected DatagramChannel datagramChannel=null;
-    protected String host="whirl";
-    protected int port=10003;
+    protected DatagramChannel datagramChannel = null;
+    protected String host = "whirl";
+    protected int port = 10003;
     protected short gndSystemApid = 0;
     private boolean fileTransferEnabled = true;
     private int CF_INCOMING_PDU_MID = 0x0FFD;
@@ -48,29 +48,29 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     SelectionKey selectionKey;
     protected CfsCcsdsSeqAndChecksumFiller seqAndChecksumFiller=new CfsCcsdsSeqAndChecksumFiller();
     protected ScheduledThreadPoolExecutor timer;
-    protected volatile boolean disabled=false;
-    protected int minimumTcPacketLength=48; //the minimum size of the CCSDS packets uplinked
+    protected volatile boolean disabled = false;
+    protected int minimumTcPacketLength = 48; //the minimum size of the CCSDS packets uplinked
     volatile long tcCount;
     private String sv_linkStatus_id, sp_dataCount_id;
 
     private SystemParametersCollector sysParamCollector;
-    protected Logger log=LoggerFactory.getLogger(this.getClass().getName());
+    protected Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private String yamcsInstance;
     private String name;
     TimeService timeService;
     
     public CfsUdpTcUplinker(String yamcsInstance, String name, String spec) throws ConfigurationException {
-        YConfiguration c=YConfiguration.getConfiguration("cfs");
-        this.yamcsInstance=yamcsInstance;
+        YConfiguration c = YConfiguration.getConfiguration("cfs");
+        this.yamcsInstance = yamcsInstance;
         host = c.getString(spec, "tcHost");
         port = c.getInt(spec, "tcPort");
-        gndSystemApid=(short)c.getInt(spec, "gndSysApid");
+        gndSystemApid = (short)c.getInt(spec, "gndSysApid");
         this.name = name;
-        
+
         try {
-            minimumTcPacketLength=c.getInt(spec, "minimumTcPacketLength");
+            minimumTcPacketLength = c.getInt(spec, "minimumTcPacketLength");
         } catch (ConfigurationException e) {
-            log.debug("minimumTcPacketLength not defined, using the default value "+minimumTcPacketLength);
+            log.debug("minimumTcPacketLength not defined, using the default value " + minimumTcPacketLength);
         }
 
         try {
@@ -104,13 +104,13 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     protected CfsUdpTcUplinker() {} // dummy constructor which is automatically invoked by subclass constructors
 
     public CfsUdpTcUplinker(String host, int port) {
-        this.host=host;
-        this.port=port;
+        this.host = host;
+        this.port = port;
         openSocket();
     }
 
     protected long getCurrentTime() {
-        if(timeService!=null) {
+        if(timeService != null) {
             return timeService.getMissionTime();
         } else {
             return TimeEncoding.fromUnixTime(System.currentTimeMillis());
@@ -119,36 +119,36 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     @Override
     protected void doStart() {
         setupSysVariables();
-        this.timer=new ScheduledThreadPoolExecutor(1);
+        this.timer = new ScheduledThreadPoolExecutor(1);
         timer.scheduleWithFixedDelay(this, 0, 10, TimeUnit.SECONDS);
         notifyStarted();
     }
 
     protected void openSocket() {
         try {
-        	datagramChannel=DatagramChannel.open();
-        	datagramChannel.connect(new InetSocketAddress(host,port));
+            datagramChannel=DatagramChannel.open();
+            datagramChannel.connect(new InetSocketAddress(host,port));
             datagramChannel.configureBlocking(false);
             selector = Selector.open();
-            selectionKey=datagramChannel.register(selector,SelectionKey.OP_WRITE|SelectionKey.OP_READ);
+            selectionKey = datagramChannel.register(selector,SelectionKey.OP_WRITE|SelectionKey.OP_READ);
             log.info("TC connection established to " + host + " port " + port);
         } catch (IOException e) {
             log.info("Cannot open TC connection to " + host + ":" + port + ": " + e + "; retrying in 10 seconds");
             try {datagramChannel.close();} catch (Exception e1) {}
             try {selector.close();} catch (Exception e1) {}
-            datagramChannel=null;
+            datagramChannel = null;
         }
     }
 
     protected void disconnect() {
-        if(datagramChannel==null) return;
+        if(datagramChannel == null) return;
         try {
             datagramChannel.close();
             selector.close();
-            datagramChannel=null;
+            datagramChannel = null;
         } catch (IOException e) {
             e.printStackTrace();
-            log.warn("Exception caught when checking if the socket to "+host+":"+port+" is open:", e);
+            log.warn("Exception caught when checking if the socket to " + host + ":" + port + " is open:", e);
         }
     }
     /**
@@ -156,35 +156,35 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
      * @return
      */
     protected boolean isSocketOpen() {
-        final ByteBuffer bb=ByteBuffer.allocate(16);
-        if(datagramChannel==null) {
+        final ByteBuffer bb = ByteBuffer.allocate(16);
+        if(datagramChannel == null) {
             return false;
         }
 
-        boolean connected=false;
+        boolean connected = false;
         try {
             selector.select();
             if(selectionKey.isReadable()) {
                 int read = datagramChannel.read(bb);
-                if(read>0) {
-                    log.info("Data read on the TC socket to "+host+":"+port+"!! :"+bb);
-                    connected=true;
+                if(read > 0) {
+                    log.info("Data read on the TC socket to " + host + ":" + port + "!! :" + bb);
+                    connected = true;
                 } else if(read<0) {
-                    log.warn("TC socket to "+host+":"+port+" has been closed");
+                    log.warn("TC socket to " + host + ":" + port +" has been closed");
                     datagramChannel.close();
                     selector.close();
-                    datagramChannel=null;
-                    connected=false;
+                    datagramChannel = null;
+                    connected = false;
                 }
             } else if(selectionKey.isWritable()){
-                connected=true;
+                connected = true;
             } else {
-                log.warn("The TC socket to "+host+":"+port+" is neither writable nor readable");
-                connected=false;
+                log.warn("The TC socket to " + host + ":" + port + " is neither writable nor readable");
+                connected = false;
             }
         } catch (IOException e) {
-            log.warn("Exception caught when checking if the socket to "+host+":"+port+" is open:", e);
-            connected=false;
+            log.warn("Exception caught when checking if the socket to " + host + ":" + port + " is open:", e);
+            connected = false;
         }
         return connected;
     }
@@ -194,14 +194,14 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
      */
     public void sendTc(PreparedCommand pc) {
         if(disabled) {
-            log.warn("TC disabled, ignoring command "+pc.getCommandId());
+            log.warn("TC disabled, ignoring command " + pc.getCommandId());
             return;
         }
         
-        ByteBuffer bb=null;
+        ByteBuffer bb = null;
         
         int newLength = pc.getBinary().length - 10;
-        byte cfsCmd[] = new byte[newLength];		
+        byte cfsCmd[] = new byte[newLength];
         cfsCmd = Arrays.copyOf(pc.getBinary(), newLength);
         bb=ByteBuffer.allocate(newLength);
         bb.put(pc.getBinary(), 0, 6);
@@ -209,9 +209,9 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         bb.putShort(4, (short)(newLength - 7)); // fix packet length
         bb.rewind();
         
-        int retries=5;
-        boolean sent=false;
-        int seqCount=seqAndChecksumFiller.fill(bb, pc.getCommandId().getGenerationTime());
+        int retries = 5;
+        boolean sent = false;
+        int seqCount = seqAndChecksumFiller.fill(bb, pc.getCommandId().getGenerationTime());
         bb.rewind();
         
         /* Check to see if this command is for the CfsUdpTcUplinker plugin. */
@@ -261,13 +261,13 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
                         datagramChannel.send(bb, new InetSocketAddress(host,port));
                         datagramChannel.write(bb);
                         tcCount++;
-                        sent=true;
+                        sent = true;
                     } catch (IOException e) {
-                        log.warn("Error writing to TC socket to "+host+":"+port+": "+e.getMessage());
+                        log.warn("Error writing to TC socket to " + host + ":" + port + ": " + e.getMessage());
                         try {
                             if(datagramChannel.isOpen()) datagramChannel.close();
                             selector.close();
-                            datagramChannel=null;
+                            datagramChannel = null;
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
@@ -275,12 +275,12 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
                     
                 }
                 retries--;
-                if(!sent && (retries>0)) {
+                if(!sent && (retries > 0)) {
                     try {
                         log.warn("Command not sent, retrying in 2 seconds");
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {
-                        log.warn("exception "+ e.toString()+" thrown when sleeping 2 sec");
+                        log.warn("exception " + e.toString() + " thrown when sleeping 2 sec");
                     }
                 }
             }
@@ -306,7 +306,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     }
 
     public void setCommandHistoryPublisher(CommandHistoryPublisher commandHistoryListener) {
-        this.commandHistoryListener=commandHistoryListener;
+        this.commandHistoryListener = commandHistoryListener;
     }
 
     public String getLinkStatus() {
@@ -329,15 +329,15 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     }
 
     public void disable() {
-        disabled=true;
+        disabled = true;
         if(isRunning()) {
             disconnect();
         }
     }
 
     public void enable() {
-        disabled=false;
-    }		
+        disabled = false;
+    }
 
     public boolean isDisabled() {
         return disabled;
@@ -357,10 +357,10 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     }
 
     public static void main(String[] argv) throws ConfigurationException, InterruptedException {
-        CfsUdpTcUplinker tc=new CfsUdpTcUplinker("epss", "test", "epss");
-        PreparedCommand pc=new PreparedCommand(new byte[20]);
-        for(int i=0;i<10;i++) {
-            System.out.println("getFwLinkStatus: "+tc.getLinkStatus());
+        CfsUdpTcUplinker tc = new CfsUdpTcUplinker("epss", "test", "epss");
+        PreparedCommand pc = new PreparedCommand(new byte[20]);
+        for(int i=0; i<10; i++) {
+            System.out.println("getFwLinkStatus: " + tc.getLinkStatus());
             Thread.sleep(3000);
         }
         tc.sendTc(pc);
@@ -371,9 +371,9 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         String name;
         String value;
         TcAck(CommandId cmdId, String name, String value) {
-            this.cmdId=cmdId;
-            this.name=name;
-            this.value=value;
+            this.cmdId = cmdId;
+            this.name = name;
+            this.value = value;
         }
         public void run() {
             commandHistoryListener.updateStringKey(cmdId,name,value);
@@ -387,9 +387,9 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         @Override
         public void run() {
             long instant = getCurrentTime();
-            commandHistoryListener.updateStringKey(cmdId,name+"_Status",value);
-            commandHistoryListener.updateTimeKey(cmdId,name+"_Time", instant);
-        }		
+            commandHistoryListener.updateStringKey(cmdId, name + "_Status", value);
+            commandHistoryListener.updateTimeKey(cmdId, name + "_Time", instant);
+        }
     }
 
 
@@ -400,12 +400,10 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
 
     protected void setupSysVariables() {
         this.sysParamCollector = SystemParametersCollector.getInstance(yamcsInstance);
-        if(sysParamCollector!=null) {
+        if(sysParamCollector != null) {
             sysParamCollector.registerProvider(this, null);
-            sv_linkStatus_id = sysParamCollector.getNamespace()+"/"+name+"/linkStatus";
-            sp_dataCount_id = sysParamCollector.getNamespace()+"/"+name+"/dataCount";
-
-
+            sv_linkStatus_id = sysParamCollector.getNamespace() + "/" + name + "/linkStatus";
+            sp_dataCount_id = sysParamCollector.getNamespace() + "/" + name + "/dataCount";
         } else {
             log.info("System variables collector not defined for instance {} ", yamcsInstance);
         }
