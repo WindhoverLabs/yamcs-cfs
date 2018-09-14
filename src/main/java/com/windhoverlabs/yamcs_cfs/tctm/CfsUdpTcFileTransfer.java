@@ -22,10 +22,10 @@ public class CfsUdpTcFileTransfer {
     }
 
     /* Forward ByteBuffer to the target address and port. */
-    public byte [] receive(byte rawPacket[]) throws IOException {
+    public int receive(byte rawPacket[]) throws IOException {
         DatagramPacket packet = new DatagramPacket(rawPacket, rawPacket.length);
         m_socket.receive(packet);
-        return packet.getData();
+        return packet.getLength();
     }
 
     /* Close socket. */

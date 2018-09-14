@@ -41,7 +41,7 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     protected int port = 10003;
     protected short gndSystemApid = 0;
     private boolean fileTransferEnabled = true;
-    private boolean isListening = true;
+    private boolean isListeningFileTransfer = true;
     private int CF_INCOMING_PDU_MID = 0x0FFD;
     private String fileTransferAddress = "localhost";
     private int fileTransferPort = 22222;
@@ -192,6 +192,21 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
             connected = false;
         }
         return connected;
+    }
+
+    /* Determines if a message is a CF (CFDP) PDU message. */
+    public boolean isFileTransferMsg(byte rawPacket[]) {
+        ByteBuffer bb = ByteBuffer.wrap(rawPacket);
+        int msgID = bb.getShort();
+        /* Partitions 2-4 add 0x0200, 0x0400, or 0x0600. */
+        if(msgID == CF_INCOMING_PDU_MID 
+           || msgID == CF_INCOMING_PDU_MID + (0x0200) 
+           || msgID == CF_INCOMING_PDU_MID + (0x0400) 
+           || msgID == CF_INCOMING_PDU_MID + (0x0600)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -355,16 +370,22 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         if (!isSocketOpen()) {
             openSocket();
         }
-        while(isListening)
+        while(isListeningFileTransfer)
         {
             try {
-                byte outBuffer[] = filePipe.receive(buffer);
-                PreparedCommand pc = new PreparedCommand(outBuffer);
-                this.sendTc(pc); 
+                int outLength = filePipe.receive(buffer);
+                byte outBuffer[] = Arrays.copyOf(buffer, outLength);
+                log.info("File transfer uplinker received length " + outLength + " " + Arrays.toString(outBuffer));
+                /* Only forward file transfer messages. */
+                if(isFileTransferMsg(outBuffer))
+                {
+                    PreparedCommand pc = new PreparedCommand(outBuffer);
+                    this.sendTc(pc);
+                }
             }
             catch (IOException e) {
                 log.warn("Error receiving file transfer commands, disabling.");
-                isListening = false;
+                isListeningFileTransfer = false;
             }
         }
     }
