@@ -54,6 +54,11 @@
           <effort>Default</effort>
         </configuration>
       </plugin>
+          <plugin>
+        <groupId>org.yamcs</groupId>
+        <artifactId>yamcs-maven-plugin</artifactId>
+        <version>1.2.5</version>
+      </plugin>
       <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
         <configuration> <encoding>UTF-8</encoding> <configLocation>checkstyle.xml</configLocation> 
         <enableRulesSummary>false</enableRulesSummary> </configuration> </plugin> -->
@@ -130,10 +135,25 @@
                                 </execution>
                             </executions>
                         </plugin>
+                             <plugin>
+        <groupId>org.yamcs</groupId>
+        <artifactId>yamcs-maven-plugin</artifactId>
+        <version>1.2.5</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>detect</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
         </profile>
     </profiles>
-
+     <properties>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+  </properties>
 </project>
