@@ -16,16 +16,17 @@ import org.slf4j.LoggerFactory;
 import org.yamcs.ConfigurationException;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
-import org.yamcs.api.EventProducer;
-import org.yamcs.api.EventProducerFactory;
 import org.yamcs.archive.PacketWithTime;
+import org.yamcs.events.EventProducer;
+import org.yamcs.events.EventProducerFactory;
 import org.yamcs.parameter.SystemParametersCollector;
 import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.protobuf.Pvalue.ParameterValue;
-import org.yamcs.protobuf.Yamcs.NamedObjectId;
 import org.yamcs.tctm.TmPacketDataLink;
 import org.yamcs.tctm.TmSink;
 import org.yamcs.time.TimeService;
+import org.yamcs.YConfiguration;
+
 
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 
@@ -63,7 +64,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
     private String sv_linkStatus_id, sp_dataCount_id;
     final String yamcsInstance;
     final String name;
-    final TimeService timeService;
+    TimeService timeService;
 
     protected CfsUdpTmProvider(String instance, String name) {// dummy constructor needed by subclass constructors
         this.yamcsInstance = instance;
@@ -102,6 +103,53 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         }
         
         eventProducer=EventProducerFactory.getEventProducer(this.yamcsInstance);
+    }
+    
+    /**
+     * @apiNote Wrote this constructor on a desperate attempt to fix the config,
+     * which was asking for this constructor.
+     * @param yamcsInstance
+     * @param name
+     * @param config
+     */
+    public CfsUdpTmProvider(String instance, String name, YConfiguration config) 
+    {
+		this.yamcsInstance = instance;
+		this.name = name;
+		this.timeService = null;
+		System.out.println("Calling CfsUdpTmProvider$$ value for name-->" +name );
+		System.out.println("Calling CfsUdpTmProvider$$ value for instance-->" +instance );
+		System.out.println("Calling CfsUdpTmProvider$$ value for config-->" +config.toString());
+		
+		YConfiguration c = config;
+		
+		String spec =  (String)c.get("spec");
+		
+		String strTimestampFormat = c.getString("spec", "timestampFormat");
+        host=c.getString("spec", "tmHost");
+        port=c.getInt("spec", "tmPort");
+        
+        this.timeService = YamcsServer.getTimeService(instance);
+//        OS_MAX_API_NAME=c.getInt(spec, "OS_MAX_API_NAME");
+//        gndSystemApid=(short)c.getInt(spec, "gndSysApid");
+        
+        if(strTimestampFormat.equals("CFE_SB_TIME_32_16_SUBS")) {
+            this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_16_SUBS;
+            this.timestampLength = 6;
+        } else if(strTimestampFormat.equals("CFE_SB_TIME_32_32_SUBS")) {
+            this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_32_SUBS;
+            this.timestampLength = 8;
+        } else if(strTimestampFormat.equals("CFE_SB_TIME_32_32_M_20")) {
+            this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_32_M_20;
+            this.timestampLength = 8;
+        } else {        
+            log.warn("timeStampformat not defined or is incorrect, using the default value CFE_SB_TIME_32_32_SUBS");
+            this.timestampFormat = CfeTimeStampFormat.CFE_SB_TIME_32_32_SUBS;
+            this.timestampLength = 8;
+        }
+        
+        eventProducer=EventProducerFactory.getEventProducer(this.yamcsInstance);
+    	
     }
     
     public static CfeTimeStampFormat getTimeStampFormat()
@@ -271,7 +319,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         /* Vehicle telemetry port. */
         bb.putInt(port);
         
-        PacketWithTime pkt = new PacketWithTime(timeService.getMissionTime(), CfsTlmPacket.getInstant(bb), bb.array());
+        PacketWithTime pkt = new PacketWithTime(timeService.getMissionTime(), CfsTlmPacket.getInstant(bb), length, bb.array());
         
         tmSink.processPacket(pkt);
 
@@ -347,7 +395,7 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
             }
         }
         if(bb!=null) {
-            return new PacketWithTime(timeService.getMissionTime(), CfsTlmPacket.getInstant(bb), bb.array());
+            return new PacketWithTime(timeService.getMissionTime(), CfsTlmPacket.getInstant(bb), CFE_EVS_CRITICAL_BIT, bb.array());
         } 
         return null;
     }
@@ -369,14 +417,14 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         return packet.getLength();
     }
 
-    public String getLinkStatus() {
-        if (disabled) return "DISABLED";
-        if (tmSocket==null) {
-            return "UNAVAIL";
-        } else {
-            return "OK";
-        }
-    }
+//    public String getLinkStatus() {
+//        if (disabled) return "DISABLED";
+//        if (tmSocket==null) {
+//            return "UNAVAIL";
+//        } else {
+//            return "OK";
+//        }
+//    }
 
     @Override
     public void triggerShutdown() {
@@ -437,5 +485,41 @@ public class CfsUdpTmProvider extends AbstractExecutionThreadService implements 
         org.yamcs.parameter.ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
         return Arrays.asList(linkStatus, dataCount);
     }
+
+	@Override
+	public Status getLinkStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getDataInCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long getDataOutCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void resetCounters() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public YConfiguration getConfig() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
 

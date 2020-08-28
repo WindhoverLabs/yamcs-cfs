@@ -27,7 +27,7 @@ dataLinks:
     class: org.yamcs.tctm.UdpTmDataLink
     stream: tm_realtime
     port: 10015
-    packetPreprocessorClassName: com.example.myproject.MyPacketPreprocessor
+    packetPreprocessorClassName: com.windhoverlabs.yamcs.tctm.MyPacketPreprocessor
 
   - name: udp-out
     class: org.yamcs.tctm.UdpTcDataLink
@@ -35,12 +35,22 @@ dataLinks:
     host: localhost
     port: 10025
 
+#  - name: tc_linker
+ #   class: com.windhoverlabs.yamcs.tctm.CfsUdpTcUplinker
+  #  spec: local
+   # stream: tc_realtime
+
+  - name: tm_provider
+    class: com.windhoverlabs.yamcs.tctm.CfsUdpTmProvider
+    spec: local
+    stream: tm_realtime
+
+
 mdb:
-  # Configuration of the active loaders
-  # Valid loaders are: sheet, xtce or fully qualified name of the class
-  - type: xtce
-    args:
-      file: mdb/xtce.xml
+    # Configuration of the active loaders
+    # Valid loaders are: sheet, xtce or fully qualified name of the class
+    - type: "sheet"
+      spec: "mdb/cfs-ccsds.xls"
 
 # Configuration for streams created at server startup
 streamConfig:
