@@ -21,8 +21,6 @@ import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.parameter.SystemParametersCollector;
 import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.protobuf.Commanding.CommandId;
-import org.yamcs.protobuf.Pvalue.ParameterValue;
-import org.yamcs.protobuf.Yamcs.NamedObjectId;
 import org.yamcs.tctm.TcDataLink;
 import org.yamcs.time.TimeService;
 import org.yamcs.utils.TimeEncoding;
@@ -71,8 +69,20 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
     
         timeService = YamcsServer.getTimeService(yamcsInstance);
     }
+    
+    /**
+     * @apiNote Wrote this constructor on a desperate attempt to fix the config,
+     * which was asking for this constructor.
+     * @param yamcsInstance
+     * @param name
+     * @param config
+     */
+    public CfsUdpTcUplinker(String yamcsInstance, String name, YConfiguration config)
+    {
+    	
+    }
 
-    protected CfsUdpTcUplinker() {} // dummy constructor which is automatically invoked by subclass constructors
+    public CfsUdpTcUplinker() {} // dummy constructor which is automatically invoked by subclass constructors
 
     public CfsUdpTcUplinker(String host, int port) {
         this.host=host;
@@ -388,5 +398,35 @@ public class CfsUdpTcUplinker extends AbstractService implements Runnable, TcDat
         org.yamcs.parameter.ParameterValue dataCount = SystemParametersCollector.getPV(sp_dataCount_id, time, getDataCount());
         return Arrays.asList(linkStatus, dataCount);
     }
+
+	@Override
+	public long getDataInCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long getDataOutCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void resetCounters() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public YConfiguration getConfig() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
 

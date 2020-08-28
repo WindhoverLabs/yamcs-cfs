@@ -4,11 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import org.yamcs.utils.CcsdsPacket;
-import org.yamcs.utils.TimeEncoding;
-import com.windhoverlabs.yamcs.tctm.CfsUdpTmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yamcs.tctm.CcsdsPacket;
+import org.yamcs.utils.TimeEncoding;
 
 
 public class CfsTlmPacket implements Comparable<CfsTlmPacket>
