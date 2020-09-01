@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xtce:SpaceSystem xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xtce="http://www.omg.org/spec/XTCE/20180204" xsi:schemaLocation="http://www.omg.org/spec/XTCE/20180204 SpaceSystem.xsd " name="cfs-ccsds">
+	<xtce:Header validationStatus="Unknown"></xtce:Header>
+	<xtce:TelemetryMetaData>
+		<xtce:ParameterTypeSet>
+			<xtce:IntegerParameterType name="PACKET_ID_TYPE">
+				<xtce:IntegerDataEncoding encoding="unsigned"
+					byteOrder="mostSignificantByteFirst" sizeInBits="32">
+				</xtce:IntegerDataEncoding>
+			</xtce:IntegerParameterType>
+			<xtce:IntegerParameterType name="CCSDS_VERSION_TYPE">
+				<xtce:IntegerDataEncoding
+					byteOrder="mostSignificantByteFirst" sizeInBits="3"
+					encoding="unsigned">
+				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
+			<xtce:EnumeratedParameterType name="CCSDS_PACKET_TYPE_TYPE">
+				<xtce:IntegerDataEncoding
+					bitOrder="mostSignificantBitFirst" sizeInBits="1"
+					encoding="unsigned">
+				</xtce:IntegerDataEncoding>
+				<xtce:EnumerationList>
+					<xtce:Enumeration value="0" label="TELEMETRY"/><xtce:Enumeration
+						value="1" label="COMMAND"/>
+				</xtce:EnumerationList>
+			</xtce:EnumeratedParameterType>
+			<xtce:EnumeratedParameterType name="CCSDS_SEC_HDR_PRESENT_TYPE">
+				<xtce:IntegerDataEncoding
+					bitOrder="mostSignificantBitFirst" encoding="unsigned" sizeInBits="1">
+				</xtce:IntegerDataEncoding>
+				<xtce:EnumerationList>
+					<xtce:Enumeration value="0" label="ABSENT"/><xtce:Enumeration
+						label="PRESENT" value="1"/>
+				</xtce:EnumerationList>
+			</xtce:EnumeratedParameterType>
+			<xtce:IntegerParameterType name="CCSDS_APID_TYPE">
+				<xtce:IntegerDataEncoding sizeInBits="11"
+					encoding="unsigned" byteOrder="mostSignificantByteFirst">
+				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
+			<xtce:EnumeratedParameterType name="CCSDS_SED_FLASG_TYPE">
+				<xtce:IntegerDataEncoding
+					bitOrder="mostSignificantBitFirst" encoding="unsigned" sizeInBits="2">
+				</xtce:IntegerDataEncoding>
+				<xtce:EnumerationList>
+					<xtce:Enumeration value="0" label="UNKNOWN_0"/><xtce:Enumeration
+						label="UNKNOWN_1" value="1"/><xtce:Enumeration
+						label="UNKNOWN_2" value="2"/><xtce:Enumeration
+						label="COMPLETE" value="3"/>
+				</xtce:EnumerationList>
+			</xtce:EnumeratedParameterType>
+			<xtce:IntegerParameterType name="CCSDS_SEQ_CNT_TYPE">
+				<xtce:IntegerDataEncoding
+					byteOrder="mostSignificantByteFirst" sizeInBits="14"
+					encoding="unsigned">
+				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
+			<xtce:IntegerParameterType name="CCSDS_LENGTH_TYPE">
+				<xtce:IntegerDataEncoding
+					byteOrder="mostSignificantByteFirst" sizeInBits="16"
+					encoding="unsigned">
+				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
+			<xtce:IntegerParameterType name="TLM_COURSE_TIME_TYPE">
+				<xtce:IntegerDataEncoding sizeInBits="32"
+					encoding="unsigned" byteOrder="mostSignificantByteFirst">
+				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
+			<xtce:IntegerParameterType name="TLM_FINE_TIME_TYPE">
+				<xtce:IntegerDataEncoding
+					byteOrder="mostSignificantByteFirst" sizeInBits="16"
+					encoding="unsigned">
+				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
+		</xtce:ParameterTypeSet>
+		<xtce:ParameterSet>
+			<xtce:Parameter parameterTypeRef="PACKET_ID_TYPE" name="packet-id"></xtce:Parameter>
+			<xtce:Parameter parameterTypeRef="CCSDS_VERSION_TYPE" name="ccsds-version"></xtce:Parameter>
+			<xtce:Parameter parameterTypeRef="CCSDS_PACKET_TYPE_TYPE" name="ccsds-packet-type"></xtce:Parameter>
+			<xtce:Parameter parameterTypeRef="CCSDS_SEC_HDR_PRESENT_TYPE" name="ccsds-sec-hdr-present"></xtce:Parameter>
+			<xtce:Parameter name="ccsds-apid" parameterTypeRef="CCSDS_APID_TYPE"></xtce:Parameter>
+			<xtce:Parameter parameterTypeRef="CCSDS_SED_FLASG_TYPE" name="ccsds-seg-flag"></xtce:Parameter>
+			<xtce:Parameter parameterTypeRef="CCSDS_SEQ_CNT_TYPE" name="ccsds-seq-cnt"></xtce:Parameter>
+			<xtce:Parameter name="ccsds-length" parameterTypeRef="CCSDS_LENGTH_TYPE"></xtce:Parameter>
+			<xtce:Parameter parameterTypeRef="TLM_COURSE_TIME_TYPE" name="tlm-course-time"></xtce:Parameter>
+			<xtce:Parameter parameterTypeRef="TLM_FINE_TIME_TYPE" name="tlm-fine-time"></xtce:Parameter>
+		</xtce:ParameterSet>
+		<xtce:ContainerSet>
+			<xtce:SequenceContainer name="cfs-tlm-hdr">
+				<xtce:EntryList>
+					<xtce:ParameterRefEntry parameterRef="ccsds-packet-type"></xtce:ParameterRefEntry>
+					<xtce:ParameterRefEntry parameterRef="ccsds-version"></xtce:ParameterRefEntry>
+					<xtce:ParameterRefEntry parameterRef="ccsds-sec-hdr-present"></xtce:ParameterRefEntry>
+					<xtce:ParameterRefEntry parameterRef="ccsds-apid"></xtce:ParameterRefEntry>
+					<xtce:ParameterRefEntry parameterRef="ccsds-seg-flag"></xtce:ParameterRefEntry>
+					<xtce:ParameterRefEntry parameterRef="ccsds-seq-cnt"></xtce:ParameterRefEntry>
+					<xtce:ParameterRefEntry parameterRef="ccsds-length"></xtce:ParameterRefEntry>
+					<xtce:ParameterRefEntry parameterRef="tlm-course-time"></xtce:ParameterRefEntry>
+					<xtce:ParameterRefEntry parameterRef="tlm-fine-time"></xtce:ParameterRefEntry></xtce:EntryList>
+			</xtce:SequenceContainer>
+		</xtce:ContainerSet></xtce:TelemetryMetaData>
+	<xtce:CommandMetaData>
+		<xtce:ArgumentTypeSet>
+			<xtce:IntegerArgumentType name="ccsds-version">
+				<xtce:IntegerDataEncoding></xtce:IntegerDataEncoding></xtce:IntegerArgumentType>
+			
+		</xtce:ArgumentTypeSet>
+		<xtce:MetaCommandSet>
+			<xtce:MetaCommand name="cfs-command">
+				<xtce:ArgumentList>
+					<xtce:Argument name="ccsds-version-arg" argumentTypeRef="ccsds-version"></xtce:Argument>
+				</xtce:ArgumentList>
+				<xtce:CommandContainer name="cfs-command-container">
+					<xtce:EntryList>
+						<xtce:ArgumentRefEntry argumentRef="ccsds-version-arg"></xtce:ArgumentRefEntry></xtce:EntryList>
+				</xtce:CommandContainer></xtce:MetaCommand>
+		</xtce:MetaCommandSet></xtce:CommandMetaData>
+</xtce:SpaceSystem>
