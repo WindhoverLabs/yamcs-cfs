@@ -95,18 +95,63 @@
 		</xtce:ContainerSet></xtce:TelemetryMetaData>
 	<xtce:CommandMetaData>
 		<xtce:ArgumentTypeSet>
-			<xtce:IntegerArgumentType name="ccsds-version">
-				<xtce:IntegerDataEncoding></xtce:IntegerDataEncoding></xtce:IntegerArgumentType>
+			<xtce:IntegerArgumentType name="ccsds-apid">
+				<xtce:IntegerDataEncoding
+					byteOrder="mostSignificantByteFirst"
+					bitOrder="mostSignificantBitFirst" sizeInBits="11">
+				</xtce:IntegerDataEncoding>
+			</xtce:IntegerArgumentType>
+			<xtce:IntegerArgumentType name="ccsds-seq-cnt">
+				<xtce:IntegerDataEncoding sizeInBits="14"
+					encoding="unsigned" byteOrder="mostSignificantByteFirst"
+					bitOrder="mostSignificantBitFirst">
+				</xtce:IntegerDataEncoding></xtce:IntegerArgumentType>
+			<xtce:IntegerArgumentType name="ccsds-length">
+				<xtce:IntegerDataEncoding sizeInBits="16"
+					encoding="unsigned" byteOrder="mostSignificantByteFirst"
+					bitOrder="mostSignificantBitFirst">
+				</xtce:IntegerDataEncoding></xtce:IntegerArgumentType>
 			
+			<xtce:IntegerArgumentType name="cfs-cmd-code">
+				<xtce:IntegerDataEncoding
+					bitOrder="leastSignificantBitFirst"
+					byteOrder="leastSignificantByteFirst" sizeInBits="7"
+					encoding="unsigned">
+				</xtce:IntegerDataEncoding></xtce:IntegerArgumentType>
+
 		</xtce:ArgumentTypeSet>
 		<xtce:MetaCommandSet>
-			<xtce:MetaCommand name="cfs-command">
+			<xtce:MetaCommand abstract="true" name="cfs-command">
 				<xtce:ArgumentList>
-					<xtce:Argument name="ccsds-version-arg" argumentTypeRef="ccsds-version"></xtce:Argument>
+					<xtce:Argument argumentTypeRef="ccsds-apid" name="ccsds-apid-arg"></xtce:Argument>
+					<xtce:Argument argumentTypeRef="ccsds-seq-cnt" name="ccsds-seq-cnt-arg"></xtce:Argument>
+					<xtce:Argument argumentTypeRef="ccsds-length" name="ccsds-length-arg"></xtce:Argument>
+					<xtce:Argument argumentTypeRef="cfs-cmd-code" name="cfs-cmd-code-arg"></xtce:Argument>
 				</xtce:ArgumentList>
 				<xtce:CommandContainer name="cfs-command-container">
 					<xtce:EntryList>
-						<xtce:ArgumentRefEntry argumentRef="ccsds-version-arg"></xtce:ArgumentRefEntry></xtce:EntryList>
-				</xtce:CommandContainer></xtce:MetaCommand>
+						<xtce:FixedValueEntry sizeInBits="3" name="ccsds-version" binaryValue="00">
+						</xtce:FixedValueEntry>
+						<xtce:FixedValueEntry name="ccsds-packet-type" sizeInBits="1" binaryValue="01">
+						</xtce:FixedValueEntry>
+						<xtce:FixedValueEntry name="ccsds-sec-hdr-present" sizeInBits="1" binaryValue="01">
+						</xtce:FixedValueEntry>
+						<xtce:ArgumentRefEntry argumentRef="ccsds-apid-arg"></xtce:ArgumentRefEntry>
+						<xtce:FixedValueEntry sizeInBits="2"
+							name="ccsds-seqFlags" binaryValue="03">
+						</xtce:FixedValueEntry>
+						<xtce:ArgumentRefEntry argumentRef="ccsds-seq-cnt-arg"></xtce:ArgumentRefEntry>
+						<xtce:ArrayArgumentRefEntry argumentRef="ccsds-length-arg"></xtce:ArrayArgumentRefEntry>
+						<xtce:FixedValueEntry sizeInBits="8" binaryValue="00">
+						</xtce:FixedValueEntry>
+						<xtce:ArgumentRefEntry argumentRef="cfs-cmd-code-arg">
+							<xtce:LocationInContainerInBits>
+								<xtce:FixedValue>1</xtce:FixedValue>
+							</xtce:LocationInContainerInBits></xtce:ArgumentRefEntry>
+
+
+					</xtce:EntryList>
+				</xtce:CommandContainer>
+			</xtce:MetaCommand>
 		</xtce:MetaCommandSet></xtce:CommandMetaData>
 </xtce:SpaceSystem>
