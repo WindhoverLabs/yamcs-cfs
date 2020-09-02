@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xtce:SpaceSystem xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xtce="http://www.omg.org/spec/XTCE/20180204" xsi:schemaLocation="http://www.omg.org/spec/XTCE/20180204 SpaceSystem.xsd " name="cfe_es">
 	<xtce:Header validationStatus="Unknown"></xtce:Header>
-	<xtce:TelemetryMetaData>
-		<xtce:ContainerSet>
-			<xtce:SequenceContainer name="CFE_ES_HK">
-				<xtce:EntryList></xtce:EntryList>
-				<xtce:BaseContainer containerRef="cfs-ccsds/cfs-tlm-hdr">
-					<xtce:RestrictionCriteria>
-						<xtce:ComparisonList>
-							<xtce:Comparison value="0" parameterRef="cfs-ccsds/ccsds-apid"/><xtce:Comparison
-								value="0" parameterRef="cfs-ccsds/packet-id"/>
-						</xtce:ComparisonList>
-						
-					</xtce:RestrictionCriteria></xtce:BaseContainer>
-			</xtce:SequenceContainer>
-		</xtce:ContainerSet></xtce:TelemetryMetaData>
+	<xtce:CommandMetaData>
+		<xtce:MetaCommandSet>
+			<xtce:MetaCommand name="NoOp">
+				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-command">
+					<xtce:ArgumentAssignmentList>
+						<xtce:ArgumentAssignment argumentName="ccsds-apid-arg" argumentValue="1"/><xtce:ArgumentAssignment
+							argumentValue="0" argumentName="cfs-cmd-code-arg"/>
+					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
+				<xtce:CommandContainer name="NoOp-container">
+					<xtce:EntryList></xtce:EntryList>
+				</xtce:CommandContainer>
+				<xtce:ParameterToSetList>
+					<xtce:ParameterToSet parameterRef="cfs-ccsds/cfs-command/ccsds-apid-arg">
+						<xtce:Derivation>
+							<xtce:ValueOperand>
+								xtce:ValueOperand
+							</xtce:ValueOperand>
+						</xtce:Derivation>
+					</xtce:ParameterToSet>
+				</xtce:ParameterToSetList></xtce:MetaCommand>
+		</xtce:MetaCommandSet></xtce:CommandMetaData>
 </xtce:SpaceSystem>
