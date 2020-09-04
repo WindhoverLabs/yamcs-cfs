@@ -114,17 +114,18 @@
 			
 			<xtce:IntegerArgumentType name="cfs-cmd-code">
 				<xtce:IntegerDataEncoding
-					bitOrder="leastSignificantBitFirst"
-					byteOrder="leastSignificantByteFirst" sizeInBits="7"
-					encoding="unsigned">
+					sizeInBits="7"
+					encoding="unsigned" bitOrder="mostSignificantBitFirst" byteOrder="mostSignificantByteFirst">
 				</xtce:IntegerDataEncoding></xtce:IntegerArgumentType>
 
 		</xtce:ArgumentTypeSet>
 		<xtce:MetaCommandSet>
-			<xtce:MetaCommand abstract="true" name="cfs-command">
+			<xtce:MetaCommand abstract="true" name="cfs-cmd">
 				<xtce:ArgumentList>
 					<xtce:Argument argumentTypeRef="ccsds-apid" name="ccsds-apid-arg"></xtce:Argument>
-					<xtce:Argument argumentTypeRef="ccsds-seq-cnt" name="ccsds-seq-cnt-arg"></xtce:Argument>
+					<xtce:Argument argumentTypeRef="ccsds-seq-cnt"
+						name="ccsds-seq-cnt-arg" initialValue="0">
+					</xtce:Argument>
 					<xtce:Argument argumentTypeRef="ccsds-length" name="ccsds-length-arg"></xtce:Argument>
 					<xtce:Argument argumentTypeRef="cfs-cmd-code" name="cfs-cmd-code-arg"></xtce:Argument>
 				</xtce:ArgumentList>
@@ -141,11 +142,14 @@
 							name="ccsds-seqFlags" binaryValue="03">
 						</xtce:FixedValueEntry>
 						<xtce:ArgumentRefEntry argumentRef="ccsds-seq-cnt-arg"></xtce:ArgumentRefEntry>
-						<xtce:ArrayArgumentRefEntry argumentRef="ccsds-length-arg"></xtce:ArrayArgumentRefEntry>
-						<xtce:FixedValueEntry sizeInBits="8" binaryValue="00">
+						<xtce:ArgumentRefEntry argumentRef="ccsds-length-arg"></xtce:ArgumentRefEntry>
+						
+						<xtce:FixedValueEntry sizeInBits="8"
+							binaryValue="00" name="cfs-cmd-checksum">
 						</xtce:FixedValueEntry>
 						<xtce:ArgumentRefEntry argumentRef="cfs-cmd-code-arg">
-							<xtce:LocationInContainerInBits>
+							<xtce:LocationInContainerInBits
+								referenceLocation="previousEntry">
 								<xtce:FixedValue>1</xtce:FixedValue>
 							</xtce:LocationInContainerInBits></xtce:ArgumentRefEntry>
 
@@ -154,4 +158,23 @@
 				</xtce:CommandContainer>
 			</xtce:MetaCommand>
 		</xtce:MetaCommandSet></xtce:CommandMetaData>
+	<xtce:SpaceSystem name="BasicTypes">
+		<xtce:TelemetryMetaData>
+			<xtce:ParameterTypeSet>
+				<xtce:IntegerParameterType name="uint8">
+					<xtce:IntegerDataEncoding
+						bitOrder="leastSignificantBitFirst" sizeInBits="8"
+						encoding="unsigned">
+					</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
+				
+			</xtce:ParameterTypeSet></xtce:TelemetryMetaData>
+		<xtce:CommandMetaData>
+			<xtce:ArgumentTypeSet>
+				<xtce:IntegerArgumentType name="uint8_LE">
+					<xtce:IntegerDataEncoding
+						bitOrder="leastSignificantBitFirst" sizeInBits="8"
+						encoding="unsigned">
+					</xtce:IntegerDataEncoding></xtce:IntegerArgumentType>
+				
+			</xtce:ArgumentTypeSet></xtce:CommandMetaData></xtce:SpaceSystem>
 </xtce:SpaceSystem>
