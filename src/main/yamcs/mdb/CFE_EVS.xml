@@ -3,130 +3,43 @@
 	<xtce:Header validationStatus="Unknown"></xtce:Header>
 	<xtce:TelemetryMetaData>
 		<xtce:ParameterTypeSet>
-			
-			<xtce:IntegerParameterType name="CommandCounter_TYPE">
-				<xtce:IntegerDataEncoding encoding="unsigned"
-					bitOrder="leastSignificantBitFirst"
-					byteOrder="leastSignificantByteFirst" sizeInBits="8">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="CommandErrCounter_TYPE">
+			<xtce:EnumeratedParameterType name="MessageFormatMode_TYPE">
 				<xtce:IntegerDataEncoding
 					bitOrder="leastSignificantBitFirst" sizeInBits="8"
-					encoding="unsigned">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="MessageFormatMode_TYPE" shortDescription="Meant to be an ENUM{(SHORT,0), (LONG,1)}">
-				<xtce:IntegerDataEncoding
-					byteOrder="leastSignificantByteFirst"
-					bitOrder="leastSignificantBitFirst" sizeInBits="8"
-					encoding="unsigned">
+					encoding="unsigned" byteOrder="leastSignificantByteFirst">
 				</xtce:IntegerDataEncoding>
-			</xtce:IntegerParameterType>
-			
-			<xtce:IntegerParameterType name="MessageTruncCounter_TYPE">
-				<xtce:IntegerDataEncoding
-					bitOrder="leastSignificantBitFirst"
-					byteOrder="leastSignificantByteFirst" sizeInBits="8"
-					encoding="unsigned">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="UnregisteredAppCounter_TYPE">
-				<xtce:IntegerDataEncoding
-					bitOrder="leastSignificantBitFirst"
-					byteOrder="leastSignificantByteFirst" sizeInBits="8"
-					encoding="unsigned">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="OutputPort_TYPE">
-				<xtce:IntegerDataEncoding
-					byteOrder="leastSignificantByteFirst" encoding="unsigned"
-					sizeInBits="8" bitOrder="leastSignificantBitFirst">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="LogFullFlag_TYPE">
-				<xtce:IntegerDataEncoding
-					bitOrder="leastSignificantBitFirst"
-					byteOrder="leastSignificantByteFirst" encoding="unsigned"
-					sizeInBits="8">
-				</xtce:IntegerDataEncoding>
-			</xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="LogMode_TYPE" shortDescription="Meant to be an ENUM{(OVERWRITE,0), (DISCARD,1)}">
-				<xtce:IntegerDataEncoding
-					byteOrder="leastSignificantByteFirst" sizeInBits="8" bitOrder="leastSignificantBitFirst">
-				</xtce:IntegerDataEncoding>
-			</xtce:IntegerParameterType>
-			
-			<xtce:IntegerParameterType name="MessageSendCounter_TYPE">
-				<xtce:IntegerDataEncoding
-					bitOrder="leastSignificantBitFirst" encoding="unsigned"
-					byteOrder="leastSignificantByteFirst" sizeInBits="16">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="LogOverflowCounter_TYPE">
-				<xtce:IntegerDataEncoding
-					byteOrder="leastSignificantByteFirst" encoding="unsigned"
-					sizeInBits="16" bitOrder="leastSignificantBitFirst">
-				</xtce:IntegerDataEncoding>
-			</xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="LogEnabled_TYPE">
-				<xtce:IntegerDataEncoding
-					encoding="unsigned"
-					sizeInBits="8" bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="Spare1_TYPE">
-				<xtce:IntegerDataEncoding
-					bitOrder="leastSignificantBitFirst" sizeInBits="8"
-					encoding="unsigned">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="Spare2_TYPE">
-				<xtce:IntegerDataEncoding sizeInBits="8"
-					encoding="unsigned" bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="Spare3_TYPE">
-				<xtce:IntegerDataEncoding sizeInBits="8"
-					encoding="unsigned" bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="AppID_TYPE">
-				<xtce:IntegerDataEncoding
-					bitOrder="leastSignificantBitFirst"
-					byteOrder="leastSignificantByteFirst" sizeInBits="32"
-					encoding="unsigned">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="AppMessageSentCounter_TYPE">
-				<xtce:IntegerDataEncoding encoding="unsigned"
-					sizeInBits="16" byteOrder="leastSignificantByteFirst" bitOrder="leastSignificantBitFirst">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="AppEnableStatus_TYPE">
-				<xtce:IntegerDataEncoding
-					bitOrder="leastSignificantBitFirst"
-					byteOrder="leastSignificantByteFirst" sizeInBits="8"
-					encoding="unsigned">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
-			<xtce:IntegerParameterType name="Padding_TYPE">
-				<xtce:IntegerDataEncoding
-					byteOrder="leastSignificantByteFirst"
-					bitOrder="leastSignificantBitFirst" sizeInBits="8"
-					encoding="unsigned">
-				</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
+				<xtce:EnumerationList>
+					<xtce:Enumeration value="0" label="SHORT"/><xtce:Enumeration
+						label="LONG" value="1"/>
+				</xtce:EnumerationList>
+			</xtce:EnumeratedParameterType>
 			<xtce:AggregateParameterType name="CFE_EVS_AppTlmData_t">
 				<xtce:MemberList>
-					<xtce:Member name="AppID" typeRef="AppID_TYPE"></xtce:Member>
-					<xtce:Member name="AppMessageSentCounter" typeRef="AppMessageSentCounter_TYPE"></xtce:Member>
-					<xtce:Member typeRef="Padding_TYPE" name="Padding"></xtce:Member>
+					<xtce:Member name="AppID" typeRef="cfs-ccsds/BaseType/uint32_LE"></xtce:Member>
+					<xtce:Member name="AppMessageSentCounter" typeRef="cfs-ccsds/BaseType/uint16_LE"></xtce:Member>
+					<xtce:Member typeRef="cfs-ccsds/BaseType/uint8_LE" name="AppEnableStatus"></xtce:Member>
+					<xtce:Member name="Padding" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
 				</xtce:MemberList>
 			</xtce:AggregateParameterType>
-			<xtce:AggregateParameterType name="Payload_TYPE">
+			<xtce:AggregateParameterType name="Payload_t">
 				<xtce:MemberList>
-					<xtce:Member name="CommandCounter" typeRef="CommandCounter_TYPE"></xtce:Member>
-					<xtce:Member name="CommandErrCounter" typeRef="CommandErrCounter_TYPE"></xtce:Member>
-					<xtce:Member name="MessageFormatMode" typeRef="MessageFormatMode_TYPE"></xtce:Member>
-					<xtce:Member name="MessageTruncCounter" typeRef="MessageTruncCounter_TYPE"></xtce:Member>
-					<xtce:Member name="UnregisteredAppCounter" typeRef="UnregisteredAppCounter_TYPE"></xtce:Member>
-					<xtce:Member name="OutputPort" typeRef="OutputPort_TYPE"></xtce:Member>
-					<xtce:Member name="LogFullFlag" typeRef="LogFullFlag_TYPE"></xtce:Member>
-					<xtce:Member name="LogMode" typeRef="LogMode_TYPE"
-						shortDescription="">
+					<xtce:Member name="CommandCounter" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="CommandErrCounter" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="MessageFormatMode"
+						shortDescription="Meant to be an ENUM{(SHORT,0), (LONG,1)}" typeRef="MessageFormatMode_TYPE">
 					</xtce:Member>
-					<xtce:Member name="MessageSendCounter" typeRef="MessageSendCounter_TYPE"></xtce:Member>
-					<xtce:Member name="LogEnabled" typeRef="LogEnabled_TYPE"></xtce:Member>
-					<xtce:Member name="Spare1" typeRef="Spare1_TYPE"></xtce:Member>
-					<xtce:Member typeRef="Spare2_TYPE" name="Spare2"></xtce:Member>
-					<xtce:Member name="Spare3" typeRef="Spare3_TYPE"></xtce:Member>
+					<xtce:Member name="MessageTruncCounter" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="UnregisteredAppCounter" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="OutputPort" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="LogFullFlag" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="LogMode" shortDescription="Meant to be an ENUM{(OVERWRITE,0), (DISCARD,1)}" typeRef="cfs-ccsds/BaseType/uint8_LE">
+					</xtce:Member>
+					<xtce:Member name="MessageSendCounter" typeRef="cfs-ccsds/BaseType/uint16_LE"></xtce:Member>
+					<xtce:Member name="LogOverflowCounter" typeRef="cfs-ccsds/BaseType/uint16_LE"></xtce:Member>
+					<xtce:Member name="LogEnabled" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="Spare1" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="Spare2" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="Spare3" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
 					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[0]"></xtce:Member>
 					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[1]"></xtce:Member>
 					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[2]"></xtce:Member>
@@ -163,7 +76,7 @@
 			</xtce:AggregateParameterType>
 		</xtce:ParameterTypeSet>
 		<xtce:ParameterSet>
-			<xtce:Parameter parameterTypeRef="Payload_TYPE" name="Payload"></xtce:Parameter>
+			<xtce:Parameter name="Payload" parameterTypeRef="Payload_t"></xtce:Parameter>
 			
 		</xtce:ParameterSet>
 		<xtce:ContainerSet>
@@ -190,9 +103,9 @@
 			<xtce:MetaCommand name="NoOp">
 				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-cmd">
 					<xtce:ArgumentAssignmentList>
-						<xtce:ArgumentAssignment argumentName="ccsds-apid-arg" argumentValue="1"></xtce:ArgumentAssignment><xtce:ArgumentAssignment
-							argumentName="cfs-cmd-code-arg" argumentValue="0"/><xtce:ArgumentAssignment
-							argumentValue="1" argumentName="ccsds-length-arg"/>
+						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid"></xtce:ArgumentAssignment><xtce:ArgumentAssignment
+							argumentValue="0" argumentName="cfs-cmd-code"/><xtce:ArgumentAssignment
+							argumentValue="1" argumentName="ccsds-length"/>
 					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
 				<xtce:CommandContainer name="NoOp-container">
 					<xtce:EntryList></xtce:EntryList>
@@ -200,9 +113,9 @@
 			<xtce:MetaCommand name="ResetCounters">
 				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-cmd">
 					<xtce:ArgumentAssignmentList>
-						<xtce:ArgumentAssignment argumentName="ccsds-apid-arg" argumentValue="1"/><xtce:ArgumentAssignment
-							argumentValue="1" argumentName="cfs-cmd-code-arg"/><xtce:ArgumentAssignment
-							argumentValue="1" argumentName="ccsds-length-arg"/>
+						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid"/><xtce:ArgumentAssignment
+							argumentValue="1" argumentName="cfs-cmd-code"/><xtce:ArgumentAssignment
+							argumentValue="1" argumentName="ccsds-length"/>
 					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
 				<xtce:CommandContainer name="cfs-cmd-container">
 					<xtce:EntryList></xtce:EntryList>
@@ -210,13 +123,13 @@
 			<xtce:MetaCommand name="EnableEventType">
 				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-cmd">
 					<xtce:ArgumentAssignmentList>
-						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid-arg"/><xtce:ArgumentAssignment
-							argumentName="cfs-cmd-code-arg" argumentValue="2"/><xtce:ArgumentAssignment
-							argumentValue="3" argumentName="ccsds-length-arg"/>
+						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid"/><xtce:ArgumentAssignment
+							argumentValue="2" argumentName="cfs-cmd-code"/><xtce:ArgumentAssignment
+							argumentValue="3" argumentName="ccsds-length"/>
 					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
 				<xtce:ArgumentList>
-					<xtce:Argument name="BitMask" argumentTypeRef="cfs-ccsds/BasicTypes/uint8_LE"></xtce:Argument>
-					<xtce:Argument name="Spare" argumentTypeRef="cfs-ccsds/BasicTypes/uint8_LE"></xtce:Argument>
+					<xtce:Argument name="BitMask" argumentTypeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Argument>
+					<xtce:Argument name="Spare" argumentTypeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Argument>
 				</xtce:ArgumentList>
 				<xtce:CommandContainer name="EnableEventType-Container">
 					<xtce:EntryList>
@@ -226,13 +139,13 @@
 			<xtce:MetaCommand name="DisableEventType">
 				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-cmd">
 					<xtce:ArgumentAssignmentList>
-						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid-arg"/><xtce:ArgumentAssignment
-							argumentName="cfs-cmd-code-arg" argumentValue="3"/><xtce:ArgumentAssignment
-							argumentValue="3" argumentName="ccsds-length-arg"/>
+						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid"/><xtce:ArgumentAssignment
+							argumentValue="3" argumentName="cfs-cmd-code"></xtce:ArgumentAssignment><xtce:ArgumentAssignment
+							argumentValue="3" argumentName="ccsds-length"/>
 					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
 				<xtce:ArgumentList>
-					<xtce:Argument name="BitMask" argumentTypeRef="cfs-ccsds/BasicTypes/uint8_LE"></xtce:Argument>
-					<xtce:Argument name="Spare" argumentTypeRef="cfs-ccsds/BasicTypes/uint8_LE"></xtce:Argument>
+					<xtce:Argument name="BitMask" argumentTypeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Argument>
+					<xtce:Argument name="Spare" argumentTypeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Argument>
 				</xtce:ArgumentList>
 				<xtce:CommandContainer name="DisableEventType-Container">
 					<xtce:EntryList>
