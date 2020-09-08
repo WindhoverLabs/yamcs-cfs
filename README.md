@@ -44,7 +44,7 @@ Our argument types, as per XTCE design and standard, are *always* defined under 
 We define Standalone arrays as arrays whose size can be known at compile-time. An example of standalone arrays is `int points[128];`. Dynamic arrays(such as a runtime-allocated array by a malloc/new call) are not meant to be extracted by tools like `Juicer`. Therefore, do not expect our auto-generated XTCE files to have anything useful on dynamic arrays.
 Statically allocated standalone arrays can take the form of a `ArrayParamterType`, which as stated before will *always* appear as part of `<xtce:TelemetryMetaData>`. They can also be of the form `ArrayArgumentType`, which will *always* appear as part of `<xtce:CommandMetaData>`.  Our naming conventions for user-defined types wil *always* be [name][under_score]["t"]. The token "t" is an invariant; ALL types will have the character "t" appended at the end.
 
-###Arrays Inside Structures(*AggregateType)
+### Arrays Inside Structures(*AggregateType)
 
 As of the YAMCS version we use at the moment(5.1.1), arrays inside `AggregateParamterType` or `AggregateArgumentType` are *not* supported. Because of this, we have to come up with our own paradigm of defining arrays inside a structure. Here is an example of how we define an array inside a structure:
 ```
