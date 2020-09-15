@@ -62,6 +62,10 @@ As of the YAMCS version we use at the moment(5.1.1), arrays inside `AggregatePar
 ```
 Here we have a structure called `Payload_t`(notice the naming convention explained above). It has a field called `CommandCounter` and an array that has 6 elements of type `CFE_EVS_AppTlmData_t`. We tried our best to make the naming convention for arrays intuitive. As you can see it looks like a regular array access in code!
 
+### Strings - What is a string?
+
+**TODO:** Document what a string is in the context of our xtce files.
+
 **NOTE**: This documentation is subject to change as our toolchain evolves.
 
-Documented on September 7, 2020
+Documented on September 15, 2020
