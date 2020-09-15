@@ -42,6 +42,8 @@ mdb:
       spec: "mdb/cfs-ccsds.xml"
     - type: "xtce"
       spec: "mdb/CFE_EVS.xml"
+    - type: "xtce"
+      spec: "mdb/auto_generated.xml"
 
 # Configuration for streams created at server startup
 streamConfig:

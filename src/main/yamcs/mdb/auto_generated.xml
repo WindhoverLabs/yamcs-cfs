@@ -1,0 +1,64 @@
+<SpaceSystem name="airliner">
+    <TelemetryMetaData>
+        <ParameterTypeSet>
+            <StringParameterType name="char8_t_LE">
+                <StringDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst">
+                    <SizeInBits>
+                        <Fixed>
+                            <FixedValue>8</FixedValue>
+                        </Fixed>
+                    </SizeInBits>
+                </StringDataEncoding>
+            </StringParameterType>
+            <IntegerParameterType name="char8_t_LE">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="int8_t_LE">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="short int16_t_LE">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="16"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="int16_t_LE">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="16"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="int32_t_LE">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="32"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="long int64_t_LE">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="64"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="int64_t_LE">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="64"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="uchar8_t_LE" signed="false">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="uint8_t_LE" signed="false">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="short unsigned int16_t_LE" signed="false">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="16"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="uint16_t_LE" signed="false">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="16"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="unsigned int32_t_LE" signed="false">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="32"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="long unsigned int64_t_LE" signed="false">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="64"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="uint64_t_LE" signed="false">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="64"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="long long unsigned int64_t_LE" signed="false">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="64"/>
+            </IntegerParameterType>
+            <IntegerParameterType name="long long int64_t_LE">
+                <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="64"/>
+            </IntegerParameterType>
+        </ParameterTypeSet>
+    </TelemetryMetaData>
+    <CommandMetaData/>
+</SpaceSystem>
