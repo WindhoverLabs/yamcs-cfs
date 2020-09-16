@@ -77,7 +77,8 @@
 			<xtce:ParameterTypeSet>
 				<xtce:IntegerParameterType name="uint1_LE">
 					<xtce:IntegerDataEncoding sizeInBits="1"
-						encoding="unsigned" bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst">
+						byteOrder="leastSignificantByteFirst" encoding="unsigned"
+						bitOrder="mostSignificantBitFirst">
 					</xtce:IntegerDataEncoding></xtce:IntegerParameterType>
 				<xtce:IntegerParameterType name="uint1_BE">
 					<xtce:IntegerDataEncoding
