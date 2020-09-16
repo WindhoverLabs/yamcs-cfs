@@ -19,11 +19,11 @@ As the XTCE standard mandates, our namespaces are enclosed with the `<xtce:Space
 
 |Name | Description  | Size in bits   | Encoding   | Endianness   |
 |---|---|---|---|---|
-| uint1_t_LE | An unsigned integer. | 1   | unsigned  | Little Endian  |
-|uint16_t_BE| An unsigned integer.  |  16 | unsigned  | Big endian   |
-|char160_t_LE| A string with 160 bits, or 20 characters. | 160  | UTF-8  | Little Endian  |
+| uint1_LE | An unsigned integer. | 1   | unsigned  | Little Endian  |
+|uint16_BE| An unsigned integer.  |  16 | unsigned  | Big endian   |
+|char160_LE| A string with 160 bits, or 20 characters. | 160  | UTF-8  | Little Endian  |
 
-Our naming conventions for base types will *always* be [type][number_of_bits][under_score]["t"][under_score][Endianness] just lke you see in the table above. Please note that the 't' is an invariant to indicate this is a type.
+Our naming conventions for base types will *always* be [type][number_of_bits][under_score][Endianness] just lke you see in the table above. Please note that the 't' is an invariant to indicate this is a type.
 
 Please note that these base types are nearly identical to what you'd find in a programming language like C. That is because that is what they are meant to represent. Our goal is to auto-generate our XTCE files by extracting data(structs, variables, etc) from binary and executable files. Our reasons for this approach are simple; writing XTCE files by hand is error-prone and time consuming. At the moment the tool chain that will allow us to do this is *almost* done. One of those tools is [juicer](https://github.com/WindhoverLabs/juicer/tree/develop), which extracts DWARF data from ELF files, such as executable binary files. 
 
@@ -42,7 +42,7 @@ Our argument types, as per XTCE design and standard, are *always* defined under 
 
 ## Standalone arrays
 We define Standalone arrays as arrays whose size can be known at compile-time. An example of standalone arrays is `int points[128];`. Dynamic arrays(such as a runtime-allocated array by a malloc/new call) are not meant to be extracted by tools like `Juicer`. Therefore, do not expect our auto-generated XTCE files to have anything useful on dynamic arrays.
-Statically allocated standalone arrays can take the form of a `ArrayParamterType`, which as stated before will *always* appear as part of `<TelemetryMetaData>`. They can also be of the form `ArrayArgumentType`, which will *always* appear as part of `<CommandMetaData>`.  Our naming conventions for user-defined types wil *always* be [name][under_score]["t"]. The token "t" is an invariant; ALL types will have the character "t" appended at the end.
+Statically allocated standalone arrays can take the form of a `ArrayParamterType`, which as stated before will *always* appear as part of `<TelemetryMetaData>`. They can also be of the form `ArrayArgumentType`, which will *always* appear as part of `<CommandMetaData>`.  Our naming conventions for user-defined types wil *always* be [name][under_score]["t"]. The token "t" is an invariant; ALL user-defined types will have the character "t" appended at the end.
 
 ### Arrays Inside Structures(*AggregateType)
 
@@ -68,4 +68,4 @@ Here we have a structure called `Payload_t`(notice the naming convention explain
 
 **NOTE**: This documentation is subject to change as our toolchain evolves.
 
-Documented on September 15, 2020
+Documented on September 16, 2020
