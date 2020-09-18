@@ -82,7 +82,7 @@ The types shown above such as uint16_LE are what is known as a base type. These 
 | int4_BE | A signed integer. | 4   | signed  | Big Endian  |
 | int4_LE | A signed integer. | 4   | signed  | Little Endian  |
 | uint5_BE | An unsigned integer. | 5   | unsigned  | Big Endian  |
-| uint5_LE | An unsigned integer. | 3   | unsigned  | Little Endian  |
+| uint5_LE | An unsigned integer. | 5   | unsigned  | Little Endian  |
 | int5_BE | A signed integer. | 5  | signed  | Big Endian  |
 | int5_LE | A signed integer. | 5   | signed  | Little Endian  |
 | uint6_BE | An unsigned integer. | 6   | unsigned  | Big Endian  |
@@ -166,7 +166,7 @@ The types shown above such as uint16_LE are what is known as a base type. These 
 | int25_BE | A signed integer. |  25  | signed  | Big Endian  |
 | int25_LE | A signed integer. |  25  | signed  | Little Endian  |
 | uint26_BE | An unsigned integer. |  26  | unsigned  | Big Endian  |
-| uint26_LE | An unsigned integer. |    | unsigned  | Little Endian  |
+| uint26_LE | An unsigned integer. |  26  | unsigned  | Little Endian  |
 | int26_BE | A signed integer. |  26  | signed  | Big Endian  |
 | int26_LE | A signed integer. |  26  | signed  | Little Endian  |
 | uint27_BE | An unsigned integer. |   27 | unsigned  | Big Endian  |
@@ -194,7 +194,7 @@ The types shown above such as uint16_LE are what is known as a base type. These 
 | int32_BE | A signed integer. |  32  | signed  | Big Endian  |
 | int32_LE | A signed integer. |  32  | signed  | Little Endian  |
 | uint33_BE | An unsigned integer. |  33  | unsigned  | Big Endian  |
-| uint33_LE | An unsigned integer. |    | unsigned  | Little Endian  |
+| uint33_LE | An unsigned integer. |   33 | unsigned  | Little Endian  |
 | int33_BE | A signed integer. |  33  | signed  | Big Endian  |
 | int33_LE | A signed integer. | 33   | signed  | Little Endian  |
 | uint34_BE | An unsigned integer. |   34 | unsigned  | Big Endian  |
