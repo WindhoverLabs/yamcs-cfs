@@ -64,39 +64,43 @@ Here we have a structure called `Payload_t`(notice the naming convention explain
 
 ## Base types(Intrinsic types)
 The types shown above such as uint16_LE are what is known as a base type. These are the types that represent things like int, float, char, etc in code. As mentioned above these *will* always be part of the `BaseType` namespace. Below is a table with all of our base types. Please note that this table is subject as we have not fully standarized our xtce format yet.
+The endianness cells marked with a "*" at the end are _exclusively_ describing _just_ bit ordering and NOT byte-ordering.
+As you see on the table this just applies to the types that are 8 bits or less as byte-ordering is irrelevant for these.
+We consider _bit_ ordering for all of our types for the rare case where there is an architecture that takes into count bit ordering.
+
 
 |Name | Description  | Size in bits   | Encoding   | Endianness   |
 |---|---|---|---|---|
-| uint1_LE | An unsigned integer. | 1   | unsigned  | Little Endian  |
-| uint1_BE | An unsigned integer. | 1   | unsigned  | Big Endian  |
-| uint2_LE | An unsigned integer. | 2   | unsigned  | Little Endian  |
-| uint2_BE | An unsigned integer. | 2   | unsigned  | Big Endian  |
-| int2_BE | A signed integer. | 2   | signed  | Big Endian  |
-| int2_LE | A signed integer. | 2   | signed  | Little Endian  |
-| uint3_BE | An unsigned integer. | 3   | unsigned  | Big Endian  |
-| uint3_LE | An unsigned integer. | 3   | unsigned  | Little Endian  |
-| int3_BE | A signed integer. | 3   | signed  | Big Endian  |
-| int3_LE | A signed integer. | 3   | signed  | Little Endian  |
-| uint4_BE | An unsigned integer. | 4   | unsigned  | Big Endian  |
-| uint4_LE | An unsigned integer. | 4   | unsigned  | Little Endian  |
-| int4_BE | A signed integer. | 4   | signed  | Big Endian  |
-| int4_LE | A signed integer. | 4   | signed  | Little Endian  |
-| uint5_BE | An unsigned integer. | 5   | unsigned  | Big Endian  |
-| uint5_LE | An unsigned integer. | 5   | unsigned  | Little Endian  |
-| int5_BE | A signed integer. | 5  | signed  | Big Endian  |
-| int5_LE | A signed integer. | 5   | signed  | Little Endian  |
-| uint6_BE | An unsigned integer. | 6   | unsigned  | Big Endian  |
-| uint6_LE | An unsigned integer. | 6   | unsigned  | Little Endian  |
-| int6_BE | A signed integer. | 6   | signed  | Big Endian  |
-| int6_LE | A signed integer. | 6   | signed  | Little Endian  |
-| uint7_BE | An unsigned integer. | 7   | unsigned  | Big Endian  |
-| uint7_LE | An unsigned integer. | 7   | unsigned  | Little Endian  |
-| int7_BE | A signed integer. | 7   | signed  | Big Endian  |
-| int7_LE | A signed integer. | 7   | signed  | Little Endian  |
-| uint8_BE | An unsigned integer. | 8   | unsigned  | Big Endian  |
-| uint8_LE | An unsigned integer. | 8   | unsigned  | Little Endian  |
-| int8_BE | A signed integer. | 8   | signed  | Big Endian  |
-| int8_LE | A signed integer. | 8   | signed  | Little Endian  |
+| uint1_BE | An unsigned integer. | 1   | unsigned  | Big Endian*  |
+| uint1_LE | An unsigned integer. | 1   | unsigned  | Big Endian*  |
+| uint2_BE | An unsigned integer. | 2   | unsigned  | Big Endian*  |
+| uint2_LE | An unsigned integer. | 2   | unsigned  | Little Endian*  |
+| int2_BE | A signed integer. | 2   | signed  | Big Endian*  |
+| int2_LE | A signed integer. | 2   | signed  | Little Endian*  |
+| uint3_BE | An unsigned integer. | 3   | unsigned  | Big Endian*  |
+| uint3_LE | An unsigned integer. | 3   | unsigned  | Little Endian*  |
+| int3_BE | A signed integer. | 3   | signed  | Big Endian*  |
+| int3_LE | A signed integer. | 3   | signed  | Little Endian*  |
+| uint4_BE | An unsigned integer. | 4   | unsigned  | Big Endian*  |
+| uint4_LE | An unsigned integer. | 4   | unsigned  | Little Endian*  |
+| int4_BE | A signed integer. | 4   | signed  | Big Endian*  |
+| int4_LE | A signed integer. | 4   | signed  | Little Endian*  |
+| uint5_BE | An unsigned integer. | 5   | unsigned  | Big Endian*  |
+| uint5_LE | An unsigned integer. | 5   | unsigned  | Little Endian*  |
+| int5_BE | A signed integer. | 5  | signed  | Big Endian*  |
+| int5_LE | A signed integer. | 5   | signed  | Little Endian*  |
+| uint6_BE | An unsigned integer. | 6   | unsigned  | Big Endian*  |
+| uint6_LE | An unsigned integer. | 6   | unsigned  | Little Endian*  |
+| int6_BE | A signed integer. | 6   | signed  | Big Endian*  |
+| int6_LE | A signed integer. | 6   | signed  | Little Endian*  |
+| uint7_BE | An unsigned integer. | 7   | unsigned  | Big Endian*  |
+| uint7_LE | An unsigned integer. | 7   | unsigned  | Little Endian*  |
+| int7_BE | A signed integer. | 7   | signed  | Big Endian*  |
+| int7_LE | A signed integer. | 7   | signed  | Little Endian*  |
+| uint8_BE | An unsigned integer. | 8   | unsigned  | Big Endian*  |
+| uint8_LE | An unsigned integer. | 8   | unsigned  | Little Endian*  |
+| int8_BE | A signed integer. | 8   | signed  | Big Endian*  |
+| int8_LE | A signed integer. | 8   | signed  | Little Endian*  |
 | uint9_BE | An unsigned integer. | 9   | unsigned  | Big Endian  |
 | uint9_LE | An unsigned integer. | 9   | unsigned  | Little Endian  |
 | int9_BE | A signed integer. | 9   | signed  | Big Endian  |
