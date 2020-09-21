@@ -23,7 +23,7 @@ As the XTCE standard mandates, our namespaces are enclosed with the `<xtce:Space
 |uint16_BE| An unsigned integer.  |  16 | unsigned  | Big endian   |
 |char160_LE| A string with 160 bits, or 20 characters. | 160  | UTF-8  | Little Endian  |
 
-Our naming conventions for base types will *always* be [type][number_of_bits][under_score][Endianness] just lke you see in the table above. Please note that the 't' is an invariant to indicate this is a type.
+Our naming conventions for base types will *always* be [type][number_of_bits][under_score][Endianness] just lke you see in the table above.
 
 Please note that these base types are nearly identical to what you'd find in a programming language like C. That is because that is what they are meant to represent. Our goal is to auto-generate our XTCE files by extracting data(structs, variables, etc) from binary and executable files. Our reasons for this approach are simple; writing XTCE files by hand is error-prone and time consuming. At the moment the tool chain that will allow us to do this is *almost* done. One of those tools is [juicer](https://github.com/WindhoverLabs/juicer/tree/develop), which extracts DWARF data from ELF files, such as executable binary files. 
 
