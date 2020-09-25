@@ -328,6 +328,8 @@ We consider _bit_ ordering for all of our types for the rare case where there is
 | int64_BE | A signed integer. | 64   | signed  | Big Endian  |
 | int64_LE | A signed integer. |  64  | signed  | Little Endian  |
 | float32_LE | A signed floating point number. |  32  | signed  | Little Endian  |
+| float32_BE | A signed floating point number. |  32  | signed  | Big Endian  |
+| boolean8_LE | A boolean. "1" means TRUE; "0" FALSE. |  8  | N/A  | Little Endian  |
 
 ### Strings - What is a string?
 
