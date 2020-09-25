@@ -8,7 +8,7 @@ A YAMCS plugin for [ailriner](https://github.com/WindhoverLabs/airliner).
 ### Dependencies <a name="dependencies"></a>
 - `Java 11`
 - `Maven`
-- `YAMCS 5.1.1`
+- `YAMCS 5.1.3`
 
 # XTCE Patterns and Conventions <a name="XTCE-Patterns-and-Conventions"></a>
 While we strive for 100% XTCE compliance, we lean towards YAMCS's version of XTCE, which is *almost* fully XTCE compliant. Below are the specifications of the patterns, naming conventions and overall structure we follow  to generate our XTCE files .
@@ -331,10 +331,17 @@ We consider _bit_ ordering for all of our types for the rare case where there is
 | float32_BE | A signed floating point number. |  32  | signed  | Big Endian  |
 | boolean8_LE | A boolean. "1" means TRUE; "0" FALSE. |  8  | N/A  | Little Endian  |
 
+## YAMCS-XTCE Quirks
+Our xtce flavor adheres to yamcs. In the future, we'll try our best to design our toolchain in such a way we can
+be 100% compliant with `xtce`, but at the moment we adhere to yamcs-flavored xtce _only_. As a result of this, we will 
+need to deal with any quirks this yamcs-flavored xtce standard may have. Below are a list of quirks we've discovered
+so far:
+- It seems that yamcs has issues processing any `Paramter` entries that have a '#' in the name.
+
 ### Strings - What is a string?
 
 **TODO:** Document what a string is in the context of our xtce files.
 
 **NOTE**: This documentation is subject to change as our toolchain evolves.
 
-Documented on September 17, 2020
+Documented on September 25, 2020
