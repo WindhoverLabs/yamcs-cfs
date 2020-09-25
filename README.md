@@ -46,7 +46,7 @@ Statically allocated standalone arrays can take the form of a `ArrayParamterType
 
 ### Arrays Inside Structures(*AggregateType)
 
-As of the YAMCS version we use at the moment(5.1.1), arrays inside `AggregateParamterType` or `AggregateArgumentType` are *not* supported. Because of this, we have to come up with our own paradigm of defining arrays inside a structure. Here is an example of how we define an array inside a structure:
+As of the YAMCS version we use at the moment(5.1.3), arrays inside `AggregateParamterType` or `AggregateArgumentType` are *not* supported. Because of this, we have to come up with our own paradigm of defining arrays inside a structure. Here is an example of how we define an array inside a structure:
 ```
 	<AggregateParameterType name="Payload_t">
 				<MemberList>
