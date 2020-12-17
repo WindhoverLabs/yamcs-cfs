@@ -3,12 +3,35 @@ A YAMCS plugin for [ailriner](https://github.com/WindhoverLabs/airliner).
 
 # Table of Contents
 1. [Dependencies](#dependencies)
-2. [XTCE Patterns and Conventions](#XTCE-Patterns-and-Conventions)
+2. [To Run](#to_run)
+3. [XTCE Patterns and Conventions](#XTCE-Patterns-and-Conventions)
+
 
 ### Dependencies <a name="dependencies"></a>
 - `Java 11`
 - `Maven`
 - `YAMCS 5.1.3`
+- `Ubuntu 16/18/20`
+
+
+### To Run <a name="to_run"></a>
+For now this yamcs setup is pre-configured for airliner's `tutorial/cfs`, however do note that this can be re-configured 
+by replacing the `src/main/yamcs/mdb/cfs.xml` xtce file with another one that is specific to the build of the flight
+software which can be something else other than airliner. For more details on generating xtce files the easy way
+look at [auto-yamcs](https://github.com/WindhoverLabs/auto-yamcs.git).
+
+To run yamcs with the current configuration:
+```
+mvn yamcs:run
+```
+If all went well, the output of the terminal should be very similar to the following:
+
+![yamcs](images/yamcs_output.png "yamcs output")
+
+The yamcs web interface should be accessible at the address at the bottom of the output.
+
+**NOTE:** The `mvn` command is invoking [maven](https://packages.ubuntu.com/xenial/maven)
+
 
 # XTCE Patterns and Conventions <a name="XTCE-Patterns-and-Conventions"></a>
 While we strive for 100% XTCE compliance, we lean towards YAMCS's version of XTCE, which is *almost* fully XTCE compliant. Below are the specifications of the patterns, naming conventions and overall structure we follow  to generate our XTCE files .
@@ -344,4 +367,4 @@ so far:
 
 **NOTE**: This documentation is subject to change as our toolchain evolves.
 
-Documented on September 25, 2020
+Documented on December 17, 2020
