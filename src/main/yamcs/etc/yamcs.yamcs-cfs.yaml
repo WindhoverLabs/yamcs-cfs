@@ -21,6 +21,9 @@ services:
       backFiller:
         enabled: true
         warmupTime: 60
+  - class: org.yamcs.tctm.cfs.CfsEventDecoder
+    args:
+      msgIds: [0x0808]
 
 dataLinks:
   - name: udp-in
