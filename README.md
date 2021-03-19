@@ -3,16 +3,29 @@ A YAMCS plugin for [ailriner](https://github.com/WindhoverLabs/airliner).
 
 # Table of Contents
 1. [Dependencies](#dependencies)
-2. [To Run](#to_run)
-3. [XTCE Patterns and Conventions](#XTCE-Patterns-and-Conventions)
+2. [To Build](#to_build)  
+3. [To Run](#to_run)
+4. [Add It to your YAMCS Install](#add_it_to_yamcs)   
+5. [XTCE Patterns and Conventions](#XTCE-Patterns-and-Conventions)
 
 
 ### Dependencies <a name="dependencies"></a>
 - `Java 11`
 - `Maven`
-- `YAMCS 5.1.3`
+- `YAMCS>=5.4.3`
 - `Ubuntu 16/18/20`
 
+### To Build <a name="to_build"></a>
+```
+mvn install -DskipTests
+```
+
+To package it:
+```
+mvn package -DskipTests
+```
+
+The `package` command will output a jar file at `yamcs-cfs/target`.
 
 ### To Run <a name="to_run"></a>
 For now this yamcs setup is pre-configured for airliner's `tutorial/cfs`, however do note that this can be re-configured 
@@ -31,6 +44,16 @@ If all went well, the output of the terminal should be very similar to the follo
 The yamcs web interface should be accessible at the address at the bottom of the output.
 
 **NOTE:** The `mvn` command is invoking [maven](https://packages.ubuntu.com/xenial/maven)
+
+
+### Add it to YAMCS <a name="add_it_to_yamcs"></a>
+Assuming YAMCS is installed at `/opt/yamcs`:
+```
+wget https://github.com/WindhoverLabs/yamcs-cfs/releases/download/1.0.5/yamcs-cfs-1.0.5.jar
+cp yamcs-cfs-1.0.5.jar /opt/yamcs/lib/ext
+```
+
+
 
 
 # XTCE Patterns and Conventions <a name="XTCE-Patterns-and-Conventions"></a>
