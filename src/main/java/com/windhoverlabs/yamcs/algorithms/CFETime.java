@@ -15,12 +15,19 @@ import org.yamcs.xtce.InputParameter;
 public class CFETime {
 
 	//Still not sure if we NEED the class to be static(?)
-	 public static class AvgAlgorithm2 extends AbstractAlgorithmExecutor {
+	 public static class CFETime_Algorithm extends AbstractAlgorithmExecutor {
 
-	    public AvgAlgorithm2(Algorithm algorithmDef, AlgorithmExecutionContext execCtx) {
+	    public CFETime_Algorithm(Algorithm algorithmDef, AlgorithmExecutionContext execCtx) {
 	        super(algorithmDef, execCtx);
 	    }
 	    
+	    
+	    private int  CFE_TIME_Sub2MicroSecs(int SubSeconds) 
+	    {
+	    	//Some cool time calculations
+	    	
+	    	return 0;
+	    }
 
 	    /**
 	     * This function is called every time the algorithm is triggered.
@@ -42,6 +49,11 @@ public class CFETime {
 	        //Probably not the cleanest way of fetching values, still learning about the API.
 	        //Doing something really simple. Take the command counter and multiply it by 2.
 	        int counter =  (Integer.parseInt(payload.getMemberValue("CmdCounter").toString()) * 2);
+	        
+	        //Do we have to read the YAML form this context? If so, how should we do it?
+	        //Unless the format is in the packet itself...?
+	        //Unless we can access the registry from this context?
+	        int realTime = CFE_TIME_Sub2MicroSecs(1);
 
 	        //getOutputParameter refers to the nodes under OutputSet in XTCE.
 	        ParameterValue pv = new ParameterValue(getOutputParameter(0));
