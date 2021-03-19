@@ -14,6 +14,7 @@ import org.yamcs.xtce.InputParameter;
 
 public class CFETime {
 
+	//Still not sure if we NEED the class to be static(?)
 	 public static class AvgAlgorithm2 extends AbstractAlgorithmExecutor {
 
 	    public AvgAlgorithm2(Algorithm algorithmDef, AlgorithmExecutionContext execCtx) {
