@@ -8,52 +8,59 @@
   <packaging>jar</packaging>
   <name>Telemetry and Command provider for Core Flight Software</name>
   
-   <properties>
+  <properties>
     <yamcsVersion>5.4.5</yamcsVersion>
-     <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
   
-    <dependencies>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.1</version>
-      </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.1</version>
+    </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>1.7.1</version>
-      </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.1</version>
+    </dependency>
 
-      <dependency>
-        <groupId>org.yamcs</groupId>
-        <artifactId>yamcs-api</artifactId>
-        <version>${yamcsVersion}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.yamcs</groupId>
+      <artifactId>yamcs-api</artifactId>
+      <version>${yamcsVersion}</version>
+    </dependency>
 
-      <dependency>
-        <groupId>org.yamcs</groupId>
-        <artifactId>yamcs-core</artifactId>
-        <version>${yamcsVersion}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.yamcs</groupId>
+      <artifactId>yamcs-core</artifactId>
+      <version>${yamcsVersion}</version>
+    </dependency>
       
     <dependency>
       <groupId>org.yamcs</groupId>
       <artifactId>yamcs-web</artifactId>
       <version>${yamcsVersion}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.openmuc</groupId>
+      <artifactId>jrxtx</artifactId>
+      <version>1.0.1</version>
+    </dependency>
 
-      <!-- TEST DEPENDENCIES -->
+    <!-- TEST DEPENDENCIES -->
 
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.8.2</version>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.2</version>
+      <scope>test</scope>
+    </dependency>
+    
+  </dependencies>
 
   <reporting>
     <plugins>
@@ -83,13 +90,10 @@
   </reporting>
 
   <repositories>
+      
     <repository>
-      <id>my-internal-site</id>
-      <url>file:///opt/releases/</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
+        <id>java.net repository</id>
+        <url>http://download.java.net/maven/2</url>
     </repository>
 
     <repository>
