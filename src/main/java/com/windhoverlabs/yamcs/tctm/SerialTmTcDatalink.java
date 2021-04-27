@@ -126,13 +126,19 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
         // Read https://github.com/eclipse/jetty.project/issues/3244 for details
         ((Buffer)bb).rewind();
         String reason = null;
+        int bytesWritten = 0;
         while (!sent && (retries > 0)) {
             try {
             	if(serialPort == null) {
             	    openDevice();
             	}
             	WritableByteChannel channel = Channels.newChannel(outputStream);
-            	channel.write(bb);
+            	
+            	while(bytesWritten < binary.length) 
+            	{
+            		bytesWritten += channel.write(bb);
+            	}
+            	
             	dataOutCount.getAndIncrement();
                 sent = true;
             } catch (IOException e) {
