@@ -27,7 +27,7 @@ mvn dependency:copy-dependencies
 ```
 
 The `package` command will output a jar file at `yamcs-cfs/target`.
-Note the `dependency:copy-dependencies` command; this will copy the all of the jars to the `yamcs-cfs/target/dependency` directory. Very useful for integrating third-party dependencies.
+Note the `dependency:copy-dependencies` command; this will copy all of the jars to the `yamcs-cfs/target/dependency` directory. Very useful for integrating third-party dependencies.
 
 ### To Run <a name="to_run"></a>
 For now this yamcs setup is pre-configured for airliner's `tutorial/cfs`, however do note that this can be re-configured 
