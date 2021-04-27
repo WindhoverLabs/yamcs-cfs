@@ -2,6 +2,7 @@ package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -121,7 +122,9 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
         boolean sent = false;
 
         ByteBuffer bb = ByteBuffer.wrap(binary);
-        bb.rewind();
+        // Must do this as this can become a quirk in some java versions.
+        // Read https://github.com/eclipse/jetty.project/issues/3244 for details
+        ((Buffer)bb).rewind();
         String reason = null;
         while (!sent && (retries > 0)) {
             try {
