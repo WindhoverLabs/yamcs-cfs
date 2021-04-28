@@ -25,7 +25,10 @@ import org.yamcs.utils.TimeEncoding;
 import org.yamcs.utils.YObjectLoader;
 
 public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, Runnable {
-    protected CommandPostprocessor cmdPostProcessor;
+    protected int burstRate;
+    protected int burstDelay;
+    
+	protected CommandPostprocessor cmdPostProcessor;
     protected CommandHistoryPublisher commandHistoryPublisher;
     protected AtomicLong dataOutCount = new AtomicLong();
     private AggregatedDataLink parent = null;
@@ -36,6 +39,9 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
     public void init(String instance, String name, YConfiguration config) throws ConfigurationException {
         // Read arguments
         super.init(instance, name, config);
+        
+        this.burstRate = config.getInt("burstRate", 0);
+        this.burstDelay = config.getInt("burstDelay", 0);
 
         // Setup tc postprocessor
         initPostprocessor(yamcsInstance, config);
@@ -120,11 +126,14 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
         
         int retries = 5;
         boolean sent = false;
+        int stride = 0;
 
-        ByteBuffer bb = ByteBuffer.wrap(binary);
-        // Must do this as this can become a quirk in some java versions.
-        // Read https://github.com/eclipse/jetty.project/issues/3244 for details
-        ((Buffer)bb).rewind();
+    	if(this.burstRate > 0) {
+    		stride = this.burstRate;
+    	} else {
+    		stride = binary.length;
+    	}
+        
         String reason = null;
         int bytesWritten = 0;
         while (!sent && (retries > 0)) {
@@ -134,9 +143,17 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
             	}
             	WritableByteChannel channel = Channels.newChannel(outputStream);
             	
-            	while(bytesWritten < binary.length) 
-            	{
-            		bytesWritten += channel.write(bb);
+            	while(bytesWritten < binary.length) { 
+	            	ByteBuffer bb = ByteBuffer.wrap(binary, bytesWritten, stride);
+	                // Must do this as this can become a quirk in some java versions.
+	                // Read https://github.com/eclipse/jetty.project/issues/3244 for details
+	                ((Buffer)bb).rewind();
+	                    
+	                bytesWritten += channel.write(bb);
+	                
+	                if(this.burstDelay > 0) {
+	                    Thread.sleep(this.burstDelay);
+	            	} 
             	}
             	
             	dataOutCount.getAndIncrement();
@@ -152,7 +169,10 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-            }
+            } catch (InterruptedException e) {
+                log.warn("exception {} thrown when sleeping for burstDelay", e.toString());
+                Thread.currentThread().interrupt();
+			}
             retries--;
             if (!sent && (retries > 0)) {
                 try {
