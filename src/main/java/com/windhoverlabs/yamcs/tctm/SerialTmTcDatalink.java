@@ -6,6 +6,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.yamcs.ConfigurationException;
@@ -143,8 +144,10 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
             	}
             	WritableByteChannel channel = Channels.newChannel(outputStream);
             	
-            	while(bytesWritten < binary.length) { 
-	            	ByteBuffer bb = ByteBuffer.wrap(binary, bytesWritten, stride);
+            	while(bytesWritten < binary.length) {
+            		byte[] fragment = new byte[stride];
+            		System.arraycopy(binary, bytesWritten, fragment, 0, stride);
+	            	ByteBuffer bb = ByteBuffer.wrap(fragment);
 	                // Must do this as this can become a quirk in some java versions.
 	                // Read https://github.com/eclipse/jetty.project/issues/3244 for details
 	                ((Buffer)bb).rewind();
@@ -153,7 +156,8 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
 	                
 	                if(this.burstDelay > 0) {
 	                    Thread.sleep(this.burstDelay);
-	            	} 
+	            	}
+	                
             	}
             	
             	dataOutCount.getAndIncrement();
