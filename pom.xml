@@ -132,6 +132,10 @@
     
   <build>
    <resources>
+   <resource>
+     <directory>src/main/resources</directory>
+   </resource>
+   <resources>
       <resource>
         <directory>${project.build.directory}/generated-resources/protobuf</directory>
       </resource>
