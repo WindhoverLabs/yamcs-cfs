@@ -78,6 +78,7 @@
         <artifactId>yamcs-maven-plugin</artifactId>
         <version>1.2.5</version>
       </plugin>
+      
       <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
         <configuration> <encoding>UTF-8</encoding> <configLocation>checkstyle.xml</configLocation> 
         <enableRulesSummary>false</enableRulesSummary> </configuration> </plugin> -->
@@ -130,11 +131,82 @@
   </distributionManagement>    
     
   <build>
+   <resources>
+      <resource>
+        <directory>${project.build.directory}/generated-resources/protobuf</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.yamcs</groupId>
         <artifactId>yamcs-maven-plugin</artifactId>
-        <version>1.2.5</version>
+        <version>1.2.6</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>detect</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>bundle-extension</id>
+            <phase>package</phase>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+            <configuration>
+              <includeDefaultWrappers>false</includeDefaultWrappers>
+              <includeConfiguration>false</includeConfiguration>
+              <formats>
+                <format>tar.gz</format>
+              </formats>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <!-- Sets the 'os.detected.classifier' maven property (needed to fetch native protoc) -->
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.6.2</version>
+        <executions>
+          <execution>
+            <phase>initialize</phase>
+            <goals>
+              <goal>detect</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+            <plugin>
+        <!-- Generate Protobuf java sources -->
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.6.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <protocArtifact>com.google.protobuf:protoc:3.7.1:exe:${os.detected.classifier}</protocArtifact>
+          <checkStaleness>true</checkStaleness>
+          <writeDescriptorSet>true</writeDescriptorSet>
+          <descriptorSetFileName>${project.artifactId}.protobin</descriptorSetFileName>
+          <descriptorSetOutputDirectory>${project.build.directory}/generated-resources/protobuf</descriptorSetOutputDirectory>
+          <includeDependenciesInDescriptorSet>false</includeDependenciesInDescriptorSet>
+          <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
+          <protocPlugins>
+            <protocPlugin>
+              <id>yamcs</id>
+              <groupId>org.yamcs</groupId>
+              <artifactId>yamcs-protoc-plugin</artifactId>
+              <version>5.2.3</version>
+              <mainClass>org.yamcs.protoc.ServiceGenerator</mainClass>
+            </protocPlugin>
+          </protocPlugins>
+        </configuration>
       </plugin>
     </plugins>
   </build>

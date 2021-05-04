@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package yamcs.protobuf.studio;
+
+option java_package = "org.yamcs.studio.api";
+option java_outer_classname = "StudioProto";
+option java_multiple_files = true;
+
+import "yamcs/api/annotations.proto";
+import "yamcs/api/httpbody.proto";
+
+service HelloWorldApi {
+
+  // Exports metrics in Prometheus text format
+  rpc HelloWorld(HelloWorldRequest) returns (yamcs.api.HttpBody) {
+    option (yamcs.api.route) = {
+      get: "/api/studio/hello_world"
+    };
+  }
+}
+
+message HelloWorldRequest {
+  repeated string name = 1;
+}
