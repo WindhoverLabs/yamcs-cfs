@@ -11,10 +11,10 @@ import "yamcs/api/httpbody.proto";
 
 service HelloWorldApi {
 
-  // Exports metrics in Prometheus text format
+  // Simple protobuf object
   rpc HelloWorld(HelloWorldResponse) returns (HelloWorldResponse) {
     option (yamcs.api.route) = {
-      get: "/api/studio/hello_world"
+      get: "/api/{instance}/studio/hello_world"
     };
   }
 }
@@ -35,5 +35,6 @@ message ListHelloInfo {
 }
 
 message HelloWorldResponse {
-  repeated ListHelloInfo helloInfo = 1;
+  optional string instance = 1;
+  repeated ListHelloInfo helloInfo = 2;
 }
