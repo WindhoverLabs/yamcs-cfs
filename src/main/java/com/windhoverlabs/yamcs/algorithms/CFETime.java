@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.yamcs.algorithms.AbstractAlgorithmExecutor;
+import org.yamcs.algorithms.AlgorithmException;
 import org.yamcs.algorithms.AlgorithmExecutionContext;
+//import org.yamcs.algorithms.AlgorithmExecutionResult;
 //import org.yamcs.algorithms.AlgorithmExecutionResult;
 import org.yamcs.parameter.AggregateValue;
 import org.yamcs.parameter.ParameterValue;
@@ -71,6 +73,14 @@ public class CFETime {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+
+		@Override
+		public Algorithm getAlgorithm() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}   
 
 	
