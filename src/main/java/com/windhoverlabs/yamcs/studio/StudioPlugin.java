@@ -36,6 +36,8 @@ public class StudioPlugin  implements Plugin {
     @Override
     public void onLoad(YConfiguration config) throws PluginException {
         YamcsServer yamcs = YamcsServer.getServer();
+        
+        System.out.println("studio plugin loaded");
 
         List<HttpServer> httpServers = yamcs.getGlobalServices(HttpServer.class);
         if (httpServers.isEmpty()) {
@@ -55,5 +57,28 @@ public class StudioPlugin  implements Plugin {
         }
 
         httpServer.addApi(new HelloWorldApi());
+        
+//        System.out.println("adding handler");
+//        
+//        Handler redirectHandler = new RedirectHandler();
+//        httpServer.addHandler("hello_world", () -> redirectHandler);
+    }
+    
+    @Sharable
+    private static final class RedirectHandler extends Handler {
+        @Override
+        public void handle(ChannelHandlerContext ctx, FullHttpRequest req) {
+        	System.out.println("executing handle function");
+            FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                    HttpResponseStatus.OK);
+//            QueryStringDecoder qs = new QueryStringDecoder(req.uri());
+//            String location = qs.rawPath().replaceFirst("metrics", "api/prometheus/metrics");
+//            String q = qs.rawQuery();
+//            if (!q.isEmpty()) {
+//                location += "?" + q;
+//            }
+//            response.headers().add(HttpHeaderNames.LOCATION, location);
+            HttpRequestHandler.sendResponse(ctx, req, response);
+        }
     }
 }
