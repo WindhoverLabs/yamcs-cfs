@@ -1,15 +1,9 @@
 package com.windhoverlabs.yamcs.studio;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-
-import org.yamcs.api.HttpBody;
 import org.yamcs.api.Observer;
 import org.yamcs.http.Context;
 
-import com.google.protobuf.ByteString;
-import com.google.protobuf.ByteString.Output;
+
 
 public class HelloWorldApi extends AbstractHelloWorldApi<Context> {
 
@@ -19,9 +13,7 @@ public class HelloWorldApi extends AbstractHelloWorldApi<Context> {
 		
 		System.out.println("Hello World from server...");
 		
-        try (Output out = ByteString.newOutput(); Writer writer = new OutputStreamWriter(out)) {
-            writer.close();
-            
+        try  {            
             HelloWorldResponse.Builder hwResponse = HelloWorldResponse.newBuilder();
             
             ListHelloInfo.Builder listHWInfo = ListHelloInfo.newBuilder();
@@ -36,13 +28,8 @@ public class HelloWorldApi extends AbstractHelloWorldApi<Context> {
             
             hwResponse.addHelloInfo(listHWInfo);
             
-            HttpBody body = HttpBody.newBuilder()
-                    .setContentType("1")
-                    .setData(out.toByteString())
-                    .build();
-            
             observer.complete(hwResponse.build());
-        } catch (IOException e) {
+        } catch (Exception e) {
             observer.completeExceptionally(e);
         }
         
