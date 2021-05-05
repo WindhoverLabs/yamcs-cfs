@@ -45,6 +45,8 @@ public class StudioPlugin  implements Plugin {
             return;
         }
         
+        
+        
 //        CollectorRegistry registry = CollectorRegistry.defaultRegistry;
 
         HttpServer httpServer = httpServers.get(0);
