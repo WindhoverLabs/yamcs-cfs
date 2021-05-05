@@ -58,7 +58,7 @@ public class StudioPlugin  implements Plugin {
             throw new PluginException(e);
         }
 
-        httpServer.addApi(new HelloWorldApi());
+        httpServer.addApi(new StudioLinkApi());
         
 //        System.out.println("adding handler");
 //        

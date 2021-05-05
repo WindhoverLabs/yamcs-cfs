@@ -9,32 +9,17 @@ option java_multiple_files = true;
 import "yamcs/api/annotations.proto";
 import "yamcs/api/httpbody.proto";
 
-service HelloWorldApi {
+service StudioLinkApi {
 
   // Simple protobuf object
-  rpc HelloWorld(HelloWorldResponse) returns (HelloWorldResponse) {
+  rpc configureUpdTcDataLink(configureUpdTcDataLinkResponse) returns (configureUpdTcDataLinkResponse) {
     option (yamcs.api.route) = {
-      get: "/api/{instance}/studio/hello_world/{ipaddress}/{port}/"
+      get: "/api/{instance}/studio/configureUpdTcDataLink/:{ipaddress},{port}"
     };
   }
 }
 
-//message HelloInfo {
-//  // Name.
-//  optional string name = 1;
-//
-//  // Age
-//  optional uint64 age = 2;
-//
-//  // Job
-//  optional string job = 3;
-//}
-//
-//message ListHelloInfo {
-//  repeated HelloInfo info = 1;
-//}
-
-message HelloWorldResponse {
+message configureUpdTcDataLinkResponse {
   optional string instance = 1;
   optional uint64 port  = 2;
   optional string ipaddress = 3;
