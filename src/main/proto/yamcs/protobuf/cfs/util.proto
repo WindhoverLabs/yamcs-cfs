@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package yamcs.protobuf.cfs;
+
+option java_package = "com.windhoverlabs.yamcs.cfs";
+option java_outer_classname = "CfsUtilProto";
+option java_multiple_files = true;
+import "yamcs/api/annotations.proto";
+import "yamcs/api/httpbody.proto";
+service CfsUtilApi {
+
+// Fetch the sch table for a specific app
+	rpc GetSchTable (GetSchTableRequest) returns (SchTableResponse) {
+		option (yamcs.api.route) = {
+			get : "/api/{instance}/cfs/sch/{app}/table" };
+	}
+}
+
+message GetSchTableRequest {
+	optional string instance = 1;
+	optional string app = 2;
+}
+
+message SchTableEntry {
+	optional int64 Major = 1;
+	optional int64 Minor = 2;
+	//	optional
+}
+
+message SchTableResponse {
+//	optional string
+}
