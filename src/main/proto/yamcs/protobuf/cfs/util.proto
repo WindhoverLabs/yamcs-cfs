@@ -22,11 +22,12 @@ message GetSchTableRequest {
 }
 
 message SchTableEntry {
-	optional int64 Major = 1;
-	optional int64 Minor = 2;
-	//	optional
+	optional int64 major = 1;
+	optional int64 minor = 2;
+	optional int64 messageId = 3;
+	optional string status = 4;
 }
 
 message SchTableResponse {
-//	optional string
+   repeated SchTableEntry schEntry = 1;
 }
