@@ -7,27 +7,38 @@ option java_outer_classname = "CfsUtilProto";
 option java_multiple_files = true;
 import "yamcs/api/annotations.proto";
 import "yamcs/api/httpbody.proto";
-service CfsUtilApi {
+service CfsApi {
 
 // Fetch the sch table for a specific app
 	rpc GetSchTable (GetSchTableRequest) returns (SchTableResponse) {
 		option (yamcs.api.route) = {
-			get : "/api/{instance}/cfs/sch/{app}/table" };
+			get : "/api/{instance}/cfs/sch/{app}/table"
+			body: "*"
+
+			};
 	}
+}
+
+enum EntryState {
+	ENABLED = 0;
+	DISABLED = 1;
+	UNUSED = 2;
 }
 
 message GetSchTableRequest {
 	optional string instance = 1;
 	optional string app = 2;
+	optional string paramPath = 3;
+	optional string processor = 4;
 }
 
 message SchTableEntry {
-	optional int64 major = 1;
-	optional int64 minor = 2;
-	optional int64 messageId = 3;
-	optional string status = 4;
+	optional int64 minor = 1;
+	optional int64 activityNumber = 2;
+	optional string messageMacro = 3;
+	optional EntryState state = 4;
 }
 
 message SchTableResponse {
-   repeated SchTableEntry schEntry = 1;
+	repeated SchTableEntry schEntry = 1;
 }
