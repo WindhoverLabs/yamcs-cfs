@@ -2,7 +2,7 @@ syntax = "proto2";
 
 package yamcs.protobuf.cfs;
 
-option java_package = "com.windhoverlabs.yamcs.cfs";
+option java_package = "com.windhoverlabs.yamcs.cfs.api";
 option java_outer_classname = "CfsUtilProto";
 option java_multiple_files = true;
 import "yamcs/api/annotations.proto";
