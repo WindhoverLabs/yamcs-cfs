@@ -1,3 +1,4 @@
+[![CI](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml/badge.svg?branch=update-yamcs-tools)](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml)
 # yamcs-cfs
 A YAMCS plugin for [ailriner](https://github.com/WindhoverLabs/airliner).
 
