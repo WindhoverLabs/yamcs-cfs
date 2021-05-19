@@ -1,8 +1,6 @@
 package org.yamcs.http.api;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,7 +16,6 @@ import org.yamcs.Processor;
 import org.yamcs.YamcsServer;
 import org.yamcs.YamcsServerInstance;
 import org.yamcs.api.Observer;
-import org.yamcs.client.ParameterSubscription;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.http.BadRequestException;
@@ -34,19 +31,16 @@ import org.yamcs.protobuf.Pvalue.ParameterValue;
 import org.yamcs.protobuf.Yamcs.NamedObjectId;
 import org.yamcs.protobuf.Yamcs.Value;
 import org.yamcs.security.User;
-import org.yamcs.xtce.AggregateDataType;
-import org.yamcs.xtce.Member;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.xtce.XtceDb;
 import org.yamcs.xtceproc.XtceDbFactory;
-import org.yamcs.yarch.DataType;
 
-import com.windhoverlabs.yamcs.cfs.AbstractCfsApi;
-import com.windhoverlabs.yamcs.cfs.EntryState;
-import com.windhoverlabs.yamcs.cfs.GetSchTableRequest;
-import com.windhoverlabs.yamcs.cfs.SchTableEntry;
-import com.windhoverlabs.yamcs.cfs.SchTableEntry.Builder;
-import com.windhoverlabs.yamcs.cfs.SchTableResponse;
+import com.windhoverlabs.yamcs.cfs.api.AbstractCfsApi;
+import com.windhoverlabs.yamcs.cfs.api.EntryState;
+import com.windhoverlabs.yamcs.cfs.api.GetSchTableRequest;
+import com.windhoverlabs.yamcs.cfs.api.SchTableEntry;
+import com.windhoverlabs.yamcs.cfs.api.SchTableEntry.Builder;
+import com.windhoverlabs.yamcs.cfs.api.SchTableResponse;
 import com.windhoverlabs.yamcs.util.CfsPlugin;
 import com.windhoverlabs.yamcs.util.RegistryUtil;
 
