@@ -18,6 +18,7 @@ import org.yamcs.Processor;
 import org.yamcs.YamcsServer;
 import org.yamcs.YamcsServerInstance;
 import org.yamcs.api.Observer;
+import org.yamcs.client.ParameterSubscription;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.http.BadRequestException;
@@ -31,6 +32,7 @@ import org.yamcs.parameter.ParameterWithIdConsumer;
 import org.yamcs.parameter.ParameterWithIdRequestHelper;
 import org.yamcs.protobuf.Pvalue.ParameterValue;
 import org.yamcs.protobuf.Yamcs.NamedObjectId;
+import org.yamcs.protobuf.Yamcs.Value;
 import org.yamcs.security.User;
 import org.yamcs.xtce.AggregateDataType;
 import org.yamcs.xtce.Member;
@@ -60,8 +62,17 @@ public class CfsApi extends AbstractCfsApi<Context> {
             queue.add(params);
         }
     }
-
-    //TODO Move this function to a util class
+    /**
+     * TODO Move this function to a util class
+     * 
+     * @param processor
+     * @param user
+     * @param ids
+     * @param fromCache
+     * @param timeout
+     * @return
+     * @throws HttpException
+     */
     private List<ParameterValue> doGetParameterValues(Processor processor, User user, List<NamedObjectId> ids,
             boolean fromCache, long timeout) throws HttpException {
         if (timeout > 60000) {
@@ -116,24 +127,13 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return pvals;
     }
 
-    /**
-     * For now this method only goes 1-level deep into structures. Nested Structures are no supported at the moment.
+    /***
+     * Functions for parsing the state of sch entries in Diag message.
      * 
-     * @param parameter
-     * @param parameterQualifiedName
-     * @param outNames
-     * @param mdb
+     * @param entry
+     * @return
      */
-    private void getAggregateQualifiedNames(Parameter parameter,
-            ArrayList<String> outNames) {
-        AggregateDataType type = ((AggregateDataType) parameter.getParameterType());
-
-        for (Member m : type.getMemberList()) {
-            outNames.add(parameter.getQualifiedName() + MEMBER_SEPARATOR + m.getName());
-        }
-    }
-
-    public EntryState isEntry1Enabled(int entry) {
+    public static EntryState getEntry1State(int entry) {
         EntryState isEntryEnabled;
 
         if (((entry >> 14) & 1) != 0) {
@@ -151,7 +151,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return isEntryEnabled;
     }
 
-    public EntryState isEntry2Enabled(int entry) {
+    public static EntryState getEntry2State(int entry) {
         EntryState isEntryEnabled;
 
         if (((entry >> 12) & 1) != 0) {
@@ -169,7 +169,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return isEntryEnabled;
     }
 
-    public EntryState isEntry3Enabled(int entry) {
+    public static EntryState getEntry3State(int entry) {
         EntryState isEntryEnabled;
         ;
 
@@ -188,7 +188,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return isEntryEnabled;
     }
 
-    public EntryState isEntry4Enabled(int entry) {
+    public static EntryState getEntry4State(int entry) {
         EntryState isEntryEnabled;
 
         if (((entry >> 8) & 1) != 0) {
@@ -206,7 +206,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return isEntryEnabled;
     }
 
-    public EntryState isEntry5Enabled(int entry) {
+    public static EntryState getEntry5State(int entry) {
         EntryState isEntryEnabled;
 
         if (((entry >> 6) & 1) != 0) {
@@ -224,7 +224,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return isEntryEnabled;
     }
 
-    public EntryState isEntry6Enabled(int entry) {
+    public static EntryState getEntry6State(int entry) {
         EntryState isEntryEnabled;
 
         if (((entry >> 4) & 1) != 0) {
@@ -242,7 +242,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return isEntryEnabled;
     }
 
-    public EntryState isEntry7Enabled(int entry) {
+    public static EntryState getEntry7State(int entry) {
         EntryState isEntryEnabled;
 
         if (((entry >> 2) & 1) != 0) {
@@ -260,7 +260,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return isEntryEnabled;
     }
 
-    public EntryState isEntry8Enabled(int entry) {
+    public static EntryState getEntry8State(int entry) {
         EntryState isEntryEnabled;
 
         if (((entry >> 0) & 1) != 0) {
@@ -278,7 +278,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         return isEntryEnabled;
     }
 
-    private static EntryState getEntryState(int entry, int bitOffset) {
+    public static EntryState getEntryState(int entry, int bitOffset) {
         EntryState isEntryEnabled;
 
         if (((entry >> bitOffset) & 1) != 0) {
@@ -315,9 +315,8 @@ public class CfsApi extends AbstractCfsApi<Context> {
      *            A map of message ids. It is assumed this maps to only app-specific messages ids.
      * @return A list of SchTableEntry objects that is ready to be sent to clients.
      */
-    private List<SchTableEntry> parseSchDiagPvs(List<ParameterValue> pVals, LinkedHashMap<Object, Object> appMessageIds,
+    private List<SchTableEntry> parseSchDiagPvs(List<Value> pVals, LinkedHashMap<Object, Object> appMessageIds,
             int schEntriesPerSlot, int schTotalSlots) {
-        // TODO: Fetch from YAML
         int numberOfEntries = schEntriesPerSlot * schTotalSlots;
 
         int entryIndex = 0;
@@ -331,7 +330,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         // Collect all State Entries
         while (entryIndex < numberOfEntries) {
 
-            allEntries.addAll(getNextEightEntries((pVals.get(StateIndex).getRawValue().getUint32Value())));
+            allEntries.addAll(getNextEightEntries((pVals.get(StateIndex).getUint32Value())));
 
             entryIndex = entryIndex + 8;
             StateIndex++;
@@ -340,11 +339,12 @@ public class CfsApi extends AbstractCfsApi<Context> {
         int minorFrame = entryIndex / schEntriesPerSlot;
         int activityNumber = 0;
 
+        //Collect only the entries we are interested in
         for (int i = 0; i < numberOfEntries; i++) {
             minorFrame = i / schEntriesPerSlot;
             activityNumber = i - (minorFrame * schEntriesPerSlot);
 
-            int entryMessageId = getMessageIdForEntry(i, pVals);
+            int entryMessageId = getMessageIdForEntry(i, pVals, numberOfEntries);
             // Check this messageId belongs to the app of interest
 
             if (appMessageIds.containsKey(entryMessageId)) {
@@ -368,15 +368,12 @@ public class CfsApi extends AbstractCfsApi<Context> {
      * @param pVals
      * @return
      */
-    private int getMessageIdForEntry(int i, List<ParameterValue> pVals) {
-        // TODO: Fetch from YAML
-        int numberOfEntries = 3750;
-
+    private int getMessageIdForEntry(int i, List<Value> pVals, int numberOfEntries) {
         int outMessageId = 0;
 
         int entryStateOffset = (numberOfEntries / 8) + (1);
 
-        outMessageId = pVals.get(entryStateOffset + i).getEngValue().getUint32Value();
+        outMessageId = pVals.get(entryStateOffset + i).getUint32Value();
         return outMessageId;
     }
 
@@ -400,74 +397,72 @@ public class CfsApi extends AbstractCfsApi<Context> {
                 allMessages = RegistryUtil
                         .getMsgIdMapToMacro(RegistryUtil.getAllMessagesForApp(plugin.getRegistry(), request.getApp()));
             } catch (Exception e1) {
-                // TODO Auto-generated catch block
                 eventProducer.sendWarning(String.format("Failed loading messages from %s.", plugin.getRegistry()));
             }
 
             if (allMessages != null) {
                 Processor processor = instance.getProcessor(request.getProcessor());
                 if (processor == null) {
-                    // TODO: Publish event
                     eventProducer.sendWarning(String.format("Processor %s does not exist", request.getProcessor()));
                 }
 
                 XtceDb mdb = XtceDbFactory.getInstance(processor.getInstance());
 
-                ArrayList<String> pNames = new ArrayList<String>();
                 Parameter aggregateParam = mdb.getParameter(request.getParamPath());
 
                 if (aggregateParam == null) {
                     eventProducer.sendWarning(String.format("%d is not a valid Parameter", request.getParamPath()));
                 } else {
 
-                    getAggregateQualifiedNames(aggregateParam, pNames);
                     ArrayList<NamedObjectId> ids = new ArrayList<NamedObjectId>();
 
-                    for (String pName : pNames) {
-                        // This looks kind of ugly, but I don't think there is another way of doing it.
-                        NamedObjectId id = null;
-                        try {
-                            id = MdbApi.verifyParameterId(ctx, mdb, pName);
-                        } catch (Exception e) {
-                            eventProducer.sendWarning(String.format("%d is not a valid Parameter", pName));
-                            break;
-                        }
-                        ids.add(id);
+                    NamedObjectId id = null;
+                    try {
+                        id = MdbApi.verifyParameterId(ctx, mdb, aggregateParam.getQualifiedName());
+                    } catch (Exception e) {
+                        eventProducer.sendWarning(String.format("The NamedObjectId of %d could not be verified",
+                                aggregateParam.getQualifiedName()));
                     }
+                    ids.add(id);
 
                     // TODO: Add to request message
                     long timeout = 10000;
                     boolean fromCache = true;
 
+                    List<Value> schVals = new ArrayList<Value>();
+
                     List<ParameterValue> schPVals = doGetParameterValues(processor, ctx.user, ids, fromCache, timeout);
 
-                    if (schPVals.isEmpty()) {
+                    if (!schPVals.isEmpty()) {
+                        schVals.addAll(schPVals.get(0).getRawValue().getAggregateValue().getValueList());
+                    }
+
+                    if (schVals.isEmpty()) {
+
                         eventProducer.sendWarning("Sch Diag message unavailable");
                     }
 
                     else {
-                        LinkedHashMap<Object, Object> schConfig = RegistryUtil.getAllConfigForApp(plugin.getRegistry(), "sch");
-                        
-                        if(schConfig!= null) 
-                        { 
-                            //TODO Add more error checking
-                            LinkedHashMap<Object, Object> totalSlotsConfig =  (LinkedHashMap<Object, Object>) schConfig.get("SCH_TOTAL_SLOTS");
-                            
-                            LinkedHashMap<Object, Object> entriesPerSlotsConfig = (LinkedHashMap<Object, Object>)  schConfig.get("SCH_ENTRIES_PER_SLOT");
+                        LinkedHashMap<Object, Object> schConfig = RegistryUtil.getAllConfigForApp(plugin.getRegistry(),
+                                "sch");
 
-                            
+                        if (schConfig != null) {
+                            // TODO Add more error checking
+                            LinkedHashMap<Object, Object> totalSlotsConfig = (LinkedHashMap<Object, Object>) schConfig
+                                    .get("SCH_TOTAL_SLOTS");
+
+                            LinkedHashMap<Object, Object> entriesPerSlotsConfig = (LinkedHashMap<Object, Object>) schConfig
+                                    .get("SCH_ENTRIES_PER_SLOT");
+
                             int schEntriesPerSlot = (int) entriesPerSlotsConfig.get("value");
                             int schTotalSlots = (int) totalSlotsConfig.get("value");
-                            schTableEntries = parseSchDiagPvs(schPVals, allMessages, schEntriesPerSlot, schTotalSlots);
+                            schTableEntries = parseSchDiagPvs(schVals, allMessages, schEntriesPerSlot, schTotalSlots);
                         }
-                        
-                        else 
-                        {
-                            eventProducer.sendWarning("Sch configuration unavailable");
 
- 
+                        else {
+                            eventProducer.sendWarning("Sch configuration unavailable");
                         }
-                        
+
                     }
                 }
             }

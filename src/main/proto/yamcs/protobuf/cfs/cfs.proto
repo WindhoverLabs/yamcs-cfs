@@ -7,12 +7,14 @@ option java_outer_classname = "CfsUtilProto";
 option java_multiple_files = true;
 import "yamcs/api/annotations.proto";
 import "yamcs/api/httpbody.proto";
+
+//A collection of useful functions for clients interested in cfs-specific data
 service CfsApi {
 
 // Fetch the sch table for a specific app
 	rpc GetSchTable (GetSchTableRequest) returns (SchTableResponse) {
 		option (yamcs.api.route) = {
-			get : "/api/{instance}/cfs/sch/{app}/table"
+			get : "/api/{instance}/cfs/sch/table"
 			body: "*"
 
 			};
