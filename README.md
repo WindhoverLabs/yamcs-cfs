@@ -7,6 +7,7 @@ A YAMCS plugin for [ailriner](https://github.com/WindhoverLabs/airliner).
 3. [To Run](#to_run)
 4. [Add It to your YAMCS Install](#add_it_to_yamcs)   
 5. [XTCE Patterns and Conventions](#XTCE-Patterns-and-Conventions)
+5. [Build Documentation](#build_documentation)
 
 
 ### Dependencies <a name="dependencies"></a>
@@ -390,6 +391,14 @@ so far:
 
 **TODO:** Document what a string is in the context of our xtce files.
 
-**NOTE**: This documentation is subject to change as our toolchain evolves.
+**NOTE**: This documentation is subject to change as our tools evolve.
 
-Documented on December 17, 2020
+### Build Documentation <a name="build_documentation"></a>
+
+```
+cd docs/
+pip3 install -r requirements.txt
+make html
+```
+
+Documented on May 19, 2021
