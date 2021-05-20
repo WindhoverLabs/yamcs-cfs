@@ -42,5 +42,5 @@ message SchTableEntry {
 }
 
 message SchTableResponse {
-	repeated SchTableEntry schEntry = 1;
+	repeated SchTableEntry schEntries = 1;
 }

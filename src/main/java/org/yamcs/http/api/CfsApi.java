@@ -56,6 +56,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
             queue.add(params);
         }
     }
+
     /**
      * TODO Move this function to a util class
      * 
@@ -333,7 +334,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
         int minorFrame = entryIndex / schEntriesPerSlot;
         int activityNumber = 0;
 
-        //Collect only the entries we are interested in
+        // Collect only the entries we are interested in
         for (int i = 0; i < numberOfEntries; i++) {
             minorFrame = i / schEntriesPerSlot;
             activityNumber = i - (minorFrame * schEntriesPerSlot);
@@ -394,79 +395,93 @@ public class CfsApi extends AbstractCfsApi<Context> {
                 eventProducer.sendWarning(String.format("Failed loading messages from %s.", plugin.getRegistry()));
             }
 
-            if (allMessages != null) {
+            if (allMessages != null && !allMessages.isEmpty()) {
                 Processor processor = instance.getProcessor(request.getProcessor());
-                if (processor == null) {
-                    eventProducer.sendWarning(String.format("Processor %s does not exist", request.getProcessor()));
-                }
 
-                XtceDb mdb = XtceDbFactory.getInstance(processor.getInstance());
+                if (processor != null) {
+                    XtceDb mdb = XtceDbFactory.getInstance(processor.getInstance());
 
-                Parameter aggregateParam = mdb.getParameter(request.getParamPath());
+                    Parameter aggregateParam = mdb.getParameter(request.getParamPath());
 
-                if (aggregateParam == null) {
-                    eventProducer.sendWarning(String.format("%d is not a valid Parameter", request.getParamPath()));
-                } else {
+                    if (aggregateParam == null) {
+                        eventProducer
+                                .sendWarning(String.format("%s is not a valid parameter path", request.getParamPath()));
+                    } else {
 
-                    ArrayList<NamedObjectId> ids = new ArrayList<NamedObjectId>();
+                        ArrayList<NamedObjectId> ids = new ArrayList<NamedObjectId>();
 
-                    NamedObjectId id = null;
-                    try {
-                        id = MdbApi.verifyParameterId(ctx, mdb, aggregateParam.getQualifiedName());
-                    } catch (Exception e) {
-                        eventProducer.sendWarning(String.format("The NamedObjectId of %d could not be verified",
-                                aggregateParam.getQualifiedName()));
-                    }
-                    ids.add(id);
+                        NamedObjectId id = null;
+                        try {
+                            id = MdbApi.verifyParameterId(ctx, mdb, aggregateParam.getQualifiedName());
+                        } catch (Exception e) {
+                            eventProducer.sendWarning(String.format("The NamedObjectId of %d could not be verified",
+                                    aggregateParam.getQualifiedName()));
+                        }
+                        ids.add(id);
 
-                    // TODO: Add to request message
-                    long timeout = 10000;
-                    boolean fromCache = true;
+                        // TODO: Add to request message
+                        long timeout = 10000;
+                        boolean fromCache = true;
 
-                    List<Value> schVals = new ArrayList<Value>();
+                        List<Value> schVals = new ArrayList<Value>();
 
-                    List<ParameterValue> schPVals = doGetParameterValues(processor, ctx.user, ids, fromCache, timeout);
+                        List<ParameterValue> schPVals = doGetParameterValues(processor, ctx.user, ids, fromCache,
+                                timeout);
 
-                    if (!schPVals.isEmpty()) {
-                        schVals.addAll(schPVals.get(0).getRawValue().getAggregateValue().getValueList());
-                    }
+                        if (!schPVals.isEmpty()) {
+                            schVals.addAll(schPVals.get(0).getRawValue().getAggregateValue().getValueList());
+                        }
 
-                    if (schVals.isEmpty()) {
+                        if (schVals.isEmpty()) {
 
-                        eventProducer.sendWarning("Sch Diag message unavailable");
-                    }
-
-                    else {
-                        LinkedHashMap<Object, Object> schConfig = RegistryUtil.getAllConfigForApp(plugin.getRegistry(),
-                                "sch");
-
-                        if (schConfig != null) {
-                            // TODO Add more error checking
-                            LinkedHashMap<Object, Object> totalSlotsConfig = (LinkedHashMap<Object, Object>) schConfig
-                                    .get("SCH_TOTAL_SLOTS");
-
-                            LinkedHashMap<Object, Object> entriesPerSlotsConfig = (LinkedHashMap<Object, Object>) schConfig
-                                    .get("SCH_ENTRIES_PER_SLOT");
-
-                            int schEntriesPerSlot = (int) entriesPerSlotsConfig.get("value");
-                            int schTotalSlots = (int) totalSlotsConfig.get("value");
-                            schTableEntries = parseSchDiagPvs(schVals, allMessages, schEntriesPerSlot, schTotalSlots);
+                            eventProducer.sendWarning("Sch Diag message unavailable");
                         }
 
                         else {
-                            eventProducer.sendWarning("Sch configuration unavailable");
-                        }
+                            LinkedHashMap<Object, Object> schConfig = RegistryUtil.getAllConfigForApp(
+                                    plugin.getRegistry(),
+                                    "sch");
 
+                            if (schConfig != null) {
+                                // TODO Add more error checking
+                                LinkedHashMap<Object, Object> totalSlotsConfig = (LinkedHashMap<Object, Object>) schConfig
+                                        .get("SCH_TOTAL_SLOTS");
+
+                                LinkedHashMap<Object, Object> entriesPerSlotsConfig = (LinkedHashMap<Object, Object>) schConfig
+                                        .get("SCH_ENTRIES_PER_SLOT");
+
+                                int schEntriesPerSlot = (int) entriesPerSlotsConfig.get("value");
+                                int schTotalSlots = (int) totalSlotsConfig.get("value");
+
+                                schTableEntries = parseSchDiagPvs(schVals, allMessages, schEntriesPerSlot,
+                                        schTotalSlots);
+                            }
+
+                            else {
+                                eventProducer.sendWarning("Sch configuration unavailable");
+                            }
+
+                        }
                     }
+
+                } else {
+                    eventProducer.sendWarning(String.format("Processor %s does not exist", request.getProcessor()));
                 }
+
             }
+
+            else {
+                eventProducer.sendWarning(String.format("No message enrties found for app:%s", request.getApp()));
+            }
+
             if (schTableEntries != null) {
                 eventProducer.sendInfo("Sch table entries parsed successfully.");
-                observer.complete(SchTableResponse.newBuilder().addAllSchEntry(schTableEntries).build());
+                observer.complete(SchTableResponse.newBuilder().addAllSchEntries(schTableEntries).build());
             } else {
                 eventProducer.sendWarning("Unable to parse Sch table entries");
                 observer.complete(SchTableResponse.newBuilder().build());
             }
+
         }
     }
 
