@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.yamcs.YConfiguration;
+import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.tctm.PacketInputStream;
@@ -71,7 +72,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
          */
         eventProducer = EventProducerFactory.getEventProducer(null, 
         		SdlpPacketInputStream.class.getName(), 0);
-        
+                
         if(maxLength < 0) {
             throw new ConfigurationException("'maxLength' must be defined.");
         }

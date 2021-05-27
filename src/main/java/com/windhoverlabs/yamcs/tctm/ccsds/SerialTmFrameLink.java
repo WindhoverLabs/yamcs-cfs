@@ -98,7 +98,6 @@ public class SerialTmFrameLink extends AbstractTmFrameLink implements Runnable {
 
     @Override
     public void doStart() {
-        System.out.println("call stack:");
         if (!isDisabled()) {
             if (serialPort == null) {
                 openDevice();
