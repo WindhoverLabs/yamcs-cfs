@@ -4,13 +4,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.yamcs.algorithms.AbstractAlgorithmExecutor;
+import org.yamcs.algorithms.AlgorithmException;
 import org.yamcs.algorithms.AlgorithmExecutionContext;
+import org.yamcs.algorithms.AlgorithmExecutionResult;
 //import org.yamcs.algorithms.AlgorithmExecutionResult;
 import org.yamcs.parameter.AggregateValue;
 import org.yamcs.parameter.ParameterValue;
 import org.yamcs.utils.ValueUtility;
 import org.yamcs.xtce.Algorithm;
 import org.yamcs.xtce.InputParameter;
+import org.yamcs.xtceproc.ProcessingData;
 
 public class CFETime {
 
@@ -65,12 +68,18 @@ public class CFETime {
 	    protected void updateInput(int idx, InputParameter inputParameter, ParameterValue newValue) {
 	    }
 
-		@Override
 		public List<ParameterValue> runAlgorithm(long acqTime, long genTime) {
 			//Not using this one for now because I think is deprecated. Still investigating.
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+
+        @Override
+        public AlgorithmExecutionResult execute(long arg0, long arg1, ProcessingData arg2) throws AlgorithmException {
+            // TODO Auto-generated method stub
+            return null;
+        }
 	}   
 
 	

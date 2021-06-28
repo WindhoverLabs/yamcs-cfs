@@ -1,22 +1,44 @@
 package com.windhoverlabs.yamcs.tctm.ccsds;
 
+import static org.yamcs.xtce.NameDescription.qualifiedName;
+import static org.yamcs.xtce.XtceDb.YAMCS_SPACESYSTEM_NAME;
+
 import java.io.IOException;
+import java.nio.file.FileStore;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.openmuc.jrxtx.SerialPort;
 import org.openmuc.jrxtx.SerialPortBuilder;
 import org.yamcs.ConfigurationException;
 import org.yamcs.YConfiguration;
+import org.yamcs.YamcsServer;
 import org.yamcs.cmdhistory.CommandHistoryPublisher;
 import org.yamcs.commanding.PreparedCommand;
+import org.yamcs.parameter.AggregateValue;
+import org.yamcs.parameter.ParameterValue;
+import org.yamcs.parameter.SystemParametersService;
+import org.yamcs.protobuf.Yamcs.Value.Type;
 import org.yamcs.tctm.AbstractLink;
 import org.yamcs.tctm.AggregatedDataLink;
 import org.yamcs.tctm.Link;
 import org.yamcs.tctm.TcDataLink;
+import org.yamcs.utils.ValueUtility;
+import org.yamcs.xtce.AggregateParameterType;
+import org.yamcs.xtce.IntegerParameterType;
+import org.yamcs.xtce.Member;
+import org.yamcs.xtce.NameDescription;
+import org.yamcs.xtce.Parameter;
+import org.yamcs.xtce.StringParameterType;
+import org.yamcs.xtce.SystemParameter;
+import org.yamcs.xtce.UnitType;
+import org.yamcs.xtce.XtceDb;
 
 /**
- * A link that uses one serial port for sending commands and receiving telemetry.
- * It aggregates the SerialTmFrameLink and SerialTcFrameLink links.
+ * A link that uses one serial port for sending commands and receiving telemetry. It aggregates the SerialTmFrameLink
+ * and SerialTcFrameLink links.
+ * 
  * @author lgomez
  *
  */
@@ -36,6 +58,13 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
     SerialTcFrameLink TcLink = null;
 
     Thread thread;
+    private XtceDb mdb;
+    private SystemParameter spDeviceName;
+    private AggregateParameterType spDeviceHKType; // Housekeeping info for the serial device
+    private Parameter deviceHKParam;
+
+    private AggregateParameterType spSerialTmFrameLinkHKType; // Housekeeping info for the SerialTmFrameLink link
+    private Parameter SerialTmFrameLinkHKParam;
 
     @Override
     public void init(String instance, String name, YConfiguration config) throws ConfigurationException {
@@ -204,7 +233,8 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
 
     @Override
     public void run() {
-        while (isRunningAndEnabled());
+        while (isRunningAndEnabled())
+            ;
     }
 
     @Override
@@ -229,5 +259,103 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
     public void sendTc(PreparedCommand preparedCommand) {
         // Log warning. This should not be called.
         log.warn("sendTc");
+    }
+
+    /**
+     * adds system parameters link status and data in/out to the list.
+     * <p>
+     * The inheriting classes should call super.collectSystemParameters and then add their own parameters to the list
+     * 
+     * @param time
+     * @param list
+     */
+    protected void collectSystemParameters(long time, List<ParameterValue> list) {
+        super.collectSystemParameters(time, list);
+        list.add(SystemParametersService.getPV(spDeviceName, time, deviceName));
+    }
+
+    @Override
+    public Collection<ParameterValue> getSystemParameters(long gentime) {
+        List<ParameterValue> pvlist = new ArrayList<>();
+
+        AggregateValue deviceAggregateV = new AggregateValue(spDeviceHKType.getMemberNames());
+        deviceAggregateV.setMemberValue("name", ValueUtility.getStringValue(deviceName));
+
+        ParameterValue devicePV = new ParameterValue(deviceHKParam);
+        devicePV.setGenerationTime(gentime);
+        devicePV.setEngValue(deviceAggregateV);
+
+        AggregateValue serialTmFrameLinkAggregateV = new AggregateValue(spSerialTmFrameLinkHKType.getMemberNames());
+        
+        serialTmFrameLinkAggregateV.setMemberValue("outOfSyncByteCount", ValueUtility
+                .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getOutOfSyncByteCount()));
+        serialTmFrameLinkAggregateV.setMemberValue("inSyncByteCount", ValueUtility
+                .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getInSyncByteCount()));
+        serialTmFrameLinkAggregateV.setMemberValue("asmCursor", ValueUtility
+                .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getAsmCursor()));
+
+        ParameterValue serialTmFrameLinkPV = new ParameterValue(SerialTmFrameLinkHKParam);
+
+        devicePV.setGenerationTime(gentime);
+        devicePV.setEngValue(deviceAggregateV);
+
+        serialTmFrameLinkPV.setGenerationTime(gentime);
+        serialTmFrameLinkPV.setEngValue(serialTmFrameLinkAggregateV);
+
+        pvlist.add(devicePV);
+        pvlist.add(serialTmFrameLinkPV);
+
+        return pvlist;
+    }
+
+    /**
+     * Adds HK messages to the downlink that are helpful for understanding the state of this link at runtime.
+     */
+    @Override
+    public void setupSystemParameters(SystemParametersService sysParamCollector) {
+        super.setupSystemParameters(sysParamCollector);
+        mdb = YamcsServer.getServer().getInstance(yamcsInstance).getXtceDb();
+
+        IntegerParameterType intType = (IntegerParameterType) sysParamCollector.getBasicType(Type.UINT64);
+        List<UnitType> unitSet = new ArrayList<>();
+        unitSet.add(new UnitType(""));
+        intType.setUnitSet(unitSet);
+        StringParameterType stringType = (StringParameterType) sysParamCollector.getBasicType(Type.STRING);
+        spDeviceName = mdb.createSystemParameter(qualifiedName(YAMCS_SPACESYSTEM_NAME, linkName + "/deviceName"),
+                stringType,
+                "The name of the serial port device.");
+
+        spDeviceHKType = new AggregateParameterType.Builder().setName("DeviceHK")
+                .addMember(new Member("name", sysParamCollector.getBasicType(Type.STRING)))
+                .build();
+        deviceHKParam = mdb.createSystemParameter(qualifiedName(YAMCS_SPACESYSTEM_NAME, linkName + "/SerialPortHK"),
+                spDeviceHKType,
+                "Housekeeping information. Status of the device, name, etc");
+        
+        //TODO Fix this
+        //Extract the last token of the class name, since it will be in the form of
+        //PackageA.PackageB.ClassName
+        
+        String[] classNameParts = TmLink.getPacketInputStream().getClass().getName().split(".");
+//        classNameParts[classNameParts.length-1];
+        String packInputStreamClassName = "PacketInputStream";
+
+//        if (TmLink.getConfig().containsKey("packetInputStreamClassName")) {
+//            packInputStreamClassName = TmLink.getConfig().getString("packetInputStreamClassName");
+//        }
+        
+        spSerialTmFrameLinkHKType = new AggregateParameterType.Builder().setName(packInputStreamClassName)
+                .addMember(new Member("outOfSyncByteCount", sysParamCollector.getBasicType(Type.UINT32)))
+                .addMember(new Member("inSyncByteCount", sysParamCollector.getBasicType(Type.UINT32)))
+                .addMember(new Member("asmCursor", sysParamCollector.getBasicType(Type.UINT32)))
+                .build();
+
+        SerialTmFrameLinkHKParam = mdb.createSystemParameter(
+                qualifiedName(YAMCS_SPACESYSTEM_NAME,
+                        linkName + "/SerialTmFrame" + NameDescription.PATH_SEPARATOR
+                                + packInputStreamClassName),
+                spSerialTmFrameLinkHKType,
+                "Housekeeping information. Status of SerialTmFrameLink.");
+
     }
 }

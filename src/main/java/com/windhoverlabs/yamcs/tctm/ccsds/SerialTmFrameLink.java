@@ -15,6 +15,8 @@ import org.openmuc.jrxtx.SerialPortBuilder;
 import org.yamcs.tctm.PacketInputStream;
 import org.yamcs.tctm.CcsdsPacketInputStream;
 import org.yamcs.utils.YObjectLoader;
+import org.yamcs.xtce.AggregateParameterType;
+import org.yamcs.xtce.Parameter;
 
 /**
  * Receives telemetry fames via serial interface.
@@ -37,6 +39,7 @@ public class SerialTmFrameLink extends AbstractTmFrameLink implements Runnable {
     String packetInputStreamClassName;
     YConfiguration packetInputStreamArgs;
     PacketInputStream packetInputStream;
+
     Thread thread;
 
     /**
@@ -312,5 +315,9 @@ public class SerialTmFrameLink extends AbstractTmFrameLink implements Runnable {
 
     public void setSerialPort(SerialPort newSerialPort) {
         serialPort = newSerialPort;
+    }
+    
+    public PacketInputStream getPacketInputStream() {
+        return packetInputStream;
     }
 }
