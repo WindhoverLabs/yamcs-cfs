@@ -64,6 +64,9 @@ public class SdlpPacketInputStream implements PacketInputStream {
     private int asmCursor;
     private int fatFrameBytes;
     private int caduLength;
+    // FIXME:Temporary. Don't want to be exposing this packet so easily.
+    private byte[] packet;
+    private int fatFrameCount = 0;
 
     @Override
     public void init(InputStream inputStream, YConfiguration args) {
@@ -122,7 +125,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
     @Override
     public byte[] readPacket() throws IOException {
         byte[] tmpPacket = null;
-        byte[] packet = null;
+        packet = null;
         byte[] asmField = new byte[asmLength];
         caduLength = 0;
         asmCursor = 0;
@@ -272,6 +275,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
                          * to the CADU_COMPLETE state.
                          */
                         if (isFatFrame) {
+                            fatFrameCount++;
                             eventProducer
                                     .sendWarning("Received a fat frame of " + (caduLength + fatFrameBytes) + " bytes");
                         }
@@ -371,8 +375,9 @@ public class SdlpPacketInputStream implements PacketInputStream {
     }
 
     /**
-     * Getter methods for understanding the state of the parser.
-     * Very useful when exposed to the server as system parameters.
+     * Getter methods for understanding the state of the parser. Very useful when exposed to the server as system
+     * parameters.
+     * 
      * @return
      */
     public int getOutOfSyncByteCount() {
@@ -382,24 +387,28 @@ public class SdlpPacketInputStream implements PacketInputStream {
     public int getInSyncByteCount() {
         return inSyncByteCount;
     }
-    
+
     public int getAsmCursor() {
         return asmCursor;
     }
-    
+
     public ParserState getParserState() {
         return parserState;
     }
-    
+
     public int getFatFrameBytes() {
         return fatFrameBytes;
     }
-    
+
     public int getCaduLength() {
         return caduLength;
     }
-    
+
     public int getFixedLength() {
         return fixedLength;
+    }
+
+    public int getFatFrameCount() {
+        return fatFrameCount;
     }
 }
