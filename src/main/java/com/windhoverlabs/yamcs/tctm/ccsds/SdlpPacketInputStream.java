@@ -38,6 +38,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
     int maxLength = -1;
     int minLength = 0;
     int fixedLength = -1;
+
     int asmLength;
     int outOfSyncByteCount = 0;
     int inSyncByteCount = 0;
@@ -59,7 +60,10 @@ public class SdlpPacketInputStream implements PacketInputStream {
     }
 
     ParserState parserState;
+
     private int asmCursor;
+    private int fatFrameBytes;
+    private int caduLength;
 
     @Override
     public void init(InputStream inputStream, YConfiguration args) {
@@ -120,10 +124,12 @@ public class SdlpPacketInputStream implements PacketInputStream {
         byte[] tmpPacket = null;
         byte[] packet = null;
         byte[] asmField = new byte[asmLength];
-        int caduLength = 0;
+        caduLength = 0;
         asmCursor = 0;
+        outOfSyncByteCount = 0;
+        inSyncByteCount = 0;
         boolean isFatFrame = false;
-        int fatFrameBytes = 0;
+        fatFrameBytes = 0;
 
         while (parserState != ParserState.CADU_COMPLETE) {
             switch (parserState) {
@@ -364,6 +370,11 @@ public class SdlpPacketInputStream implements PacketInputStream {
         return result;
     }
 
+    /**
+     * Getter methods for understanding the state of the parser.
+     * Very useful when exposed to the server as system parameters.
+     * @return
+     */
     public int getOutOfSyncByteCount() {
         return outOfSyncByteCount;
     }
@@ -374,5 +385,21 @@ public class SdlpPacketInputStream implements PacketInputStream {
     
     public int getAsmCursor() {
         return asmCursor;
+    }
+    
+    public ParserState getParserState() {
+        return parserState;
+    }
+    
+    public int getFatFrameBytes() {
+        return fatFrameBytes;
+    }
+    
+    public int getCaduLength() {
+        return caduLength;
+    }
+    
+    public int getFixedLength() {
+        return fixedLength;
     }
 }
