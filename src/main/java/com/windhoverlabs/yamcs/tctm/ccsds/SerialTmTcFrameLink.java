@@ -301,6 +301,8 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
                 .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getFatFrameBytes()));
         serialTmFrameLinkAggregateV.setMemberValue("fixedLength", ValueUtility
                 .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getFixedLength()));
+        serialTmFrameLinkAggregateV.setMemberValue("fatFrameCount", ValueUtility
+                .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getFatFrameCount()));
 
         ParameterValue serialTmFrameLinkPV = new ParameterValue(SerialTmFrameLinkHKParam);
 
@@ -360,6 +362,7 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
                 .addMember(new Member("caduLength", sysParamCollector.getBasicType(Type.UINT32)))
                 .addMember(new Member("fatFrameBytes", sysParamCollector.getBasicType(Type.UINT32)))
                 .addMember(new Member("fixedLength", sysParamCollector.getBasicType(Type.UINT32)))
+                .addMember(new Member("fatFrameCount", sysParamCollector.getBasicType(Type.UINT32)))
                 .build();
 
         SerialTmFrameLinkHKParam = mdb.createSystemParameter(
