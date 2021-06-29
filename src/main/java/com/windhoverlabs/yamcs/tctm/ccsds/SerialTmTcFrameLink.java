@@ -293,6 +293,14 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
                 .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getInSyncByteCount()));
         serialTmFrameLinkAggregateV.setMemberValue("asmCursor", ValueUtility
                 .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getAsmCursor()));
+        serialTmFrameLinkAggregateV.setMemberValue("parserState", ValueUtility
+                .getStringValue(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getParserState().toString()));
+        serialTmFrameLinkAggregateV.setMemberValue("caduLength", ValueUtility
+                .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getCaduLength()));
+        serialTmFrameLinkAggregateV.setMemberValue("fatFrameBytes", ValueUtility
+                .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getFatFrameBytes()));
+        serialTmFrameLinkAggregateV.setMemberValue("fixedLength", ValueUtility
+                .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getFixedLength()));
 
         ParameterValue serialTmFrameLinkPV = new ParameterValue(SerialTmFrameLinkHKParam);
 
@@ -348,12 +356,16 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
                 .addMember(new Member("outOfSyncByteCount", sysParamCollector.getBasicType(Type.UINT32)))
                 .addMember(new Member("inSyncByteCount", sysParamCollector.getBasicType(Type.UINT32)))
                 .addMember(new Member("asmCursor", sysParamCollector.getBasicType(Type.UINT32)))
+                .addMember(new Member("parserState", sysParamCollector.getBasicType(Type.STRING)))
+                .addMember(new Member("caduLength", sysParamCollector.getBasicType(Type.UINT32)))
+                .addMember(new Member("fatFrameBytes", sysParamCollector.getBasicType(Type.UINT32)))
+                .addMember(new Member("fixedLength", sysParamCollector.getBasicType(Type.UINT32)))
                 .build();
 
         SerialTmFrameLinkHKParam = mdb.createSystemParameter(
                 qualifiedName(YAMCS_SPACESYSTEM_NAME,
                         linkName + "/SerialTmFrame" + NameDescription.PATH_SEPARATOR
-                                + packInputStreamClassName),
+                                + packInputStreamClassName + "_HK"),
                 spSerialTmFrameLinkHKType,
                 "Housekeeping information. Status of SerialTmFrameLink.");
 

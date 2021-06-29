@@ -28,32 +28,31 @@ import org.yamcs.utils.YObjectLoader;
 public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, Runnable {
     protected int burstRate;
     protected int burstDelay;
-    
-	protected CommandPostprocessor cmdPostProcessor;
+
+    protected CommandPostprocessor cmdPostProcessor;
     protected CommandHistoryPublisher commandHistoryPublisher;
     protected AtomicLong dataOutCount = new AtomicLong();
     private AggregatedDataLink parent = null;
-    
-	OutputStream outputStream = null;
-	
+
+    OutputStream outputStream = null;
+
     @Override
     public void init(String instance, String name, YConfiguration config) throws ConfigurationException {
         // Read arguments
         super.init(instance, name, config);
-        
+
         this.burstRate = config.getInt("burstRate", 0);
         this.burstDelay = config.getInt("burstDelay", 0);
 
         // Setup tc postprocessor
         initPostprocessor(yamcsInstance, config);
     }
-    
-	@Override
+
+    @Override
     protected void openDevice() throws IOException {
-		super.openDevice();
+        super.openDevice();
         this.outputStream = serialPort.getOutputStream();
-	}
-	
+    }
 
     protected void initPostprocessor(String instance, YConfiguration config) throws ConfigurationException {
         String commandPostprocessorClassName = GenericCommandPostprocessor.class.getName();
@@ -82,32 +81,27 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
         }
     }
 
-    
     @Override
     public long getDataOutCount() {
         return dataOutCount.get();
     }
 
-    
     @Override
     public void resetCounters() {
         super.resetCounters();
         dataOutCount.set(0);
     }
 
-    
     @Override
     public AggregatedDataLink getParent() {
         return parent;
     }
 
-    
     @Override
     public void setParent(AggregatedDataLink parent) {
         this.parent = parent;
     }
 
-    
     @Override
     protected long getCurrentTime() {
         if (timeService != null) {
@@ -115,59 +109,58 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
         }
         return TimeEncoding.getWallclockTime();
     }
-    
-	
-	@Override
-	public void sendTc(PreparedCommand pc) {
+
+    @Override
+    public void sendTc(PreparedCommand pc) {
         byte[] binary = cmdPostProcessor.process(pc);
         if (binary == null) {
             log.warn("command postprocessor did not process the command");
             return;
         }
-        
+
         int retries = 5;
         boolean sent = false;
         int stride = 0;
 
-    	if(this.burstRate > 0) {
-    		stride = this.burstRate;
-    	} else {
-    		stride = binary.length;
-    	}
-        
+        if (this.burstRate > 0) {
+            stride = this.burstRate;
+        } else {
+            stride = binary.length;
+        }
+
         String reason = null;
         int bytesWritten = 0;
         while (!sent && (retries > 0)) {
             try {
-            	if(serialPort == null) {
-            	    openDevice();
-            	}
-            	WritableByteChannel channel = Channels.newChannel(outputStream);
-            	
-            	while(bytesWritten < binary.length) {
-            		byte[] fragment = new byte[stride];
-            		System.arraycopy(binary, bytesWritten, fragment, 0, stride);
-	            	ByteBuffer bb = ByteBuffer.wrap(fragment);
-	                // Must do this as this can become a quirk in some java versions.
-	                // Read https://github.com/eclipse/jetty.project/issues/3244 for details
-	                ((Buffer)bb).rewind();
-	                    
-	                bytesWritten += channel.write(bb);
-	                
-	                if(this.burstDelay > 0) {
-	                    Thread.sleep(this.burstDelay);
-	            	}
-	                
-            	}
-            	
-            	dataOutCount.getAndIncrement();
+                if (serialPort == null) {
+                    openDevice();
+                }
+                WritableByteChannel channel = Channels.newChannel(outputStream);
+
+                while (bytesWritten < binary.length) {
+                    byte[] fragment = new byte[stride];
+                    System.arraycopy(binary, bytesWritten, fragment, 0, stride);
+                    ByteBuffer bb = ByteBuffer.wrap(fragment);
+                    // Must do this as this can become a quirk in some java versions.
+                    // Read https://github.com/eclipse/jetty.project/issues/3244 for details
+                    ((Buffer) bb).rewind();
+
+                    bytesWritten += channel.write(bb);
+
+                    if (this.burstDelay > 0) {
+                        Thread.sleep(this.burstDelay);
+                    }
+
+                }
+
+                dataOutCount.getAndIncrement();
                 sent = true;
             } catch (IOException e) {
                 reason = String.format("Error writing to TC device to %s : %s", deviceName, e.getMessage());
                 log.warn(reason);
                 try {
                     if (serialPort != null) {
-                    	serialPort.close();
+                        serialPort.close();
                     }
                     serialPort = null;
                 } catch (IOException e1) {
@@ -176,7 +169,7 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
             } catch (InterruptedException e) {
                 log.warn("exception {} thrown when sleeping for burstDelay", e.toString());
                 Thread.currentThread().interrupt();
-			}
+            }
             retries--;
             if (!sent && (retries > 0)) {
                 try {
@@ -193,17 +186,15 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
         } else {
             failedCommand(pc.getCommandId(), reason);
         }
-		
-	}
 
-	
+    }
+
     @Override
     public void setCommandHistoryPublisher(CommandHistoryPublisher commandHistoryListener) {
         this.commandHistoryPublisher = commandHistoryListener;
         cmdPostProcessor.setCommandHistoryPublisher(commandHistoryListener);
     }
 
-    
     /** Send to command history the failed command */
     protected void failedCommand(CommandId commandId, String reason) {
         log.debug("Failing command {}: {}", commandId, reason);
@@ -211,7 +202,6 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
         commandHistoryPublisher.publishAck(commandId, AcknowledgeSent, currentTime, AckStatus.NOK, reason);
         commandHistoryPublisher.commandFailed(commandId, currentTime, reason);
     }
-
 
     /**
      * send an ack in the command history that the command has been sent out of the link
@@ -222,9 +212,8 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
         commandHistoryPublisher.publishAck(commandId, AcknowledgeSent, getCurrentTime(), AckStatus.OK);
     }
 
-
-	@Override
-	public void run() {
+    @Override
+    public void run() {
         if (initialDelay > 0) {
             try {
                 Thread.sleep(initialDelay);
@@ -242,5 +231,5 @@ public class SerialTmTcDatalink extends SerialTmDatalink implements TcDataLink, 
             }
             processPacket(tmpkt);
         }
-	}
+    }
 }
