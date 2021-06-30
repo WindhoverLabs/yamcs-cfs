@@ -2,22 +2,16 @@
 
 package com.windhoverlabs.yamcs.tctm.ccsds;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.yamcs.YConfiguration;
-import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.tctm.PacketInputStream;
 import org.yamcs.utils.StringConverter;
-import org.yamcs.xtce.AggregateParameterType;
-import org.yamcs.xtce.Parameter;
 import org.yamcs.ConfigurationException;
-import org.yamcs.utils.StringConverter;
 
 /**
  * Reads CCSDS packets from an input stream: This packet input stream reads and verifies the data 1 piece at a time,
@@ -45,6 +39,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
     int inSyncByteCount = 0;
 
     int rcvdCaduCount = 0;
+
     int rcvdFatCaduCount = 0;
     boolean dropMalformed = true;
     protected EventProducer eventProducer;
@@ -410,8 +405,24 @@ public class SdlpPacketInputStream implements PacketInputStream {
     public int getFatFrameCount() {
         return fatFrameCount;
     }
-    
+
     public String getPacket() {
         return StringConverter.arrayToHexString(packet);
+    }
+
+    public int getRcvdCaduCount() {
+        return rcvdCaduCount;
+    }
+
+    public void setFixedLength(int fixedLength) {
+        this.fixedLength = fixedLength;
+    }
+
+    /**
+     * Resets rcvdCaduCount and fatFrameCount to 0.
+     */
+    public void resetCounts() {
+        rcvdCaduCount = 0;
+        fatFrameCount = 0;
     }
 }
