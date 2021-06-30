@@ -303,4 +303,5 @@ public class SerialTcFrameLink extends AbstractTcFrameLink implements Runnable {
     public void setSerialPort(SerialPort inSerialPort) {
         serialPort = inSerialPort;  
     }
+   
 }

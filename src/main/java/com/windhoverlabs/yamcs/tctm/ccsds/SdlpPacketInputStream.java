@@ -17,6 +17,7 @@ import org.yamcs.utils.StringConverter;
 import org.yamcs.xtce.AggregateParameterType;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.ConfigurationException;
+import org.yamcs.utils.StringConverter;
 
 /**
  * Reads CCSDS packets from an input stream: This packet input stream reads and verifies the data 1 piece at a time,
@@ -48,9 +49,6 @@ public class SdlpPacketInputStream implements PacketInputStream {
     boolean dropMalformed = true;
     protected EventProducer eventProducer;
 
-    private AggregateParameterType spSdlpPacketInputStreamHKType; // Housekeeping info for the serial frame link
-    private Parameter SdlpPacketInputStreamHKParam;
-
     enum ParserState {
         OUT_OF_SYNC,
         AT_CADU_START,
@@ -66,6 +64,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
     private int caduLength;
     // FIXME:Temporary. Don't want to be exposing this packet so easily.
     private byte[] packet;
+
     private int fatFrameCount = 0;
 
     @Override
@@ -410,5 +409,9 @@ public class SdlpPacketInputStream implements PacketInputStream {
 
     public int getFatFrameCount() {
         return fatFrameCount;
+    }
+    
+    public String getPacket() {
+        return StringConverter.arrayToHexString(packet);
     }
 }
