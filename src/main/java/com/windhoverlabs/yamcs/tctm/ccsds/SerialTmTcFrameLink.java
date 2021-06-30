@@ -276,8 +276,16 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
     @Override
     public List<Link> getSubLinks() {
         // TODO Auto-generated method stub
-        List<Link> subLinks = TcLink.getSubLinks();
-        subLinks.addAll(TmLink.getSubLinks());
+//        List<Link> subLinks = TcLink.getSubLinks();
+//        subLinks.addAll(TmLink.getSubLinks());
+        
+        List<Link> subLinks = new ArrayList<Link>();
+        
+        subLinks.add(TcLink);
+        subLinks.add(TmLink);
+        
+//        List<Link> subLinks = TcLink.getSubLinks();
+//        subLinks.addAll(TmLink.getSubLinks());
         return subLinks;
     }
 
@@ -336,6 +344,8 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
                 .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getFatFrameCount()));
         serialTmFrameLinkAggregateV.setMemberValue("packet", ValueUtility
                 .getStringValue(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getPacket()));
+        serialTmFrameLinkAggregateV.setMemberValue("rcvdCaduCount", ValueUtility
+                .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getRcvdCaduCount()));
 
         ParameterValue serialTmFrameLinkPV = new ParameterValue(SerialTmFrameLinkHKParam);
 
@@ -397,6 +407,7 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
                 .addMember(new Member("fixedLength", sysParamCollector.getBasicType(Type.UINT32)))
                 .addMember(new Member("fatFrameCount", sysParamCollector.getBasicType(Type.UINT32)))
                 .addMember(new Member("packet", sysParamCollector.getBasicType(Type.STRING)))
+                .addMember(new Member("rcvdCaduCount", sysParamCollector.getBasicType(Type.UINT32)))
                 .build();
 
         SerialTmFrameLinkHKParam = mdb.createSystemParameter(

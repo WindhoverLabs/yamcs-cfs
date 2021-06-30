@@ -31,6 +31,7 @@ import org.yamcs.protobuf.Pvalue.ParameterValue;
 import org.yamcs.protobuf.Yamcs.NamedObjectId;
 import org.yamcs.protobuf.Yamcs.Value;
 import org.yamcs.security.User;
+import org.yamcs.tctm.Link;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.xtce.XtceDb;
 import org.yamcs.xtceproc.XtceDbFactory;
@@ -38,9 +39,16 @@ import org.yamcs.xtceproc.XtceDbFactory;
 import com.windhoverlabs.yamcs.cfs.api.AbstractCfsApi;
 import com.windhoverlabs.yamcs.cfs.api.EntryState;
 import com.windhoverlabs.yamcs.cfs.api.GetSchTableRequest;
+import com.windhoverlabs.yamcs.cfs.api.ResetSdlpPacketInputStreamRequest;
+import com.windhoverlabs.yamcs.cfs.api.ResetSdlpPacketInputStreamResponse;
 import com.windhoverlabs.yamcs.cfs.api.SchTableEntry;
 import com.windhoverlabs.yamcs.cfs.api.SchTableEntry.Builder;
 import com.windhoverlabs.yamcs.cfs.api.SchTableResponse;
+import com.windhoverlabs.yamcs.cfs.api.SdlpPacketInputStreamReconfigureRequest;
+import com.windhoverlabs.yamcs.cfs.api.SdlpPacketInputStreamReconfigureResponse;
+import com.windhoverlabs.yamcs.tctm.ccsds.SdlpPacketInputStream;
+import com.windhoverlabs.yamcs.tctm.ccsds.SerialTmFrameLink;
+import com.windhoverlabs.yamcs.tctm.ccsds.SerialTmTcFrameLink;
 import com.windhoverlabs.yamcs.util.CfsPlugin;
 import com.windhoverlabs.yamcs.util.RegistryUtil;
 
@@ -483,6 +491,38 @@ public class CfsApi extends AbstractCfsApi<Context> {
             }
 
         }
+    }
+
+    @Override
+    public void reconfigureSdlpPacketInputStream(Context ctx, SdlpPacketInputStreamReconfigureRequest request,
+            Observer<SdlpPacketInputStreamReconfigureResponse> observer) {
+        //TODO Not sure if I should publish events here... 
+        System.out.println("reconfigureSdlpPacketInputStream...");
+        
+        observer.complete(SdlpPacketInputStreamReconfigureResponse.newBuilder().build());
+        
+    }
+
+    @Override
+    public void resetSdlpPacketInputStream(Context ctx, ResetSdlpPacketInputStreamRequest request,
+            Observer<ResetSdlpPacketInputStreamResponse> observer) {
+        YamcsServerInstance instance = YamcsServer.getServer().getInstance(request.getInstance());
+        SerialTmTcFrameLink tctmLink = ((SerialTmTcFrameLink) instance.getLinkManager().getLink(request.getName()));
+        
+        System.out.println("resetSdlpPacketInputStream1");
+        for(Link l: tctmLink.getSubLinks()) 
+        {
+            System.out.println("resetSdlpPacketInputStream2");
+            if(l instanceof SerialTmFrameLink) 
+            {
+                System.out.println("resetSdlpPacketInputStream3");
+                SerialTmFrameLink tmLink = (SerialTmFrameLink)l;
+                SdlpPacketInputStream inputStream =  (SdlpPacketInputStream) tmLink.getPacketInputStream();
+                inputStream.resetCounts();
+            }
+        }
+
+        observer.complete(ResetSdlpPacketInputStreamResponse.newBuilder().build());
     }
 
 }
