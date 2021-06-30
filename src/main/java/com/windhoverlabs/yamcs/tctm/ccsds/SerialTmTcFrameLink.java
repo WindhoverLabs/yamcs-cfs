@@ -199,7 +199,7 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
         TmLink.setSerialPort(serialPort);
         TmLink.doEnable();
         TcLink.doEnable();
-        
+
         thread = new Thread(this);
         thread.start();
     }
@@ -275,17 +275,10 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
 
     @Override
     public List<Link> getSubLinks() {
-        // TODO Auto-generated method stub
-//        List<Link> subLinks = TcLink.getSubLinks();
-//        subLinks.addAll(TmLink.getSubLinks());
-        
         List<Link> subLinks = new ArrayList<Link>();
-        
         subLinks.add(TcLink);
         subLinks.add(TmLink);
-        
-//        List<Link> subLinks = TcLink.getSubLinks();
-//        subLinks.addAll(TmLink.getSubLinks());
+
         return subLinks;
     }
 
