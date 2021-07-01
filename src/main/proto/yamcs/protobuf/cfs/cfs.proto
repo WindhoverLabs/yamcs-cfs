@@ -20,7 +20,7 @@ service CfsApi {
 	// Reconfigure SdlpPacketInputStream, which handles CCSDS telemetry frames
 	rpc ReconfigureSdlpPacketInputStream (SdlpPacketInputStreamReconfigureRequest) returns (SdlpPacketInputStreamReconfigureResponse) {
 		option (yamcs.api.route) = {
-			get : "/api/{instance}/links/{name}/streams/SdlpPacketInputStream::reconfigure" body : "*" };
+			get : "/api/{instance}/links/{name}/streams/SdlpPacketInputStream:reconfigure" body : "*" };
 	}
 
 		// Reset the SdlpPacketInputStream counts such as rcvdCaduCount, fatFrameCount, etc
