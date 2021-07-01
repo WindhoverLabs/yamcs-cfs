@@ -497,7 +497,28 @@ public class CfsApi extends AbstractCfsApi<Context> {
     public void reconfigureSdlpPacketInputStream(Context ctx, SdlpPacketInputStreamReconfigureRequest request,
             Observer<SdlpPacketInputStreamReconfigureResponse> observer) {
         //TODO Not sure if I should publish events here... 
-        System.out.println("reconfigureSdlpPacketInputStream...");
+        YamcsServerInstance instance = YamcsServer.getServer().getInstance(request.getInstance());
+        
+        EventProducer eventProducer = EventProducerFactory.getEventProducer(request.getInstance(),
+                this.getClass().getSimpleName(), 10000);
+        SerialTmTcFrameLink tctmLink = ((SerialTmTcFrameLink) instance.getLinkManager().getLink(request.getName()));
+        
+        for(Link l: tctmLink.getSubLinks()) 
+        {
+            if(l instanceof SerialTmFrameLink) 
+            {
+                SerialTmFrameLink tmLink = (SerialTmFrameLink)l;
+                SdlpPacketInputStream inputStream =  (SdlpPacketInputStream) tmLink.getPacketInputStream();
+                
+                
+                //TODO Add error-checking
+                int newLength = Integer.parseInt(request.getConfigArgsMap().get("FixedLength"));
+                inputStream.setFixedLength(newLength);
+                
+                eventProducer.sendInfo("SdlpPacketInputStream FixedLength set to " + newLength);
+            }
+        }
+        
         
         observer.complete(SdlpPacketInputStreamReconfigureResponse.newBuilder().build());
         
@@ -506,19 +527,20 @@ public class CfsApi extends AbstractCfsApi<Context> {
     @Override
     public void resetSdlpPacketInputStream(Context ctx, ResetSdlpPacketInputStreamRequest request,
             Observer<ResetSdlpPacketInputStreamResponse> observer) {
+        EventProducer eventProducer = EventProducerFactory.getEventProducer(request.getInstance(),
+                this.getClass().getSimpleName(), 10000);
         YamcsServerInstance instance = YamcsServer.getServer().getInstance(request.getInstance());
         SerialTmTcFrameLink tctmLink = ((SerialTmTcFrameLink) instance.getLinkManager().getLink(request.getName()));
         
-        System.out.println("resetSdlpPacketInputStream1");
         for(Link l: tctmLink.getSubLinks()) 
         {
-            System.out.println("resetSdlpPacketInputStream2");
             if(l instanceof SerialTmFrameLink) 
             {
-                System.out.println("resetSdlpPacketInputStream3");
                 SerialTmFrameLink tmLink = (SerialTmFrameLink)l;
                 SdlpPacketInputStream inputStream =  (SdlpPacketInputStream) tmLink.getPacketInputStream();
                 inputStream.resetCounts();
+                
+                eventProducer.sendInfo("SdlpPacketInputStream counts reset.");
             }
         }
 
