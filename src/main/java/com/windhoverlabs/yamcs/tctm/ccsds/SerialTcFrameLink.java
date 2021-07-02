@@ -2,6 +2,10 @@ package com.windhoverlabs.yamcs.tctm.ccsds;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +22,7 @@ import org.yamcs.tctm.ccsds.TcTransferFrame;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.util.concurrent.RateLimiter;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Send command fames via serial interface.
@@ -41,7 +46,9 @@ public class SerialTcFrameLink extends AbstractTcFrameLink implements Runnable {
 
     SerialPort serialPort = null;
     Thread thread;
-    
+    private int burstRate;
+    private int burstDelay;
+
     /**
      * Creates a new Serial Frame Data Link
      * 
@@ -64,6 +71,11 @@ public class SerialTcFrameLink extends AbstractTcFrameLink implements Runnable {
         this.parity = config.getString("parity", "NONE");
         this.flowControl = config.getString("flowControl", "NONE");
 
+        this.burstRate = config.getInt("burstRate", 0);
+        this.burstDelay = config.getInt("burstDelay", 0);
+
+        System.out.println("burstRate:" + this.burstRate);
+
         if (this.parity != "NONE" && this.parity != "EVEN" && this.parity != "ODD" && this.parity != "MARK"
                 && this.parity != "SPACE") {
             throw new ConfigurationException("Invalid Parity (NONE, EVEN, ODD, MARK or SPACE)");
@@ -85,6 +97,7 @@ public class SerialTcFrameLink extends AbstractTcFrameLink implements Runnable {
     @Override
     public void run() {
         while (isRunningAndEnabled()) {
+
             if (rateLimiter != null) {
                 rateLimiter.acquire();
             }
@@ -114,9 +127,46 @@ public class SerialTcFrameLink extends AbstractTcFrameLink implements Runnable {
                     e1.printStackTrace();
                 }
                 try {
-                    outStream.write(data);
+
+                    int retries = 5;
+                    boolean sent = false;
+                    int stride = 0;
+                    if (this.burstRate > 0) {
+                        stride = this.burstRate;
+                    } else {
+                        stride = data.length;
+                    }
+
+                    int bytesWritten = 0;
+
+                    // Delay here
+                    
+                    System.out.println("data length-->" +data.length);
+
+                    while (bytesWritten < data.length) {
+                        byte[] fragment = new byte[stride];
+                        WritableByteChannel channel = Channels.newChannel(outStream);
+
+                        System.arraycopy(data, bytesWritten, fragment, 0, stride);
+                        ByteBuffer bb = ByteBuffer.wrap(fragment);
+                        // Must do this as this can become a quirk in some java versions.
+                        // Read https://github.com/eclipse/jetty.project/issues/3244 for details
+                        ((Buffer) bb).rewind();
+
+                        bytesWritten += channel.write(bb);
+
+                        if (this.burstDelay > 0) {
+                            Thread.sleep(TimeUnit.MILLISECONDS.convert(this.burstRate, TimeUnit.MICROSECONDS));
+                        }
+
+                    }
+
+                    // outStream.write(data);
 
                 } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -297,11 +347,32 @@ public class SerialTcFrameLink extends AbstractTcFrameLink implements Runnable {
 
     @Override
     public void sendTc(PreparedCommand pc) {
-        //Not used when framing commands.
+        // Not used when framing commands.
     }
 
     public void setSerialPort(SerialPort inSerialPort) {
-        serialPort = inSerialPort;  
+        serialPort = inSerialPort;
     }
-   
+
+    private void sleepInMicro() {
+        
+        //Might be useful
+        long wholeMilliseconds = TimeUnit.MILLISECONDS.convert(this.burstRate, TimeUnit.MICROSECONDS);
+
+        // long nanoseconds = TimeUnit.NANOSECONDS.convert(this.burstRate, TimeUnit.MICROSECONDS);
+        // if (nanoseconds > 999999) {
+        // Handle this as sleep cannot handle more than this in nanoseconds
+        // long wholeMilliseconds = TimeUnit.MILLISECONDS.convert(nanoseconds, TimeUnit.NANOSECONDS);
+        // long remainderMilliseconds = (long) (nanoseconds % 1e+6);
+
+        System.out.println("wholeMilliseconds" + wholeMilliseconds);
+        // System.out.println("remainderMilliseconds" + remainderMilliseconds);
+
+        // Thread.sleep();
+        // } else {
+        //
+        // }
+
+    }
+
 }

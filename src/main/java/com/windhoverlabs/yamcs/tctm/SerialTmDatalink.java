@@ -289,7 +289,7 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
      */
     protected void collectSystemParameters(long time, List<ParameterValue> list) {
         super.collectSystemParameters(time, list);
-        list.add(SystemParametersService.getPV(spPort, time, 1054));
+//        list.add(SystemParametersService.getPV(spPort, time, 1054));
 
     }
 

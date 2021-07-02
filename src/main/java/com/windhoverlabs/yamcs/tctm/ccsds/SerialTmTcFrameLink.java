@@ -63,8 +63,10 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
     private AggregateParameterType spDeviceHKType; // Housekeeping info for the serial device
     private Parameter deviceHKParam;
 
-    private AggregateParameterType spSerialTmFrameLinkHKType; // Housekeeping info for the SerialTmFrameLink link
+    private AggregateParameterType spPacketInputStreamHKType; // Housekeeping info for the SerialTmFrameLink link
     private Parameter SerialTmFrameLinkHKParam;
+
+    private ArrayList<Integer> last10FramesCounts = new ArrayList<Integer>();
 
     @Override
     public void init(String instance, String name, YConfiguration config) throws ConfigurationException {
@@ -101,15 +103,17 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
         } catch (IOException e) {
             // TODO Auto-generated catch block
             log.warn("Failed to open serial port.");
-        }
-
+        }        
+        
         TcLink = new SerialTcFrameLink();
         TmLink = new SerialTmFrameLink();
+        
+        TcLink.init(instance, name, config.getConfig("tc_config"));
+
         TmLink.setSerialPort(serialPort);
         TcLink.setSerialPort(serialPort);
 
         TmLink.init(instance, name, config.getConfig("tm_config"));
-        TcLink.init(instance, name, config.getConfig("tc_config"));
     }
 
     public void openDevice() throws IOException {
@@ -317,7 +321,7 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
         devicePV.setGenerationTime(gentime);
         devicePV.setEngValue(deviceAggregateV);
 
-        AggregateValue serialTmFrameLinkAggregateV = new AggregateValue(spSerialTmFrameLinkHKType.getMemberNames());
+        AggregateValue serialTmFrameLinkAggregateV = new AggregateValue(spPacketInputStreamHKType.getMemberNames());
 
         serialTmFrameLinkAggregateV.setMemberValue("outOfSyncByteCount", ValueUtility
                 .getUint32Value(((SdlpPacketInputStream) TmLink.getPacketInputStream()).getOutOfSyncByteCount()));
@@ -350,6 +354,8 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
 
         pvlist.add(devicePV);
         pvlist.add(serialTmFrameLinkPV);
+        pvlist.addAll(TmLink.getSystemParameters(gentime));
+        pvlist.addAll(TcLink.getSystemParameters(gentime));
 
         return pvlist;
     }
@@ -360,6 +366,8 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
     @Override
     public void setupSystemParameters(SystemParametersService sysParamCollector) {
         super.setupSystemParameters(sysParamCollector);
+        TmLink.setupSystemParameters(sysParamCollector);
+        TcLink.setupSystemParameters(sysParamCollector);
         mdb = YamcsServer.getServer().getInstance(yamcsInstance).getXtceDb();
 
         IntegerParameterType intType = (IntegerParameterType) sysParamCollector.getBasicType(Type.UINT64);
@@ -390,7 +398,7 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
         // packInputStreamClassName = TmLink.getConfig().getString("packetInputStreamClassName");
         // }
 
-        spSerialTmFrameLinkHKType = new AggregateParameterType.Builder().setName(packInputStreamClassName)
+        spPacketInputStreamHKType = new AggregateParameterType.Builder().setName(packInputStreamClassName)
                 .addMember(new Member("outOfSyncByteCount", sysParamCollector.getBasicType(Type.UINT32)))
                 .addMember(new Member("inSyncByteCount", sysParamCollector.getBasicType(Type.UINT32)))
                 .addMember(new Member("asmCursor", sysParamCollector.getBasicType(Type.UINT32)))
@@ -407,7 +415,22 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
                 qualifiedName(YAMCS_SPACESYSTEM_NAME,
                         linkName + "/SerialTmFrame" + NameDescription.PATH_SEPARATOR
                                 + packInputStreamClassName + "_HK"),
-                spSerialTmFrameLinkHKType,
+                spPacketInputStreamHKType,
                 "Housekeeping information. Status of SerialTmFrameLink.");
+        
     }
+
+//    TODO: Could be helpful in the future to show users frame rate on the downlinnk. Not high priority at the
+//    moment however. 
+//    public void updateFrameCountList(int newFrameCount) {
+//        if (last10FramesCounts.size() < 10) {
+//            last10FramesCounts.add(newFrameCount);
+//        } else {
+//            
+//        }
+//    }
+//
+//    private int calculateFrameRate() {
+//        return 0;
+//    }
 }
