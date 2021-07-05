@@ -39,7 +39,7 @@ services:
       remoteEntities:
         - name: "0.24"
           id: 24
-          bucket: cfdpDown
+          bucket: cfdp_download
       receiverFaultHandlers:
         AckLimitReached: suspend
 
@@ -47,7 +47,7 @@ dataLinks:
   - name: tc_ppd
     class: org.yamcs.tctm.UdpTcDataLink
     stream: tc_realtime
-    host: 192.168.2.153
+    host: 192.168.2.106
     port: 5010
     commandPostprocessorClassName: org.yamcs.tctm.cfs.CfsCommandPostprocessor
     commandPostprocessorArgs:
@@ -61,7 +61,7 @@ dataLinks:
     frameType: TM
     maxFrameLength: 1024
     #packetInputStreamClassName: com.windhoverlabs.yamcs.tctm.ccsds.SdlpPacketInputStream
-    packetInputStreamClassName: org.yamcs.tctm.ccsds.SdlpPacketInputStreamasdf
+    packetInputStreamClassName: org.yamcs.tctm.ccsds.SdlpPacketInputStream
     packetPreprocessorArgs:
       asm: "1ACFFC1D"
       minLength: 1024
@@ -84,95 +84,97 @@ dataLinks:
         packetPreprocessorArgs:
           byteOrder: LITTLE_ENDIAN
           #errorDetection:
-          #tcoService:
-          timestampFormat: CFE_SB_TIME_32_16_SUBS
-          timeEncoding:
-            epoch: CUSTOM
-            epochUTC: "1970-01-01T00:00:00Z"
-            timeIncludesLeapSeconds: false
-
-#  - name: tmtc_cpd
-#    class: com.windhoverlabs.yamcs.tctm.ccsds.SerialTmTcFrameLink
-#    device: /dev/ttyUSB0
-#    tm_config:
-#      stream: tm_realtime
-#      frameType: TM
-#      maxFrameLength: 1024
-#      packetInputStreamClassName: com.windhoverlabs.yamcs.tctm.ccsds.SdlpPacketInputStream
-#      packetInputStreamArgs:
-#       asm: "1ACFFC1D"
-#       minLength: 512
-#       maxLength: 512
-#       dropMalformed: false
-#      frameHeaderErrorControlPresent: false
-#      insertZoneLength: 0
-#      spacecraftId: 1
-#      errorDetection: NONE
-#      frameLength: 512
-#      virtualChannels:
-#        - vcId: 0
-#          service: PACKET
-#          ocfPresent: false
-#          maxPacketLength: 32768 #32KB is the default for CCSDS
-#          stream: tm_realtime
-#          #stripEncapsulationHeader: false
-#          #packetPreprocessorClassName: com.windhoverlabs.yamcs.tctm.PacketPreprocessor
-#          packetPreprocessorClassName: org.yamcs.tctm.cfs.CfsPacketPreprocessor
-#          packetPreprocessorArgs:
-#            byteOrder: LITTLE_ENDIAN
-#            #errorDetection:
-#            #tcoService:
-#            timestampFormat: CFE_SB_TIME_32_16_SUBS
-#             timeEncoding:
-#               epoch: CUSTOM
-#              epochUTC: "1970-01-01T00:00:00Z"
-#              timeIncludesLeapSeconds: false
-#    tc_config:
-#      spacecraftId: 1
-#      maxFrameLength: 1024
-#      cltuEncoding: "BCH"
-#      priorityScheme: FIFO
-#      randomizeCltu: false
-#      cltuStartSequence: "EB90"
-#      cltuTailSequence: "C5C5C5C5C5C5C579"
-#      errorDetection: NONE
-#    virtualChannels:
-#        - vcId: 1
-#          service: PACKET
-#          priority: 1
-#          commandPostprocessorClassName: org.yamcs.tctm.cfs.CfsCommandPostprocessor
-#          commandPostprocessorArgs:
-#            swapChecksumFc: true
-#          stream: tc_realtime
-#          useCop1: false
-#          bdAbsolutePriority: false
-
-
+          #tcoService: org.yamcs.time.TimeCorrelationService
+          #timestampFormat: CFE_SB_TIME_32_16_SUBS
+          #timeEncoding:
+          #  epoch: CUSTOM
+          #  epochUTC: "1990-01-01T00:00:00Z"
+          #  timeIncludesLeapSeconds: false
 
   - name: tmtc_cpd
-    class: com.windhoverlabs.yamcs.tctm.SerialTmTcDatalink
+    class: com.windhoverlabs.yamcs.tctm.ccsds.SerialTmTcFrameLink
     device: /dev/ttyUSB0
-    tcStream: tc_realtime
-    tmStream: tm_realtime
-    packetInputStreamClassName: com.windhoverlabs.yamcs.tctm.CcsdsPacketInputStream
-    packetInputStreamArgs:
-        maxPacketLength: 32768
-        secHdrRequired: false
-        segAllowed: false
-        tlmOnly: false
-    packetPreprocessorClassName: org.yamcs.tctm.cfs.CfsPacketPreprocessor
-    packetPreprocessorArgs:
-        byteOrder: LITTLE_ENDIAN
-        #errorDetection:
-        #tcoService:
-        timestampFormat: CFE_SB_TIME_32_16_SUBS
-        timeEncoding:
-          epoch: CUSTOM
-          epochUTC: "1970-01-01T00:00:00Z"
-          timeIncludesLeapSeconds: false
-    commandPostprocessorClassName: org.yamcs.tctm.cfs.CfsCommandPostprocessor
-    commandPostprocessorArgs:
-      swapChecksumFc: false
+    tm_config:
+      stream: tm_realtime
+      frameType: TM
+      maxFrameLength: 1024
+      packetInputStreamClassName: com.windhoverlabs.yamcs.tctm.ccsds.SdlpPacketInputStream
+      packetInputStreamArgs:
+       asm: "1ACFFC1D"
+       minLength: 1024
+       maxLength: 1024
+       dropMalformed: false
+       frameHeaderErrorControlPresent: false
+      insertZoneLength: 0
+      spacecraftId: 1
+      errorDetection: NONE
+      frameLength: 1024
+      virtualChannels:
+        - vcId: 0
+          service: PACKET
+          ocfPresent: false
+          maxPacketLength: 32768 #32KB is the default for CCSDS
+          stream: tm_realtime
+          #stripEncapsulationHeader: false
+          #packetPreprocessorClassName: com.windhoverlabs.yamcs.tctm.PacketPreprocessor
+          packetPreprocessorClassName: org.yamcs.tctm.cfs.CfsPacketPreprocessor
+          packetPreprocessorArgs:
+            byteOrder: LITTLE_ENDIAN
+            #errorDetection:
+            #tcoService:
+          timestampFormat: CFE_SB_TIME_32_16_SUBS
+          #timeEncoding:
+          #  epoch: CUSTOM
+          #  epochUTC: "1970-01-01T00:00:00Z"
+          #  timeIncludesLeapSeconds: false
+    tc_config:
+      burstRate: 1
+      burstDelay: 1000
+      spacecraftId: 1
+      maxFrameLength: 1024
+      cltuEncoding: "BCH"
+      priorityScheme: FIFO
+      randomizeCltu: false
+      cltuStartSequence: "EB90"
+      cltuTailSequence: "C5C5C5C5C5C5C579"
+      errorDetection: NONE
+      virtualChannels:
+        - vcId: 1
+          service: PACKET
+          priority: 1
+          commandPostprocessorClassName: org.yamcs.tctm.cfs.CfsCommandPostprocessor
+          commandPostprocessorArgs:
+            swapChecksumFc: true
+          stream: tc_realtime
+          useCop1: false
+          bdAbsolutePriority: false
+
+
+
+#    - name: tmtc_cpd
+#    class: com.windhoverlabs.yamcs.tctm.SerialTmTcDatalink
+#    device: /dev/ttyUSB0
+#    tcStream: tc_realtime
+#    tmStream: tm_realtime
+#    packetInputStreamClassName: com.windhoverlabs.yamcs.tctm.CcsdsPacketInputStream
+#    packetInputStreamArgs:
+#        maxPacketLength: 32768
+#        secHdrRequired: false
+#        segAllowed: false
+#        tlmOnly: false
+#    packetPreprocessorClassName: org.yamcs.tctm.cfs.CfsPacketPreprocessor
+#    packetPreprocessorArgs:
+#        byteOrder: LITTLE_ENDIAN
+#        #errorDetection:
+#        #tcoService:
+#        timestampFormat: CFE_SB_TIME_32_16_SUBS
+#        timeEncoding:
+#          epoch: CUSTOM
+#          epochUTC: "1970-01-01T00:00:00Z"
+#          timeIncludesLeapSeconds: false
+#    commandPostprocessorClassName: org.yamcs.tctm.cfs.CfsCommandPostprocessor
+#    commandPostprocessorArgs:
+#      swapChecksumFc: true
 
 
 mdb:

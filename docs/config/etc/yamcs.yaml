@@ -24,5 +24,7 @@ secretKey: changeme
 buckets:
   - name: cfdpUp
     path: cfdp_upload
+  - name: cfdp_download
+    path: cfdp_download_files
   - name: displays
     path: Displays
