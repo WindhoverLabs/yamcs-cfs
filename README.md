@@ -388,12 +388,6 @@ need to deal with any quirks this yamcs-flavored xtce standard may have. Below a
 so far:
 - It seems that yamcs has issues processing any `Paramter` entries that have a '#' in the name.
 
-### Strings - What is a string?
-
-**TODO:** Document what a string is in the context of our xtce files.
-
-**NOTE**: This documentation is subject to change as our tools evolve.
-
 ### Build Documentation <a name="build_documentation"></a>
 
 ```
@@ -401,5 +395,5 @@ cd docs/
 pip3 install -r requirements.txt
 make html
 ```
-
-Documented on May 19, 2021
+**NOTE**: This documentation is subject to change as our tools evolve.  
+Documented on July 5th, 2021
