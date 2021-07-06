@@ -493,37 +493,50 @@ public class CfsApi extends AbstractCfsApi<Context> {
         }
     }
 
+    /**
+     * Reconfigure the SdlpPacketInputStream.
+     * 
+     */
     @Override
     public void reconfigureSdlpPacketInputStream(Context ctx, SdlpPacketInputStreamReconfigureRequest request,
             Observer<SdlpPacketInputStreamReconfigureResponse> observer) {
-        //TODO Not sure if I should publish events here... 
+        // TODO Not sure if I should publish events here...
         YamcsServerInstance instance = YamcsServer.getServer().getInstance(request.getInstance());
-        
+
         EventProducer eventProducer = EventProducerFactory.getEventProducer(request.getInstance(),
                 this.getClass().getSimpleName(), 10000);
         SerialTmTcFrameLink tctmLink = ((SerialTmTcFrameLink) instance.getLinkManager().getLink(request.getName()));
-        
-        for(Link l: tctmLink.getSubLinks()) 
-        {
-            if(l instanceof SerialTmFrameLink) 
-            {
-                SerialTmFrameLink tmLink = (SerialTmFrameLink)l;
-                SdlpPacketInputStream inputStream =  (SdlpPacketInputStream) tmLink.getPacketInputStream();
-                
-                
-                //TODO Add error-checking
+
+        for (Link l : tctmLink.getSubLinks()) {
+            if (l instanceof SerialTmFrameLink) {
+                SerialTmFrameLink tmLink = (SerialTmFrameLink) l;
+                SdlpPacketInputStream inputStream = (SdlpPacketInputStream) tmLink.getPacketInputStream();
+
+                // TODO Add error-checking
                 int newLength = Integer.parseInt(request.getConfigArgsMap().get("FixedLength"));
-                inputStream.setFixedLength(newLength);
-                
-                eventProducer.sendInfo("SdlpPacketInputStream FixedLength set to " + newLength);
+                try {
+                    inputStream.setFixedLength(newLength);
+                    eventProducer.sendInfo("SdlpPacketInputStream FixedLength set to " + newLength);
+
+                } catch (IllegalArgumentException e) {
+                    eventProducer.sendCritical("setFixedLength failed:" + e.toString());
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    eventProducer.sendCritical("setFixedLength failed:" + e.toString());
+                }
+
             }
         }
-        
-        
+
         observer.complete(SdlpPacketInputStreamReconfigureResponse.newBuilder().build());
-        
+
     }
 
+    /**
+     * Reset rcvdCaduCount and fatFrameCount on SdlpPacketInputStream.
+     *
+     * On success, a "SdlpPacketInputStream counts reset." event will be raised.
+     */
     @Override
     public void resetSdlpPacketInputStream(Context ctx, ResetSdlpPacketInputStreamRequest request,
             Observer<ResetSdlpPacketInputStreamResponse> observer) {
@@ -531,15 +544,13 @@ public class CfsApi extends AbstractCfsApi<Context> {
                 this.getClass().getSimpleName(), 10000);
         YamcsServerInstance instance = YamcsServer.getServer().getInstance(request.getInstance());
         SerialTmTcFrameLink tctmLink = ((SerialTmTcFrameLink) instance.getLinkManager().getLink(request.getName()));
-        
-        for(Link l: tctmLink.getSubLinks()) 
-        {
-            if(l instanceof SerialTmFrameLink) 
-            {
-                SerialTmFrameLink tmLink = (SerialTmFrameLink)l;
-                SdlpPacketInputStream inputStream =  (SdlpPacketInputStream) tmLink.getPacketInputStream();
+
+        for (Link l : tctmLink.getSubLinks()) {
+            if (l instanceof SerialTmFrameLink) {
+                SerialTmFrameLink tmLink = (SerialTmFrameLink) l;
+                SdlpPacketInputStream inputStream = (SdlpPacketInputStream) tmLink.getPacketInputStream();
                 inputStream.resetCounts();
-                
+
                 eventProducer.sendInfo("SdlpPacketInputStream counts reset.");
             }
         }

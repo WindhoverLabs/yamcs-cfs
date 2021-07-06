@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.yamcs.YConfiguration;
+import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.tctm.PacketInputStream;
@@ -31,6 +32,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
     String asmString = "1ACFFC1D";
     byte[] asm;
     int maxLength = -1;
+
     int minLength = 0;
     int fixedLength = -1;
 
@@ -414,8 +416,40 @@ public class SdlpPacketInputStream implements PacketInputStream {
         return rcvdCaduCount;
     }
 
-    public void setFixedLength(int fixedLength) {
-        this.fixedLength = fixedLength;
+    /**
+     * @param fixedLength
+     * @throws Exception if minLength and maxLength are not equal.
+     * @throws IllegalArgumentException if fixedLength is less than 0.
+     */
+    public void setFixedLength(int fixedLength) throws Exception {
+
+        if (this.minLength == this.maxLength) {
+            if (fixedLength > 0) {
+                this.fixedLength = fixedLength;
+                this.maxLength = fixedLength;
+                this.minLength = fixedLength;
+            } else {
+                throw new IllegalArgumentException("fixedLength must be greater than 0.");
+            }
+        } else {
+            throw new Exception("minLength and maxLength must be equal in order to set fixedLength.");
+        }
+    }
+    
+    public int getMinLength() {
+        return minLength;
+    }
+
+    public void setMinLength(int minLength) {
+        this.minLength = minLength;
+    }
+
+    public int getMaxLength() {
+        return maxLength;
+    }
+
+    public void setMaxLength(int maxLength) {
+        this.maxLength = maxLength;
     }
 
     /**
