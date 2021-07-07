@@ -316,6 +316,8 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
 
         AggregateValue deviceAggregateV = new AggregateValue(spDeviceHKType.getMemberNames());
         deviceAggregateV.setMemberValue("name", ValueUtility.getStringValue(deviceName));
+        deviceAggregateV.setMemberValue("open", ValueUtility.getStringValue(String.valueOf(!serialPort.isClosed())));
+
 
         ParameterValue devicePV = new ParameterValue(deviceHKParam);
         devicePV.setGenerationTime(gentime);
@@ -381,6 +383,7 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
 
         spDeviceHKType = new AggregateParameterType.Builder().setName("DeviceHK")
                 .addMember(new Member("name", sysParamCollector.getBasicType(Type.STRING)))
+                .addMember(new Member("open", sysParamCollector.getBasicType(Type.STRING)))
                 .build();
         deviceHKParam = mdb.createSystemParameter(qualifiedName(YAMCS_SPACESYSTEM_NAME, linkName + "/SerialPortHK"),
                 spDeviceHKType,
@@ -390,13 +393,9 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
         // Extract the last token of the class name, since it will be in the form of
         // PackageA.PackageB.ClassName
 
-        String[] classNameParts = TmLink.getPacketInputStream().getClass().getName().split(".");
+        String[] classNameParts = TmLink.getPacketInputStream().getClass().getName().split("\\.");
         // classNameParts[classNameParts.length-1];
-        String packInputStreamClassName = "PacketInputStream";
-
-        // if (TmLink.getConfig().containsKey("packetInputStreamClassName")) {
-        // packInputStreamClassName = TmLink.getConfig().getString("packetInputStreamClassName");
-        // }
+        String packInputStreamClassName = classNameParts[classNameParts.length-1];
 
         spPacketInputStreamHKType = new AggregateParameterType.Builder().setName(packInputStreamClassName)
                 .addMember(new Member("outOfSyncByteCount", sysParamCollector.getBasicType(Type.UINT32)))
@@ -413,7 +412,7 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
 
         SerialTmFrameLinkHKParam = mdb.createSystemParameter(
                 qualifiedName(YAMCS_SPACESYSTEM_NAME,
-                        linkName + "/SerialTmFrame" + NameDescription.PATH_SEPARATOR
+                        linkName + "/SerialTmTcFrameLink" + NameDescription.PATH_SEPARATOR
                                 + packInputStreamClassName + "_HK"),
                 spPacketInputStreamHKType,
                 "Housekeeping information. Status of SerialTmFrameLink.");
