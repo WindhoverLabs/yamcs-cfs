@@ -385,7 +385,7 @@ public class SerialTmTcFrameLink extends AbstractLink implements Runnable, TcDat
                 .addMember(new Member("name", sysParamCollector.getBasicType(Type.STRING)))
                 .addMember(new Member("open", sysParamCollector.getBasicType(Type.STRING)))
                 .build();
-        deviceHKParam = mdb.createSystemParameter(qualifiedName(YAMCS_SPACESYSTEM_NAME, linkName + "/SerialPortHK"),
+        deviceHKParam = mdb.createSystemParameter(qualifiedName(YAMCS_SPACESYSTEM_NAME, linkName + "/SerialTmTcFrameLink"),
                 spDeviceHKType,
                 "Housekeeping information. Status of the device, name, etc");
 
