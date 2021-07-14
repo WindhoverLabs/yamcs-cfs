@@ -5,9 +5,9 @@ tree = ET.ElementTree()
 tree.parse('../pom.xml')
 version_el = tree.getroot().find('{http://maven.apache.org/POM/4.0.0}version')
 
-project = u'yamcs-prometheus'
-copyright = u'2020, Space Applications Services'
-author = u'Yamcs Team'
+project = u'yamcs-cfs'
+copyright = u'2020, Windhover Labs'
+author = u'Windhover Labs'
 
 # The short X.Y version
 version = version_el.text
