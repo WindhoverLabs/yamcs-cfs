@@ -62,4 +62,13 @@ public class CfsPlugin implements Plugin {
         return registry;
     }
 
+    /**
+     * The workspace directory is the directory that holds all of our yamcs configuration.
+     * 
+     * @return
+     */
+    public String getWorkspaceDir() {
+        return System.getProperty("user.dir");
+    }
+
 }
