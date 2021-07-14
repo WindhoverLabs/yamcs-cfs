@@ -23,3 +23,6 @@ CfsPlugin-specific configuration, such as the registry, may be loaded via the ``
 
     yamcs-cfs:
       registry: "Displays/Resources/definitions.yaml"
+
+NOTE: At the moment the registry is global. Meaning it is NOT instance-specific. This is something that should be addressed in future
+releases.
