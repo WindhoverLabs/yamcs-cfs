@@ -1,0 +1,970 @@
+<xtce:SpaceSystem xmlns:xtce="http://www.omg.org/spec/XTCE/20180204" name="airliner">
+    <TelemetryMetaData>
+        <ParameterTypeSet/>
+    </TelemetryMetaData>
+    <CommandMetaData/>
+    <xtce:SpaceSystem name="BaseTypes">
+        <TelemetryMetaData>
+            <ParameterTypeSet>
+                <IntegerParameterType name="uint1_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="1"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint1_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="1"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int2_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="2"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int2_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="2"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint2_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="2"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint2_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="2"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int3_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="3"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int3_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="3"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint3_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="3"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint3_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="3"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int4_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="4"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int4_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="4"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint4_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="4"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint4_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="4"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int5_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="5"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int5_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="5"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint5_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="5"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint5_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="5"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int6_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="6"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int6_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="6"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint6_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="6"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint6_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="6"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int7_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="7"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int7_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="7"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint7_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="7"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint7_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="7"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int8_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int8_BE">
+                    <IntegerDataEncoding encoding="twosComplement"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint8_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint8_BE" signed="false">
+                    <IntegerDataEncoding/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int9_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="9"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int9_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="9"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint9_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="9"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint9_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="9"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int10_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="10"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int10_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="10"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint10_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="10"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint10_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="10"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int11_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="11"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int11_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="11"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint11_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="11"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint11_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="11"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int12_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="12"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int12_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="12"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint12_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="12"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint12_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="12"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int13_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="13"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int13_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="13"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint13_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="13"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint13_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="13"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int14_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="14"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int14_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="14"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint14_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="14"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint14_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="14"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int15_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="15"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int15_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="15"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint15_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="15"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint15_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="15"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int16_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="16"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int16_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="16"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint16_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="16"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint16_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="16"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int17_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="17"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int17_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="17"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint17_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="17"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint17_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="17"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int18_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="18"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int18_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="18"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint18_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="18"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint18_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="18"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int19_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="19"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int19_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="19"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint19_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="19"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint19_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="19"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int20_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="20"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int20_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="20"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint20_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="20"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint20_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="20"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int21_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="21"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int21_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="21"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint21_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="21"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint21_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="21"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int22_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="22"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int22_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="22"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint22_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="22"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint22_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="22"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int23_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="23"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int23_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="23"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint23_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="23"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint23_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="23"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int24_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="24"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int24_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="24"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint24_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="24"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint24_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="24"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int25_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="25"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int25_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="25"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint25_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="25"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint25_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="25"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int26_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="26"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int26_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="26"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint26_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="26"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint26_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="26"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int27_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="27"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int27_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="27"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint27_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="27"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint27_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="27"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int28_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="28"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int28_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="28"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint28_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="28"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint28_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="28"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int29_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="29"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int29_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="29"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint29_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="29"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint29_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="29"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int30_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="30"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int30_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="30"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint30_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="30"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint30_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="30"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int31_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="31"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int31_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="31"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint31_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="31"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint31_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="31"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int32_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="32"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int32_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="32"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint32_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="32"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint32_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="32"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int33_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="33"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int33_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="33"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint33_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="33"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint33_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="33"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int34_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="34"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int34_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="34"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint34_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="34"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint34_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="34"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int35_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="35"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int35_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="35"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint35_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="35"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint35_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="35"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int36_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="36"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int36_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="36"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint36_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="36"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint36_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="36"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int37_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="37"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int37_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="37"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint37_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="37"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint37_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="37"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int38_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="38"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int38_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="38"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint38_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="38"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint38_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="38"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int39_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="39"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int39_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="39"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint39_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="39"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint39_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="39"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int40_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="40"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int40_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="40"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint40_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="40"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint40_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="40"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int41_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="41"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int41_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="41"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint41_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="41"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint41_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="41"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int42_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="42"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int42_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="42"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint42_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="42"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint42_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="42"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int43_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="43"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int43_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="43"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint43_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="43"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint43_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="43"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int44_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="44"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int44_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="44"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint44_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="44"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint44_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="44"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int45_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="45"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int45_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="45"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint45_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="45"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint45_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="45"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int46_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="46"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int46_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="46"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint46_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="46"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint46_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="46"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int47_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="47"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int47_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="47"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint47_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="47"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint47_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="47"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int48_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="48"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int48_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="48"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint48_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="48"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint48_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="48"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int49_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="49"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int49_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="49"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint49_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="49"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint49_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="49"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int50_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="50"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int50_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="50"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint50_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="50"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint50_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="50"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int51_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="51"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int51_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="51"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint51_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="51"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint51_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="51"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int52_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="52"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int52_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="52"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint52_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="52"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint52_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="52"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int53_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="53"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int53_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="53"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint53_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="53"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint53_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="53"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int54_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="54"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int54_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="54"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint54_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="54"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint54_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="54"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int55_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="55"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int55_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="55"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint55_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="55"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint55_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="55"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int56_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="56"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int56_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="56"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint56_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="56"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint56_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="56"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int57_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="57"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int57_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="57"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint57_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="57"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint57_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="57"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int58_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="58"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int58_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="58"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint58_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="58"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint58_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="58"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int59_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="59"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int59_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="59"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint59_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="59"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint59_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="59"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int60_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="60"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int60_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="60"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint60_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="60"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint60_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="60"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int61_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="61"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int61_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="61"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint61_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="61"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint61_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="61"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int62_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="62"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int62_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="62"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint62_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="62"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint62_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="62"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int63_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="63"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int63_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="63"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint63_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="63"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint63_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="63"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int64_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="64"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="int64_BE">
+                    <IntegerDataEncoding encoding="twosComplement" sizeInBits="64"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint64_LE" signed="false">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" sizeInBits="64"/>
+                </IntegerParameterType>
+                <IntegerParameterType name="uint64_BE" signed="false">
+                    <IntegerDataEncoding sizeInBits="64"/>
+                </IntegerParameterType>
+                <FloatParameterType name="float32_LE" sizeInBits="32">
+                    <FloatDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst"/>
+                </FloatParameterType>
+            </ParameterTypeSet>
+        </TelemetryMetaData>
+        <CommandMetaData>
+            <ArgumentTypeSet>
+                <IntegerArgumentType name="int2_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="2"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int3_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="3"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int4_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="4"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int5_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="5"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int6_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="6"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int7_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="7"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int8_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int9_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="9"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int10_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="10"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int11_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="11"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int12_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="12"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int13_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="13"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int14_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="14"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int15_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="15"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int16_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="16"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int17_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="17"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int18_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="18"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int19_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="19"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int20_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="20"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int21_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="21"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int22_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="22"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int23_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="23"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int24_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="24"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int25_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="25"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int26_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="26"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int27_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="27"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int28_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="28"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int29_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="29"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int30_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="30"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int31_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="31"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int32_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="32"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int33_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="33"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int34_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="34"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int35_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="35"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int36_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="36"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int37_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="37"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int38_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="38"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int39_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="39"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int40_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="40"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int41_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="41"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int42_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="42"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int43_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="43"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int44_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="44"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int45_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="45"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int46_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="46"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int47_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="47"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int48_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="48"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int49_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="49"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int50_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="50"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int51_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="51"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int52_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="52"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int53_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="53"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int54_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="54"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int55_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="55"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int56_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="56"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int57_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="57"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int58_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="58"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int59_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="59"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int60_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="60"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int61_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="61"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int62_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="62"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int63_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="63"/>
+                </IntegerArgumentType>
+                <IntegerArgumentType name="int64_LE">
+                    <IntegerDataEncoding bitOrder="leastSignificantBitFirst" byteOrder="leastSignificantByteFirst" encoding="twosComplement" sizeInBits="64"/>
+                </IntegerArgumentType>
+            </ArgumentTypeSet>
+        </CommandMetaData>
+    </xtce:SpaceSystem>
+</xtce:SpaceSystem>

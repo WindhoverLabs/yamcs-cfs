@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xtce:SpaceSystem xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xtce="http://www.omg.org/spec/XTCE/20180204" xsi:schemaLocation="http://www.omg.org/spec/XTCE/20180204 SpaceSystem.xsd " name="CFE_EVS">
+	<xtce:Header validationStatus="Unknown"></xtce:Header>
+	<xtce:TelemetryMetaData>
+		<xtce:ParameterTypeSet>
+			<xtce:EnumeratedParameterType name="MessageFormatMode_TYPE">
+				<xtce:IntegerDataEncoding
+					bitOrder="leastSignificantBitFirst" sizeInBits="8"
+					encoding="unsigned" byteOrder="leastSignificantByteFirst">
+				</xtce:IntegerDataEncoding>
+				<xtce:EnumerationList>
+					<xtce:Enumeration value="0" label="SHORT"/><xtce:Enumeration
+						label="LONG" value="1"/>
+				</xtce:EnumerationList>
+			</xtce:EnumeratedParameterType>
+			<xtce:AggregateParameterType name="CFE_EVS_AppTlmData_t">
+				<xtce:MemberList>
+					<xtce:Member name="AppID" typeRef="cfs-ccsds/BaseType/uint32_LE"></xtce:Member>
+					<xtce:Member name="AppMessageSentCounter" typeRef="cfs-ccsds/BaseType/uint16_LE"></xtce:Member>
+					<xtce:Member typeRef="cfs-ccsds/BaseType/uint8_LE" name="AppEnableStatus"></xtce:Member>
+					<xtce:Member name="Padding" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+				</xtce:MemberList>
+			</xtce:AggregateParameterType>
+			<xtce:AggregateParameterType name="Payload_t">
+				<xtce:MemberList>
+					<xtce:Member name="CommandCounter" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="CommandErrCounter" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="MessageFormatMode"
+						shortDescription="Meant to be an ENUM{(SHORT,0), (LONG,1)}" typeRef="MessageFormatMode_TYPE">
+					</xtce:Member>
+					<xtce:Member name="MessageTruncCounter" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="UnregisteredAppCounter" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="OutputPort" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="LogFullFlag" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="LogMode" shortDescription="Meant to be an ENUM{(OVERWRITE,0), (DISCARD,1)}" typeRef="cfs-ccsds/BaseType/uint8_LE">
+					</xtce:Member>
+					<xtce:Member name="MessageSendCounter" typeRef="cfs-ccsds/BaseType/uint16_LE"></xtce:Member>
+					<xtce:Member name="LogOverflowCounter" typeRef="cfs-ccsds/BaseType/uint16_LE"></xtce:Member>
+					<xtce:Member name="LogEnabled" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="Spare1" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="Spare2" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member name="Spare3" typeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[0]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[1]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[2]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[3]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[4]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[5]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[6]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[7]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[8]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[9]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[10]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[11]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[12]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[13]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[14]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[15]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[16]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[17]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[18]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[19]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[20]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[21]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[22]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[23]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[24]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[25]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[26]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[27]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[28]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[29]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[30]"></xtce:Member>
+					<xtce:Member typeRef="CFE_EVS_AppTlmData_t" name="AppData[31]"></xtce:Member>
+				</xtce:MemberList>
+			</xtce:AggregateParameterType>
+		</xtce:ParameterTypeSet>
+		<xtce:ParameterSet>
+			<xtce:Parameter name="Payload" parameterTypeRef="Payload_t"></xtce:Parameter>
+			
+		</xtce:ParameterSet>
+		<xtce:ContainerSet>
+			<xtce:SequenceContainer name="CFE_EVS_TlmPkt_t">
+				<xtce:EntryList>
+					<xtce:ParameterRefEntry parameterRef="Payload"></xtce:ParameterRefEntry>
+				</xtce:EntryList>
+				<xtce:BaseContainer containerRef="cfs-ccsds/cfs-tlm-hdr">
+					<xtce:RestrictionCriteria>
+						<xtce:ComparisonList>
+							<xtce:Comparison value="1" parameterRef="cfs-ccsds/ccsds-apid"/>
+						</xtce:ComparisonList>
+						
+					</xtce:RestrictionCriteria></xtce:BaseContainer>
+			</xtce:SequenceContainer>
+			<xtce:SequenceContainer name="CFE_EVS_TlmPkt_Payload_t">
+				<xtce:EntryList>
+				</xtce:EntryList>
+				<xtce:BaseContainer containerRef="CFE_EVS_TlmPkt_t"></xtce:BaseContainer>
+			</xtce:SequenceContainer>
+		</xtce:ContainerSet></xtce:TelemetryMetaData>
+	<xtce:CommandMetaData>
+		<xtce:MetaCommandSet>
+			<xtce:MetaCommand name="NoOp">
+				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-cmd">
+					<xtce:ArgumentAssignmentList>
+						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid"></xtce:ArgumentAssignment><xtce:ArgumentAssignment
+							argumentValue="0" argumentName="cfs-cmd-code"/><xtce:ArgumentAssignment
+							argumentValue="1" argumentName="ccsds-length"/>
+					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
+				<xtce:CommandContainer name="NoOp-container">
+					<xtce:EntryList></xtce:EntryList>
+				</xtce:CommandContainer></xtce:MetaCommand>
+			<xtce:MetaCommand name="ResetCounters">
+				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-cmd">
+					<xtce:ArgumentAssignmentList>
+						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid"/><xtce:ArgumentAssignment
+							argumentValue="1" argumentName="cfs-cmd-code"/><xtce:ArgumentAssignment
+							argumentValue="1" argumentName="ccsds-length"/>
+					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
+				<xtce:CommandContainer name="cfs-cmd-container">
+					<xtce:EntryList></xtce:EntryList>
+				</xtce:CommandContainer></xtce:MetaCommand>
+			<xtce:MetaCommand name="EnableEventType">
+				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-cmd">
+					<xtce:ArgumentAssignmentList>
+						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid"/><xtce:ArgumentAssignment
+							argumentValue="2" argumentName="cfs-cmd-code"/><xtce:ArgumentAssignment
+							argumentValue="3" argumentName="ccsds-length"/>
+					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
+				<xtce:ArgumentList>
+					<xtce:Argument name="BitMask" argumentTypeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Argument>
+					<xtce:Argument name="Spare" argumentTypeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Argument>
+				</xtce:ArgumentList>
+				<xtce:CommandContainer name="EnableEventType-Container">
+					<xtce:EntryList>
+						<xtce:ArgumentRefEntry argumentRef="BitMask"></xtce:ArgumentRefEntry>
+						<xtce:ArgumentRefEntry argumentRef="Spare"></xtce:ArgumentRefEntry></xtce:EntryList>
+				</xtce:CommandContainer></xtce:MetaCommand>
+			<xtce:MetaCommand name="DisableEventType">
+				<xtce:BaseMetaCommand metaCommandRef="cfs-ccsds/cfs-cmd">
+					<xtce:ArgumentAssignmentList>
+						<xtce:ArgumentAssignment argumentValue="1" argumentName="ccsds-apid"/><xtce:ArgumentAssignment
+							argumentValue="3" argumentName="cfs-cmd-code"></xtce:ArgumentAssignment><xtce:ArgumentAssignment
+							argumentValue="3" argumentName="ccsds-length"/>
+					</xtce:ArgumentAssignmentList></xtce:BaseMetaCommand>
+				<xtce:ArgumentList>
+					<xtce:Argument name="BitMask" argumentTypeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Argument>
+					<xtce:Argument name="Spare" argumentTypeRef="cfs-ccsds/BaseType/uint8_LE"></xtce:Argument>
+				</xtce:ArgumentList>
+				<xtce:CommandContainer name="DisableEventType-Container">
+					<xtce:EntryList>
+						<xtce:ArgumentRefEntry argumentRef="BitMask"></xtce:ArgumentRefEntry>
+						<xtce:ArgumentRefEntry argumentRef="Spare"></xtce:ArgumentRefEntry></xtce:EntryList>
+				</xtce:CommandContainer></xtce:MetaCommand>
+		</xtce:MetaCommandSet></xtce:CommandMetaData>
+</xtce:SpaceSystem>

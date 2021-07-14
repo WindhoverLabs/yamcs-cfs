@@ -1,0 +1,80 @@
+syntax = "proto2";
+
+package yamcs.protobuf.cfs;
+
+option java_package = "com.windhoverlabs.yamcs.cfs.api";
+option java_outer_classname = "CfsUtilProto";
+option java_multiple_files = true;
+import "yamcs/api/annotations.proto";
+import "yamcs/api/httpbody.proto";
+
+//A collection of useful functions for clients interested in cfs-specific data
+service CfsApi {
+
+// Fetch the sch table for a specific app
+	rpc GetSchTable (GetSchTableRequest) returns (SchTableResponse) {
+		option (yamcs.api.route) = {
+			get : "/api/{instance}/cfs/sch/table" body : "*" };
+	}
+
+	// Reconfigure SdlpPacketInputStream, which handles CCSDS telemetry frames
+	rpc ReconfigureSdlpPacketInputStream (SdlpPacketInputStreamReconfigureRequest) returns (SdlpPacketInputStreamReconfigureResponse) {
+		option (yamcs.api.route) = {
+			get : "/api/{instance}/links/{name}/streams/SdlpPacketInputStream:reconfigure" body : "*" };
+	}
+
+		// Reset the SdlpPacketInputStream counts such as rcvdCaduCount, fatFrameCount, etc
+	rpc ResetSdlpPacketInputStream (ResetSdlpPacketInputStreamRequest) returns (ResetSdlpPacketInputStreamResponse) {
+		option (yamcs.api.route) = {
+			get : "/api/{instance}/links/{name}/streams/SdlpPacketInputStream:reset" body : "*" };
+	}
+}
+
+enum EntryState {
+	ENABLED = 0;
+	DISABLED = 1;
+	UNUSED = 2;
+}
+
+message GetSchTableRequest {
+	optional string instance = 1;
+	optional string app = 2;
+	optional string paramPath = 3;
+	optional string processor = 4;
+}
+
+message SchTableEntry {
+	optional int64 minor = 1;
+	optional int64 activityNumber = 2;
+	optional string messageMacro = 3;
+	optional EntryState state = 4;
+}
+
+message SchTableResponse {
+	repeated SchTableEntry schEntries = 1;
+}
+
+message SdlpPacketInputStreamReconfigureRequest {
+	// Yamcs instance name.
+	optional string instance = 1;
+
+	//Link name
+	optional string name = 2;
+
+	// Arguments for new configuration values such as fixedLength.
+	map < string, string > configArgs = 3;
+}
+
+message SdlpPacketInputStreamReconfigureResponse {
+}
+
+message ResetSdlpPacketInputStreamRequest {
+	// Yamcs instance name.
+	optional string instance = 1;
+	//Link name
+	optional string name = 2;
+}
+
+message ResetSdlpPacketInputStreamResponse {
+}
+
