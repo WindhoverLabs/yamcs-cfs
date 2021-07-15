@@ -9054,7 +9054,7 @@
                 		<xtce:ParameterRefEntry parameterRef="Time_Output"></xtce:ParameterRefEntry></xtce:EntryList>
                 </xtce:SequenceContainer>
             </ContainerSet>
-            <xtce:AlgorithmSet>
+            <!-- xtce:AlgorithmSet>
             	<xtce:CustomAlgorithm name="TimeAlgo">
             		<xtce:AlgorithmText language="Java">com.windhoverlabs.yamcs.algorithms.CFETime$AvgAlgorithm2()</xtce:AlgorithmText>
             		<xtce:InputSet>
@@ -9067,7 +9067,7 @@
             		<xtce:TriggerSet>
             			<xtce:OnParameterUpdateTrigger parameterRef="CFE_TIME_HkPacket_t" />
             		</xtce:TriggerSet></xtce:CustomAlgorithm>
-            </xtce:AlgorithmSet>
+            </xtce:AlgorithmSet-->
         </TelemetryMetaData>
         <CommandMetaData>
             <ArgumentTypeSet>
