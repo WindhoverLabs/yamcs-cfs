@@ -29,7 +29,7 @@ import com.windhoverlabs.yamcs.util.CfsPlugin;
 public class CfsRegistryService extends AbstractYamcsService implements SystemParametersProducer {
 
     private Parameter workspaceLinkHKParam;
-    private AggregateParameterType spWorkspaceHKType; // Housekeeping info for the SerialTmFrameLink link
+    private AggregateParameterType spWorkspaceHKType; // Housekeeping info for the workspace.
     private XtceDb mdb;
 
     @Override
