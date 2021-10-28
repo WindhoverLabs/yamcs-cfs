@@ -13,6 +13,7 @@ import org.yamcs.events.EventProducerFactory;
 import org.yamcs.tctm.PacketInputStream;
 import org.yamcs.utils.StringConverter;
 import org.yamcs.ConfigurationException;
+import org.yamcs.utils.StringConverter;
 
 /**
  * Reads CCSDS packets from an input stream: This packet input stream reads and verifies the data 1 piece at a time,
@@ -131,13 +132,17 @@ public class SdlpPacketInputStream implements PacketInputStream {
         fatFrameBytes = 0;
 
         while (parserState != ParserState.CADU_COMPLETE) {
+        	System.out.println("com.windhoverlabs.yamcs.tctm.ccsds.SdlpPacketInputStream.readPacket() state-->"
+        						+ parserState);
             switch (parserState) {
             case OUT_OF_SYNC: {
                 /* We are totally out of sync. Start, or keep looking, for the first ASM, one byte
                  * at a time.
                  */
                 dataInputStream.readFully(asmField, 0, 1);
-
+                
+                System.out.println("Contents of asmField:" + StringConverter.arrayToHexString(asmField));
+                System.out.println("Size of  asmField:" +  asmField.length);
                 outOfSyncByteCount++;
 
                 /* Is this the next value of the ASM? */
