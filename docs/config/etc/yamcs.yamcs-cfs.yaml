@@ -1,6 +1,10 @@
 #Configuration tested on YAMCS 5.4.0
 services:
   - class: org.yamcs.archive.XtceTmRecorder
+  - class: com.windhoverlabs.yamcs.cfs.registry.LinkInfoService
+    args:
+      links:
+        - tc_ppd
   - class: org.yamcs.archive.ParameterRecorder
   - class: org.yamcs.archive.AlarmRecorder
   - class: org.yamcs.archive.EventRecorder

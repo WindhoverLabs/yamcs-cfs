@@ -18,6 +18,7 @@ release = version
 extensions = [
     'sphinx.ext.extlinks',
     'sphinxcontrib.fulltoc',
+    'sphinx.ext.autodoc'
 ]
 
 # List of patterns, relative to source directory, that match files and

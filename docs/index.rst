@@ -9,6 +9,7 @@ might find useful.
 Current utilities include:
 
 * Request the SCH table entries for a specific application
+* LinkInfoService provides users with extra information about their current data links(host, port, etc) as system parameters.
 
 These utilities are meant to ease the use of YAMCS with cfs flight software.
 
@@ -22,3 +23,4 @@ At the moment users may obtain the jar files from yamcs-cfs github repository. T
 
     cfs-config
     http-api/index
+    services/link-info-service
