@@ -1,8 +1,5 @@
 package com.windhoverlabs.yamcs.cfs.registry;
 
-import static org.yamcs.xtce.NameDescription.qualifiedName;
-import static org.yamcs.xtce.XtceDb.YAMCS_SPACESYSTEM_NAME;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,12 +19,10 @@ import org.yamcs.parameter.Value;
 import org.yamcs.protobuf.Yamcs.Value.Type;
 import org.yamcs.tctm.Link;
 import org.yamcs.utils.ValueUtility;
-import org.yamcs.xtce.AggregateParameterType;
 import org.yamcs.xtce.Parameter;
-import org.yamcs.xtce.XtceDb;
 
 /**
- * Extra info about such as ip addresses and ports.
+ * Extra info about such links as ip addresses and ports.
  * 
  * @author lgomez
  *
@@ -81,7 +76,6 @@ public class LinkInfoService extends AbstractYamcsService implements SystemParam
 			Value host = ValueUtility.getStringValue(link.getConfig().getString("host", null));
 
 			ParameterValue hostLinkPV = new ParameterValue(linkHost);
-
 			hostLinkPV.setGenerationTime(gentime);
 			hostLinkPV.setEngValue(host);
 
@@ -94,18 +88,14 @@ public class LinkInfoService extends AbstractYamcsService implements SystemParam
 		SystemParametersService collector = SystemParametersService.getInstance(yamcsInstance);
 		if (collector != null) {
 			makeParameterStatus();
+			
 			for (String linkName : linkNames) {
-
 				Link link = YamcsServer.getServer().getInstance(yamcsInstance).getLinkManager().getLink(linkName);
 				if (link != null) {
-
 					linkHost = collector.createSystemParameter(linkName + "/host", Type.STRING, "");
 				} else {
-
 					linkHost = collector.createSystemParameter(linkName + "/host", Type.STRING, "");
-
 				}
-
 			}
 
 			collector.registerProducer(this);
@@ -114,13 +104,11 @@ public class LinkInfoService extends AbstractYamcsService implements SystemParam
 
 	private void makeParameterStatus() {
 		// TODO Implement
-
 	}
 
 	@Override
 	protected void doStop() {
 		notifyStopped();
-
 	}
 
 }
