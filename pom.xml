@@ -145,11 +145,14 @@
         <artifactId>yamcs-maven-plugin</artifactId>
         <version>1.2.6</version>
         <executions>
-          <execution>
-            <goals>
-              <goal>detect</goal>
+          <!-- >execution>
+            < goals>
+              <goal When this goal is set, 
+              all metadata is queried from the project's
+              pom which can be a problem when loading multiple
+              plugins.https://github.com/yamcs/yamcs-maven-plugin/pull/1>detect</goal>
             </goals>
-          </execution>
+          </execution-->
           <execution>
             <id>bundle-extension</id>
             <phase>package</phase>
