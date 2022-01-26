@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.yamcs.TmPacket;
 
-public class SerialATTmDatalink extends AbstractTmDataLink implements TcDataLink, Runnable {
+public class SerialATTmDatalink extends AbstractTmDataLink implements Runnable {
     protected String deviceName;
     protected int baudRate;
     protected int dataBits;
@@ -85,7 +85,7 @@ public class SerialATTmDatalink extends AbstractTmDataLink implements TcDataLink
             this.packetInputStreamArgs = YConfiguration.emptyConfig();
         }
         
-        log.info("Initialized");
+        log.info("Initialized " + this.getClass().getName());
     }
 
     @Override
@@ -310,18 +310,6 @@ public class SerialATTmDatalink extends AbstractTmDataLink implements TcDataLink
         } else {
             return String.format("OK, connected to %s, received %d packets", deviceName, packetCount.get());
         }
-    }
-
-    @Override
-    public void sendTc(PreparedCommand preparedCommand) {
-      // TODO Auto-generated method stub
-      
-    }
-
-    @Override
-    public void setCommandHistoryPublisher(CommandHistoryPublisher commandHistoryPublisher) {
-      // TODO Auto-generated method stub
-      
     }
 
 }
