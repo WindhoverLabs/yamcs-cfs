@@ -1,23 +1,38 @@
 package com.windhoverlabs.yamcs.tctm;
 
+import org.openmuc.jrxtx.DataBits;
 import org.openmuc.jrxtx.SerialPort;
 import org.openmuc.jrxtx.SerialPortBuilder;
 import org.yamcs.ConfigurationException;
 import org.yamcs.YConfiguration;
+import org.yamcs.YamcsServer;
+import org.yamcs.cmdhistory.CommandHistoryPublisher;
+import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.parameter.ParameterValue;
+import org.yamcs.parameter.SystemParametersService;
+import org.yamcs.protobuf.Yamcs.Value.Type;
 import org.yamcs.tctm.AbstractTmDataLink;
 import org.yamcs.tctm.PacketInputStream;
 import org.yamcs.tctm.PacketTooLongException;
+import org.yamcs.tctm.TcDataLink;
 import org.yamcs.utils.YObjectLoader;
+import org.yamcs.xtce.IntegerParameterType;
 import org.yamcs.xtce.Parameter;
+import org.yamcs.xtce.StringParameterType;
+import org.yamcs.xtce.UnitType;
 import org.yamcs.xtce.XtceDb;
+import org.yamcs.parameter.SystemParametersService;
+
+import static org.yamcs.xtce.NameDescription.qualifiedName;
+import static org.yamcs.xtce.XtceDb.YAMCS_SPACESYSTEM_NAME;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.yamcs.TmPacket;
 
-public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
+public class SerialATTmDatalink extends AbstractTmDataLink implements TcDataLink, Runnable {
     protected String deviceName;
     protected int baudRate;
     protected int dataBits;
@@ -69,6 +84,8 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
             this.packetInputStreamClassName = CcsdsPacketInputStream.class.getName();
             this.packetInputStreamArgs = YConfiguration.emptyConfig();
         }
+        
+        log.info("Initialized");
     }
 
     @Override
@@ -100,7 +117,9 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
                     openDevice();
                     log.info("Listening on {}", deviceName);
                 }
+                System.out.println("Initialized2");
                 byte[] packet = packetInputStream.readPacket();
+                System.out.println("Initialized3");
                 updateStats(packet.length);
                 TmPacket pkt = new TmPacket(timeService.getMissionTime(), packet);
                 pkt.setEarthRceptionTime(timeService.getHresMissionTime());
@@ -291,6 +310,18 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
         } else {
             return String.format("OK, connected to %s, received %d packets", deviceName, packetCount.get());
         }
+    }
+
+    @Override
+    public void sendTc(PreparedCommand preparedCommand) {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void setCommandHistoryPublisher(CommandHistoryPublisher commandHistoryPublisher) {
+      // TODO Auto-generated method stub
+      
     }
 
 }
