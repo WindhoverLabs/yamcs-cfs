@@ -27,10 +27,10 @@ import org.yamcs.utils.StringConverter;
  * @author Mathew Benson
  */
 public class RFC1055PacketInputStream implements PacketInputStream {
-  private static final short END = 0xc0;
-  private static final short ESC = 0xdb;
+  private final short END = 0xc0;
+  private final short ESC = 0xdb;
   private final short ESC_END = 0xdc;
-  private final byte ESC_ESC = (byte) 0xdd;
+  private final short ESC_ESC = 0xdd;
   DataInputStream dataInputStream;
   String asmString = "1ACFFC1D";
   byte[] asm;
