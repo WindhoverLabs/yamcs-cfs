@@ -1,151 +1,151 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.windhoverlabs</groupId>
-  <artifactId>yamcs-cfs</artifactId>
-  <version>1.1.4</version>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.windhoverlabs</groupId>
+	<artifactId>yamcs-cfs</artifactId>
+	<version>1.1.4</version>
 
-  <packaging>jar</packaging>
-  <name>Telemetry and Command provider for Core Flight Software</name>
-  
-  <properties>
-    <yamcsVersion>5.5.0</yamcsVersion>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
-  
-  <dependencies>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.1</version>
-    </dependency>
+	<packaging>jar</packaging>
+	<name>Telemetry and Command provider for Core Flight Software</name>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>1.7.1</version>
-    </dependency>
+	<properties>
+		<yamcsVersion>5.5.0</yamcsVersion>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
 
-    <dependency>
-      <groupId>org.yamcs</groupId>
-      <artifactId>yamcs-api</artifactId>
-      <version>${yamcsVersion}</version>
-    </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.1</version>
+		</dependency>
 
-    <dependency>
-      <groupId>org.yamcs</groupId>
-      <artifactId>yamcs-core</artifactId>
-      <version>${yamcsVersion}</version>
-    </dependency>
-      
-    <dependency>
-      <groupId>org.yamcs</groupId>
-      <artifactId>yamcs-web</artifactId>
-      <version>${yamcsVersion}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.openmuc</groupId>
-      <artifactId>jrxtx</artifactId>
-      <version>1.0.1</version>
-    </dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>1.7.1</version>
+		</dependency>
 
-    <!-- TEST DEPENDENCIES -->
+		<dependency>
+			<groupId>org.yamcs</groupId>
+			<artifactId>yamcs-api</artifactId>
+			<version>${yamcsVersion}</version>
+		</dependency>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>
-    
-  </dependencies>
+		<dependency>
+			<groupId>org.yamcs</groupId>
+			<artifactId>yamcs-core</artifactId>
+			<version>${yamcsVersion}</version>
+		</dependency>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-          <version>2.3.3</version>
-        <configuration>
-          <threshold>Normal</threshold>
-          <effort>Default</effort>
-        </configuration>
-      </plugin>
-          <plugin>
-        <groupId>org.yamcs</groupId>
-        <artifactId>yamcs-maven-plugin</artifactId>
-        <version>1.2.5</version>
-      </plugin>
-      
-      <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
+		<dependency>
+			<groupId>org.yamcs</groupId>
+			<artifactId>yamcs-web</artifactId>
+			<version>${yamcsVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openmuc</groupId>
+			<artifactId>jrxtx</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+
+		<!-- TEST DEPENDENCIES -->
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.3.3</version>
+				<configuration>
+					<threshold>Normal</threshold>
+					<effort>Default</effort>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.yamcs</groupId>
+				<artifactId>yamcs-maven-plugin</artifactId>
+				<version>1.2.5</version>
+			</plugin>
+
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
         <configuration> <encoding>UTF-8</encoding> <configLocation>checkstyle.xml</configLocation> 
         <enableRulesSummary>false</enableRulesSummary> </configuration> </plugin> -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.7</version>
-      </plugin>
-    </plugins>
-  </reporting>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
+		</plugins>
+	</reporting>
 
-  <repositories>
-      
-    <repository>
-        <id>java.net repository</id>
-        <url>http://download.java.net/maven/2</url>
-    </repository>
+	<repositories>
 
-    <repository>
-      <id>repository.jboss.org</id>
-      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-     <repository>
-      <id>repository.org.yamcs</id>
-      <url>https://github.com/yamcs/yamcs-maven-plugin</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    
-  </repositories>
+		<repository>
+			<id>java.net repository</id>
+			<url>http://download.java.net/maven/2</url>
+		</repository>
 
-  <distributionManagement>
-  <!-- use the following if you're not using a snapshot version. -->
-  <repository>
-    <id>github-releases</id>
-    <name>GitHub Yamcs Repo releases</name>
-    <url>file:///home/nm/git/yamcs-mvn-repo/releases</url>
-  </repository>
-  <!-- use the following if you ARE using a snapshot version. -->
-  <snapshotRepository>
-    <id>github-snapshot</id>
-    <name>Github Yamcs repo snapshots</name>
-    <url>file:///home/nm/git/yamcs-mvn-repo/snapshots</url>
-    <uniqueVersion>false</uniqueVersion>
-  </snapshotRepository>
-  </distributionManagement>    
-    
-  <build>
-   <resources>
-   <resource>
-     <directory>src/main/resources</directory>
-   </resource>
-   <resource>
-        <directory>${project.build.directory}/generated-resources/protobuf</directory>
-      </resource>
-    </resources>
-    <plugins>
-      <plugin>
-        <groupId>org.yamcs</groupId>
-        <artifactId>yamcs-maven-plugin</artifactId>
-        <version>1.2.6</version>
-        <executions>
-          <!-- >execution>
+		<repository>
+			<id>repository.jboss.org</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>repository.org.yamcs</id>
+			<url>https://github.com/yamcs/yamcs-maven-plugin</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+
+	</repositories>
+
+	<distributionManagement>
+		<!-- use the following if you're not using a snapshot version. -->
+		<repository>
+			<id>github-releases</id>
+			<name>GitHub Yamcs Repo releases</name>
+			<url>file:///home/nm/git/yamcs-mvn-repo/releases</url>
+		</repository>
+		<!-- use the following if you ARE using a snapshot version. -->
+		<snapshotRepository>
+			<id>github-snapshot</id>
+			<name>Github Yamcs repo snapshots</name>
+			<url>file:///home/nm/git/yamcs-mvn-repo/snapshots</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>${project.build.directory}/generated-resources/protobuf</directory>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.yamcs</groupId>
+				<artifactId>yamcs-maven-plugin</artifactId>
+				<version>1.2.6</version>
+				<executions>
+					<!-- >execution>
             < goals>
               <goal When this goal is set, 
               all metadata is queried from the project's
@@ -153,67 +153,82 @@
               plugins.https://github.com/yamcs/yamcs-maven-plugin/pull/1>detect</goal>
             </goals>
           </execution-->
-          <execution>
-            <id>bundle-extension</id>
-            <phase>package</phase>
-            <goals>
-              <goal>bundle</goal>
-            </goals>
-            <configuration>
-              <includeDefaultWrappers>false</includeDefaultWrappers>
-              <includeConfiguration>false</includeConfiguration>
-              <formats>
-                <format>tar.gz</format>
-              </formats>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <!-- Sets the 'os.detected.classifier' maven property (needed to fetch native protoc) -->
-        <groupId>kr.motd.maven</groupId>
-        <artifactId>os-maven-plugin</artifactId>
-        <version>1.6.2</version>
-        <executions>
-          <execution>
-            <phase>initialize</phase>
-            <goals>
-              <goal>detect</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-            <plugin>
-        <!-- Generate Protobuf java sources -->
-        <groupId>org.xolstice.maven.plugins</groupId>
-        <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.6.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <protocArtifact>com.google.protobuf:protoc:3.7.1:exe:${os.detected.classifier}</protocArtifact>
-          <checkStaleness>true</checkStaleness>
-          <writeDescriptorSet>true</writeDescriptorSet>
-          <descriptorSetFileName>${project.artifactId}.protobin</descriptorSetFileName>
-          <descriptorSetOutputDirectory>${project.build.directory}/generated-resources/protobuf</descriptorSetOutputDirectory>
-          <includeDependenciesInDescriptorSet>false</includeDependenciesInDescriptorSet>
-          <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-          <protocPlugins>
-            <protocPlugin>
-              <id>yamcs</id>
-              <groupId>org.yamcs</groupId>
-              <artifactId>yamcs-protoc-plugin</artifactId>
-              <version>5.2.3</version>
-              <mainClass>org.yamcs.protoc.ServiceGenerator</mainClass>
-            </protocPlugin>
-          </protocPlugins>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+					<execution>
+						<id>bundle-extension</id>
+						<phase>package</phase>
+						<goals>
+							<goal>bundle</goal>
+						</goals>
+						<configuration>
+							<includeDefaultWrappers>false</includeDefaultWrappers>
+							<includeConfiguration>false</includeConfiguration>
+							<formats>
+								<format>tar.gz</format>
+							</formats>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<!-- Sets the 'os.detected.classifier' maven property (needed to fetch native protoc) -->
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.6.2</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>detect</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<!-- Generate Protobuf java sources -->
+				<groupId>org.xolstice.maven.plugins</groupId>
+				<artifactId>protobuf-maven-plugin</artifactId>
+				<version>0.6.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<protocArtifact>com.google.protobuf:protoc:3.7.1:exe:${os.detected.classifier}</protocArtifact>
+					<checkStaleness>true</checkStaleness>
+					<writeDescriptorSet>true</writeDescriptorSet>
+					<descriptorSetFileName>${project.artifactId}.protobin</descriptorSetFileName>
+					<descriptorSetOutputDirectory>${project.build.directory}/generated-resources/protobuf</descriptorSetOutputDirectory>
+					<includeDependenciesInDescriptorSet>false</includeDependenciesInDescriptorSet>
+					<includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
+					<protocPlugins>
+						<protocPlugin>
+							<id>yamcs</id>
+							<groupId>org.yamcs</groupId>
+							<artifactId>yamcs-protoc-plugin</artifactId>
+							<version>5.2.3</version>
+							<mainClass>org.yamcs.protoc.ServiceGenerator</mainClass>
+						</protocPlugin>
+					</protocPlugins>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.coveo</groupId>
+				<artifactId>fmt-maven-plugin</artifactId>
+				<version>2.13</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<style>google</style>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
