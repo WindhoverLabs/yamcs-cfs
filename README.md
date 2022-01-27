@@ -1,5 +1,5 @@
 [![CI](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml/badge.svg?branch=update-yamcs-tools)](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml)
-| __JaCoCo Test Coverage__ | [![coverage](../badges/jacoco.svg)](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml) [![branches coverage](../badges/branches.svg)](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml)
+| __JaCoCo Test Coverage__ | [![coverage](.github/badges/jacoco.svg)](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml) [![branches coverage](.github/badges/branches.svg)](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml)
 # yamcs-cfs
 A YAMCS plugin for [ailriner](https://github.com/WindhoverLabs/airliner).
 
