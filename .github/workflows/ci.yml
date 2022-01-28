@@ -16,9 +16,9 @@ jobs:
 
       - name: Coveralls report
         env:
-          GITHUB_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
-          mvn install jacoco:report coveralls:report -DrepoToken=COVERALLS_TOKEN
+          mvn install jacoco:report coveralls:report -DrepoToken=$COVERALLS_TOKEN
   docs:
     name: Documentation
     runs-on: ubuntu-latest
