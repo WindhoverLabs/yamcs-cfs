@@ -14,9 +14,11 @@ jobs:
       - name: Build
         run: mvn -B package
 
-     - name: Coveralls report
-       run: |
-          mvn install jacoco:report coveralls:report
+      - name: Coveralls report
+        env:
+          GITHUB_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        run: |
+          mvn install jacoco:report coveralls:report -DrepoToken=COVERALLS_TOKEN
   docs:
     name: Documentation
     runs-on: ubuntu-latest
