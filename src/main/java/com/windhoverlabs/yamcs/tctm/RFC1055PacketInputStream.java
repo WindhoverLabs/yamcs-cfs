@@ -27,10 +27,10 @@ import org.yamcs.utils.StringConverter;
  * @author Mathew Benson
  */
 public class RFC1055PacketInputStream implements PacketInputStream {
-  private final short END = 0xc0;
-  private final short ESC = 0xdb;
-  private final short ESC_END = 0xdc;
-  private final short ESC_ESC = 0xdd;
+  private final byte END = (byte) 0xc0;
+  private final byte ESC = (byte) 0xdb;
+  private final byte ESC_END = (byte) 0xdc;
+  private final byte ESC_ESC = (byte) 0xdd;
   DataInputStream dataInputStream;
   String asmString = "1ACFFC1D";
   byte[] asm;
@@ -137,9 +137,7 @@ public class RFC1055PacketInputStream implements PacketInputStream {
    * <p>WARNING: Do not use this code yet. It needs plenty of refactoring.
    */
   protected byte[] getPayload(DataInputStream data) throws IOException {
-    int len = 0;
-    byte[] c = new byte[1];
-    byte[] currentState = new byte[2];
+    byte[] nextByte = new byte[1];
     int received = 0;
 
     ByteArrayOutputStream payload = new ByteArrayOutputStream();
@@ -152,20 +150,12 @@ public class RFC1055PacketInputStream implements PacketInputStream {
     while (true) {
       /* get a character to process
        */
-      data.readFully(currentState, 0, 2);
+      data.readFully(nextByte, 0, 1);
 
       /* handle bytestuffing if necessary
        */
 
-      // TODO:Extract method.
-      int state = 0;
-      int length = currentState.length;
-      for (int i = 0; i < length; i++) {
-        currentState[length - i - 1] = (byte) (state & 0xFF);
-        state >>= 8;
-      }
-
-      switch (state) {
+      switch (nextByte[0]) {
 
           /* if it's an END character then we're done with
            * the packet
@@ -188,26 +178,20 @@ public class RFC1055PacketInputStream implements PacketInputStream {
            * and get another character and then figure out
            * what to store in the packet based on that.
            */
+          /*Fallthrough*/
         case ESC:
-          data.readFully(currentState, 0, 2);
-          // TODO:Extract method.
-          length = currentState.length;
-          for (int i = 0; i < length; i++) {
-            currentState[length - i - 1] = (byte) (state & 0xFF);
-            state >>= 8;
-          }
-
+          data.readFully(nextByte, 0, 1);
           /* if "c" is not one of these two, then we
            * have a protocol violation.  The best bet
            * seems to be to leave the byte alone and
            * just stuff it into the packet
            */
-          switch (state) {
+          switch (nextByte[0]) {
             case ESC_END:
-              state = END;
+              nextByte[0] = END;
               break;
             case ESC_ESC:
-              state = ESC;
+              nextByte[0] = ESC;
               break;
           }
 
@@ -215,10 +199,8 @@ public class RFC1055PacketInputStream implements PacketInputStream {
            * it store the byte for us
            */
         default:
-          if (received < len) {
-            payload.write(c);
-            received++;
-          }
+          payload.write(nextByte[0]);
+          received++;
       }
     }
   }

@@ -106,9 +106,7 @@ public class SerialATTmDatalink extends AbstractTmDataLink implements Runnable {
           openDevice();
           log.info("Listening on {}", deviceName);
         }
-        System.out.println("Initialized2");
         byte[] packet = packetInputStream.readPacket();
-        System.out.println("Initialized3");
         updateStats(packet.length);
         TmPacket pkt = new TmPacket(timeService.getMissionTime(), packet);
         pkt.setEarthRceptionTime(timeService.getHresMissionTime());
