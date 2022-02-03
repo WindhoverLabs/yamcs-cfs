@@ -101,8 +101,6 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
     while (isRunningAndEnabled()) {
       try {
         openDevice();
-        log.info("Listening on {}", deviceName);
-
         byte[] packet = packetInputStream.readPacket();
         updateStats(packet.length);
         TmPacket pkt = new TmPacket(timeService.getMissionTime(), packet);
@@ -155,7 +153,6 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
   protected void openDevice() throws IOException {
     if (serialPort == null) {
       serialPort = SerialPortBuilder.newBuilder(deviceName).setBaudRate(baudRate).build();
-
       switch (this.flowControl) {
         case "NONE":
           serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.NONE);
@@ -223,6 +220,8 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
           serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_2);
           break;
       }
+
+      log.info("Listening on {}", deviceName);
     }
 
     if (packetInputStream == null) {

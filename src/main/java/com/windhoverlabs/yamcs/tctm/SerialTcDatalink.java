@@ -87,7 +87,6 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
   protected void openDevice() throws IOException {
     if (serialPort == null) {
       serialPort = SerialPortBuilder.newBuilder(deviceName).setBaudRate(baudRate).build();
-
       switch (this.flowControl) {
         case "NONE":
           serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.NONE);
@@ -155,6 +154,8 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
           serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_2);
           break;
       }
+
+      log.info("Listening on {}", deviceName);
     }
 
     this.outputStream = serialPort.getOutputStream();
