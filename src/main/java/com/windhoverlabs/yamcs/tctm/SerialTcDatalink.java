@@ -85,74 +85,76 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
   }
 
   protected void openDevice() throws IOException {
-    serialPort = SerialPortBuilder.newBuilder(deviceName).setBaudRate(baudRate).build();
+    if (serialPort == null) {
+      serialPort = SerialPortBuilder.newBuilder(deviceName).setBaudRate(baudRate).build();
 
-    switch (this.flowControl) {
-      case "NONE":
-        serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.NONE);
-        break;
+      switch (this.flowControl) {
+        case "NONE":
+          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.NONE);
+          break;
 
-      case "RTS_CTS":
-        serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.RTS_CTS);
-        break;
+        case "RTS_CTS":
+          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.RTS_CTS);
+          break;
 
-      case "XON_XOFF":
-        serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.XON_XOFF);
-        break;
-    }
+        case "XON_XOFF":
+          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.XON_XOFF);
+          break;
+      }
 
-    switch (this.parity) {
-      case "NONE":
-        serialPort.setParity(org.openmuc.jrxtx.Parity.NONE);
-        break;
+      switch (this.parity) {
+        case "NONE":
+          serialPort.setParity(org.openmuc.jrxtx.Parity.NONE);
+          break;
 
-      case "ODD":
-        serialPort.setParity(org.openmuc.jrxtx.Parity.ODD);
-        break;
+        case "ODD":
+          serialPort.setParity(org.openmuc.jrxtx.Parity.ODD);
+          break;
 
-      case "EVEN":
-        serialPort.setParity(org.openmuc.jrxtx.Parity.EVEN);
-        break;
+        case "EVEN":
+          serialPort.setParity(org.openmuc.jrxtx.Parity.EVEN);
+          break;
 
-      case "MARK":
-        serialPort.setParity(org.openmuc.jrxtx.Parity.MARK);
-        break;
+        case "MARK":
+          serialPort.setParity(org.openmuc.jrxtx.Parity.MARK);
+          break;
 
-      case "SPACE":
-        serialPort.setParity(org.openmuc.jrxtx.Parity.SPACE);
-        break;
-    }
+        case "SPACE":
+          serialPort.setParity(org.openmuc.jrxtx.Parity.SPACE);
+          break;
+      }
 
-    switch (this.dataBits) {
-      case 5:
-        serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_5);
-        break;
+      switch (this.dataBits) {
+        case 5:
+          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_5);
+          break;
 
-      case 6:
-        serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_6);
-        break;
+        case 6:
+          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_6);
+          break;
 
-      case 7:
-        serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_7);
-        break;
+        case 7:
+          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_7);
+          break;
 
-      case 8:
-        serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_8);
-        break;
-    }
+        case 8:
+          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_8);
+          break;
+      }
 
-    switch (this.stopBits) {
-      case "1":
-        serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1);
-        break;
+      switch (this.stopBits) {
+        case "1":
+          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1);
+          break;
 
-      case "1.5":
-        serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1_5);
-        break;
+        case "1.5":
+          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1_5);
+          break;
 
-      case "2":
-        serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_2);
-        break;
+        case "2":
+          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_2);
+          break;
+      }
     }
 
     this.outputStream = serialPort.getOutputStream();
@@ -245,5 +247,9 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
     } else {
       return String.format("OK, connected to %s, sent %d commands", deviceName, dataCount.get());
     }
+  }
+
+  public void setSerialPort(SerialPort serialPort2) {
+    serialPort = serialPort2;
   }
 }

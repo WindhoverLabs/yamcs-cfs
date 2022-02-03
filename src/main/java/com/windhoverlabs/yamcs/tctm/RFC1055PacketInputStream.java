@@ -109,8 +109,6 @@ public class RFC1055PacketInputStream implements PacketInputStream {
           "'dropMalformed' must not be 'true' unless 'maxLength' is defined.");
     }
 
-    eventProducer.sendInfo("ASM set to " + asmString);
-
     asm = fromHexString(asmString);
 
     if (minLength == maxLength) {

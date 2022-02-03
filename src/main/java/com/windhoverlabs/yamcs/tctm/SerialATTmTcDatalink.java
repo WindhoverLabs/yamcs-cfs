@@ -1,21 +1,20 @@
 package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.openmuc.jrxtx.SerialPort;
 import org.openmuc.jrxtx.SerialPortBuilder;
 import org.yamcs.ConfigurationException;
-import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
 import org.yamcs.parameter.ParameterValue;
-import org.yamcs.tctm.AbstractTmDataLink;
-import org.yamcs.tctm.PacketInputStream;
-import org.yamcs.tctm.PacketTooLongException;
-import org.yamcs.utils.YObjectLoader;
+import org.yamcs.tctm.AbstractLink;
+import org.yamcs.tctm.AggregatedDataLink;
+import org.yamcs.tctm.Link;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.xtce.XtceDb;
 
-public class SerialATTmDatalink extends AbstractTmDataLink implements Runnable {
+public class SerialATTmTcDatalink extends AbstractLink implements Runnable, AggregatedDataLink {
   protected String deviceName;
   protected int baudRate;
   protected int dataBits;
@@ -26,10 +25,13 @@ public class SerialATTmDatalink extends AbstractTmDataLink implements Runnable {
 
   String packetInputStreamClassName;
   YConfiguration packetInputStreamArgs;
-  PacketInputStream packetInputStream;
   SerialPort serialPort = null;
   private XtceDb mdb;
   private Parameter spPort;
+
+  SerialTmDatalink TmLink = null;
+  SerialTcDatalink TcLink = null;
+  private Thread thread;
 
   @Override
   public void init(String instance, String name, YConfiguration config)
@@ -75,79 +77,31 @@ public class SerialATTmDatalink extends AbstractTmDataLink implements Runnable {
     }
 
     log.info("Initialized " + this.getClass().getName());
+
+    try {
+      openDevice();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      log.warn("Failed to open serial port.");
+    }
+
+    TcLink = new SerialTcDatalink();
+    TmLink = new SerialTmDatalink();
+
+    TcLink.init(instance, name, config.getConfig("tc_config"));
+
+    TmLink.setSerialPort(serialPort);
+    TcLink.setSerialPort(serialPort);
+
+    TmLink.init(instance, name, config.getConfig("tm_config"));
+
+    System.out.println("SerialATTmTcDatalink1");
   }
 
   @Override
   public void run() {
-    if (initialDelay > 0) {
-      try {
-        Thread.sleep(initialDelay);
-        initialDelay = -1;
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        return;
-      }
-    }
-
-    while (isRunningAndEnabled()) {
-      TmPacket tmpkt = getNextPacket();
-      if (tmpkt == null) {
-        break;
-      }
-      processPacket(tmpkt);
-    }
-  }
-
-  public TmPacket getNextPacket() {
-    TmPacket pwt = null;
-    while (isRunningAndEnabled()) {
-      try {
-        if (serialPort == null) {
-          openDevice();
-          log.info("Listening on {}", deviceName);
-        }
-        byte[] packet = packetInputStream.readPacket();
-        updateStats(packet.length);
-        TmPacket pkt = new TmPacket(timeService.getMissionTime(), packet);
-        pkt.setEarthRceptionTime(timeService.getHresMissionTime());
-        pwt = packetPreprocessor.process(pkt);
-        if (pwt != null) {
-          break;
-        }
-      } catch (IOException e) {
-        if (isRunningAndEnabled()) {
-          log.info(
-              "Cannot open or read serial device {}::{}:{}'. Retrying in 10s",
-              deviceName,
-              e.getMessage(),
-              e.toString());
-        }
-        try {
-          serialPort.close();
-        } catch (Exception e2) {
-        }
-        serialPort = null;
-        for (int i = 0; i < 10; i++) {
-          if (!isRunningAndEnabled()) {
-            break;
-          }
-          try {
-            Thread.sleep(10);
-          } catch (InterruptedException e1) {
-            Thread.currentThread().interrupt();
-            return null;
-          }
-        }
-      } catch (PacketTooLongException e) {
-        log.warn(e.toString());
-        try {
-          serialPort.close();
-        } catch (Exception e2) {
-        }
-        serialPort = null;
-      }
-    }
-    return pwt;
+    while (isRunningAndEnabled())
+      ;
   }
 
   @Override
@@ -226,17 +180,18 @@ public class SerialATTmDatalink extends AbstractTmDataLink implements Runnable {
         break;
     }
 
-    try {
-      packetInputStream = YObjectLoader.loadObject(packetInputStreamClassName);
-    } catch (ConfigurationException e) {
-      log.error("Cannot instantiate the packetInput stream", e);
-      throw e;
-    }
-    packetInputStream.init(serialPort.getInputStream(), packetInputStreamArgs);
+    //    try {
+    //      packetInputStream = YObjectLoader.loadObject(packetInputStreamClassName);
+    //    } catch (ConfigurationException e) {
+    //      log.error("Cannot instantiate the packetInput stream", e);
+    //      throw e;
+    //    }
   }
 
   @Override
   protected void doStart() {
+    TmLink.startAsync();
+    TcLink.startAsync();
     if (!isDisabled()) {
       new Thread(this).start();
     }
@@ -269,8 +224,18 @@ public class SerialATTmDatalink extends AbstractTmDataLink implements Runnable {
   }
 
   @Override
-  public void doEnable() {
-    new Thread(this).start();
+  public void doEnable() throws Exception {
+    if (serialPort == null) {
+      openDevice();
+      log.info("Listening on {}", deviceName);
+    }
+    TcLink.setSerialPort(serialPort);
+    TmLink.setSerialPort(serialPort);
+    TmLink.doEnable();
+    //    TcLink.doEnable();
+
+    thread = new Thread(this);
+    thread.start();
   }
 
   /**
@@ -296,8 +261,37 @@ public class SerialATTmDatalink extends AbstractTmDataLink implements Runnable {
     if (serialPort == null) {
       return String.format("Not connected to %s", deviceName);
     } else {
-      return String.format(
-          "OK, connected to %s, received %d packets", deviceName, packetCount.get());
+      //      return String.format(
+      //          "OK, connected to %s, received %d packets", deviceName, packetCount.get());
     }
+
+    return "";
+  }
+
+  @Override
+  public long getDataInCount() {
+    // TODO Auto-generated method stub
+    return TmLink.getDataInCount();
+  }
+
+  @Override
+  public long getDataOutCount() {
+    // TODO Auto-generated method stub
+    return TcLink.getDataOutCount() + TmLink.getDataOutCount();
+  }
+
+  @Override
+  public void resetCounters() {
+    TcLink.resetCounters();
+    TmLink.resetCounters();
+  }
+
+  @Override
+  public List<Link> getSubLinks() {
+    List<Link> subLinks = new ArrayList<Link>();
+    subLinks.add(TcLink);
+    subLinks.add(TmLink);
+
+    return subLinks;
   }
 }
