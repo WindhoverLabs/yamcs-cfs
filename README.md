@@ -54,8 +54,8 @@ The yamcs web interface should be accessible at the address at the bottom of the
 ### Add it to YAMCS <a name="add_it_to_yamcs"></a>
 Assuming YAMCS is installed at `/opt/yamcs`:
 ```
-wget https://github.com/WindhoverLabs/yamcs-cfs/releases/download/1.1.4/yamcs-cfs-1.1.4.jar
-cp yamcs-cfs-1.1.4.jar /opt/yamcs/lib/ext
+wget https://github.com/WindhoverLabs/yamcs-cfs/releases/download/1.1.5/yamcs-cfs-1.1.5.jar
+cp yamcs-cfs-1.1.5.jar /opt/yamcs/lib/ext
 ```
 
 
