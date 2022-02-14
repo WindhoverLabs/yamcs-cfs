@@ -237,14 +237,10 @@ public class CfsPacketPreprocessor extends AbstractPacketPreprocessor {
 
     if (byteOrder == ByteOrder.BIG_ENDIAN) {
       sec = ByteArrayUtils.decodeInt(packet, 6) & 0xFFFFFFFFL;
-      System.out.println("ByteOrder.BIG_ENDIAN");
       switch (CfsPacketPreprocessor.timestampFormat) {
         case CFE_SB_TIME_32_16_SUBS:
           {
             subSecs = ByteArrayUtils.decodeUnsignedShort(packet, 10);
-            System.out.println("CFE_SB_TIME_32_16_SUBS");
-            System.out.println("subsecs:" + subSecs);
-            System.out.println("sec:" + sec);
             milliSeconds = microSecondsToMilliseconds(cfeTimeSub2Microsecs(subSecs));
             break;
           }
@@ -264,16 +260,12 @@ public class CfsPacketPreprocessor extends AbstractPacketPreprocessor {
           }
       }
     } else {
-      System.out.println("ByteOrder.LITTLE_ENDIAN");
 
       sec = ByteArrayUtils.decodeIntLE(packet, 6) & 0xFFFFFFFFL;
 
       switch (CfsPacketPreprocessor.timestampFormat) {
         case CFE_SB_TIME_32_16_SUBS:
           {
-            System.out.println("CFE_SB_TIME_32_16_SUBS");
-            System.out.println("subsecs:" + subSecs);
-            System.out.println("sec:" + sec);
             subSecs = ByteArrayUtils.decodeUnsignedShortLE(packet, 10);
             milliSeconds = microSecondsToMilliseconds(cfeTimeSub2Microsecs(subSecs));
             break;
@@ -295,9 +287,6 @@ public class CfsPacketPreprocessor extends AbstractPacketPreprocessor {
       }
     }
 
-    //        System.out.println("packet on time function: " +
-    // StringConverter.arrayToHexString(packet));
-    System.out.println("milliseconds in flight software-->" + ((1000 * sec) + milliSeconds));
     return shiftFromEpoch((1000 * sec) + milliSeconds);
   }
 
