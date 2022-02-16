@@ -39,7 +39,7 @@ public class CfsCommandPostprocessorRFC1055 extends CfsCommandPostprocessor {
   @Override
   public byte[] process(PreparedCommand pc) {
 
-    byte[] binary = perprocessCommand(pc);
+    byte[] binary = preprocessCommand(pc);
 
     ByteArrayOutputStream payload = new ByteArrayOutputStream();
 
@@ -86,13 +86,11 @@ public class CfsCommandPostprocessorRFC1055 extends CfsCommandPostprocessor {
     payload.write(END);
     pc.setBinary(payload.toByteArray());
 
-    commandHistoryPublisher.publish(
-        pc.getCommandId(), PreparedCommand.CNAME_BINARY, payload.toByteArray());
     return payload.toByteArray();
   }
 
   // TODO:Refactor this
-  private byte[] perprocessCommand(PreparedCommand pc) {
+  private byte[] preprocessCommand(PreparedCommand pc) {
     byte[] binary = pc.getBinary();
     if (binary.length < MIN_CMD_LENGTH) {
 
@@ -125,6 +123,8 @@ public class CfsCommandPostprocessorRFC1055 extends CfsCommandPostprocessor {
       binary[CHECKSUM_OFFSET] = binary[FC_OFFSET];
       binary[FC_OFFSET] = x;
     }
+
+    commandHistoryPublisher.publish(pc.getCommandId(), PreparedCommand.CNAME_BINARY, binary);
     return binary;
   }
 }
