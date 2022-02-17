@@ -14,6 +14,7 @@ import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
 import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.tctm.AbstractThreadedTcDataLink;
+import org.yamcs.tctm.AggregatedDataLink;
 import org.yamcs.tctm.GenericCommandPostprocessor;
 import org.yamcs.tctm.Link.Status;
 
@@ -28,6 +29,7 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
 
   SerialPort serialPort = null;
   OutputStream outputStream = null;
+  private AggregatedDataLink parent = null;
 
   @Override
   public void init(String instance, String name, YConfiguration config)
@@ -222,6 +224,11 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
   }
 
   @Override
+  public void doEnable() {
+    super.doEnable();
+  }
+
+  @Override
   protected void shutDown() throws Exception {
     if (serialPort != null) {
       try {
@@ -252,5 +259,14 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
 
   public void setSerialPort(SerialPort serialPort2) {
     serialPort = serialPort2;
+  }
+
+  /** Set the parent link if this is a sublink of an aggregated link. */
+  public void setParent(AggregatedDataLink newParent) {
+    parent = newParent;
+  }
+
+  public AggregatedDataLink getParent() {
+    return parent;
   }
 }

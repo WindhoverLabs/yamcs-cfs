@@ -9,6 +9,7 @@ import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
 import org.yamcs.parameter.ParameterValue;
 import org.yamcs.tctm.AbstractTmDataLink;
+import org.yamcs.tctm.AggregatedDataLink;
 import org.yamcs.tctm.PacketInputStream;
 import org.yamcs.tctm.PacketTooLongException;
 import org.yamcs.utils.YObjectLoader;
@@ -23,6 +24,7 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
   protected String parity;
   protected String flowControl;
   protected long initialDelay;
+  AggregatedDataLink parent = null;
 
   String packetInputStreamClassName;
   YConfiguration packetInputStreamArgs;
@@ -305,5 +307,15 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
 
   public void setSerialPort(SerialPort serialPort2) {
     serialPort = serialPort2;
+  }
+
+  /** Set the parent link if this is a sublink of an aggregated link. */
+  public void setParent(AggregatedDataLink newParent) {
+    parent = newParent;
+  }
+
+  /** If this link is a sublink of an aggregated link, get the parent link. */
+  public AggregatedDataLink getParent() {
+    return parent;
   }
 }

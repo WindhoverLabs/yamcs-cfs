@@ -87,13 +87,14 @@ public class SerialATTmTcDatalink extends AbstractLink implements Runnable, Aggr
 
     TcLink = new SerialTcDatalink();
     TmLink = new SerialTmDatalink();
-
-    TcLink.init(instance, name, config.getConfig("tc_config"));
+    TcLink.setParent(this);
+    TmLink.setParent(this);
+    TcLink.init(instance, name + "_tc", config.getConfig("tc_config"));
 
     TmLink.setSerialPort(serialPort);
     TcLink.setSerialPort(serialPort);
 
-    TmLink.init(instance, name, config.getConfig("tm_config"));
+    TmLink.init(instance, name + "_tm", config.getConfig("tm_config"));
 
     System.out.println("SerialATTmTcDatalink1");
   }
@@ -232,7 +233,7 @@ public class SerialATTmTcDatalink extends AbstractLink implements Runnable, Aggr
     TcLink.setSerialPort(serialPort);
     TmLink.setSerialPort(serialPort);
     TmLink.doEnable();
-    //    TcLink.doEnable();
+    TcLink.doEnable();
 
     thread = new Thread(this);
     thread.start();

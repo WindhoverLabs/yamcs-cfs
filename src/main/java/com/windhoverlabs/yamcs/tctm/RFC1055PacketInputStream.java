@@ -24,7 +24,7 @@ import org.yamcs.utils.StringConverter;
  * exceeds the maximum size, the parser will detect this as an out of sync condition, and reset back
  * to the initial out of sync state.
  *
- * @author Mathew Benson
+ * @author Lorenzo Gomez
  */
 public class RFC1055PacketInputStream implements PacketInputStream {
   private final byte END = (byte) 0xc0;
