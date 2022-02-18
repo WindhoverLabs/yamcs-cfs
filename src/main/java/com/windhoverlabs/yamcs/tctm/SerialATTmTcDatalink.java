@@ -221,7 +221,7 @@ public class SerialATTmTcDatalink extends AbstractLink implements Runnable, Aggr
     //      }
     //      serialPort = null;
     //    }
-    
+
     TmLink.disable();
     TcLink.disable();
   }
@@ -237,8 +237,8 @@ public class SerialATTmTcDatalink extends AbstractLink implements Runnable, Aggr
     TmLink.doEnable();
     TcLink.doEnable();
 
-//    thread = new Thread(this);
-//    thread.start();
+    //    thread = new Thread(this);
+    //    thread.start();
   }
 
   /**

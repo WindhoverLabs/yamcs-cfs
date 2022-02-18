@@ -189,14 +189,14 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
       } catch (IOException e) {
         reason = String.format("Error writing to TC device to %s : %s", deviceName, e.getMessage());
         log.warn(reason);
-        try {
-          if (serialPort != null) {
-            serialPort.close();
-          }
-          serialPort = null;
-        } catch (IOException e1) {
-          e1.printStackTrace();
-        }
+        //        try {
+        //          if (serialPort != null) {
+        ////            serialPort.close();
+        //          }
+        ////          serialPort = null;
+        //        } catch (IOException e1) {
+        //          e1.printStackTrace();
+        //        }
       }
       retries--;
       if (!sent && (retries > 0)) {
@@ -236,14 +236,14 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
 
   @Override
   protected void shutDown() throws Exception {
-    if (serialPort != null) {
-      try {
-        serialPort.close();
-      } catch (IOException e) {
-        log.warn("Exception got when closing the serial port:", e);
-      }
-      serialPort = null;
-    }
+    //    if (serialPort != null) {
+    //      try {
+    //        serialPort.close();
+    //      } catch (IOException e) {
+    //        log.warn("Exception got when closing the serial port:", e);
+    //      }
+    //      serialPort = null;
+    //    }
   }
 
   @Override
