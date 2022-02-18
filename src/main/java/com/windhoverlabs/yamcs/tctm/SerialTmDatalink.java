@@ -249,32 +249,26 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
 
   @Override
   protected void doStop() {
-    if (serialPort != null) {
-      try {
-        serialPort.close();
-      } catch (IOException e) {
-        log.warn("Exception got when closing the serial port:", e);
-      }
-      serialPort = null;
-    }
+    //    if (serialPort != null) {
+    //      try {
+    //        serialPort.close();
+    //      } catch (IOException e) {
+    //        log.warn("Exception got when closing the serial port:", e);
+    //      }
+    //      serialPort = null;
+    //    }
     notifyStopped();
-  }
-
-  @Override
-  public void doDisable() {
-    if (serialPort != null) {
-      try {
-        serialPort.close();
-      } catch (IOException e) {
-        log.warn("Exception got when closing the serial port:", e);
-      }
-      serialPort = null;
-    }
   }
 
   @Override
   public void doEnable() {
     new Thread(this).start();
+    try {
+      super.doEnable();
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -288,8 +282,6 @@ public class SerialTmDatalink extends AbstractTmDataLink implements Runnable {
    */
   protected void collectSystemParameters(long time, List<ParameterValue> list) {
     super.collectSystemParameters(time, list);
-    //        list.add(SystemParametersService.getPV(spPort, time, 1054));
-
   }
 
   @Override

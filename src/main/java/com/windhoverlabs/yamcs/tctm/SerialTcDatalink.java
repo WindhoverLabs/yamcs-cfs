@@ -225,7 +225,13 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
 
   @Override
   public void doEnable() {
-    super.doEnable();
+    new Thread(this).start();
+    try {
+      super.doEnable();
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -242,7 +248,7 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
 
   @Override
   protected Status connectionStatus() {
-    return (serialPort == null) ? Status.UNAVAIL : Status.OK;
+    return (disabled.get()) ? Status.UNAVAIL : Status.OK;
   }
 
   @Override

@@ -191,8 +191,6 @@ public class SerialATTmTcDatalink extends AbstractLink implements Runnable, Aggr
 
   @Override
   protected void doStart() {
-    TmLink.startAsync();
-    TcLink.startAsync();
     if (!isDisabled()) {
       new Thread(this).start();
     }
@@ -214,14 +212,18 @@ public class SerialATTmTcDatalink extends AbstractLink implements Runnable, Aggr
 
   @Override
   public void doDisable() {
-    if (serialPort != null) {
-      try {
-        serialPort.close();
-      } catch (IOException e) {
-        log.warn("Exception got when closing the serial port:", e);
-      }
-      serialPort = null;
-    }
+    System.out.println("SerialATTmTcDatalink--->doDisable****");
+    //    if (serialPort != null) {
+    //      try {
+    //        serialPort.close();
+    //      } catch (IOException e) {
+    //        log.warn("Exception got when closing the serial port:", e);
+    //      }
+    //      serialPort = null;
+    //    }
+    
+    TmLink.disable();
+    TcLink.disable();
   }
 
   @Override
@@ -235,8 +237,8 @@ public class SerialATTmTcDatalink extends AbstractLink implements Runnable, Aggr
     TmLink.doEnable();
     TcLink.doEnable();
 
-    thread = new Thread(this);
-    thread.start();
+//    thread = new Thread(this);
+//    thread.start();
   }
 
   /**
