@@ -107,7 +107,7 @@ public class SerialTcFrameLink extends AbstractTcFrameLink implements Runnable {
         }
 
         if (cltuGenerator != null) {
-          data = cltuGenerator.makeCltu(data);
+          data = cltuGenerator.makeCltu(data, false);
           if (log.isTraceEnabled()) {
             log.trace("Outgoing CLTU: {}", StringConverter.arrayToHexString(data, true));
           }

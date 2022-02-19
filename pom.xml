@@ -9,7 +9,7 @@
 	<name>Telemetry and Command provider for Core Flight Software</name>
 
 	<properties>
-		<yamcsVersion>5.5.0</yamcsVersion>
+		<yamcsVersion>5.5.7</yamcsVersion>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
