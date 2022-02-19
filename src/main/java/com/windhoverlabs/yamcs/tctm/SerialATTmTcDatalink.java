@@ -95,8 +95,6 @@ public class SerialATTmTcDatalink extends AbstractLink implements Runnable, Aggr
     TcLink.setSerialPort(serialPort);
 
     TmLink.init(instance, name + "_tm", config.getConfig("tm_config"));
-
-    System.out.println("SerialATTmTcDatalink1");
   }
 
   @Override

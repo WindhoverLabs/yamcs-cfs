@@ -11,11 +11,11 @@ import org.yamcs.cmdhistory.CommandHistoryPublisher;
 import org.yamcs.cmdhistory.CommandHistoryPublisher.AckStatus;
 import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.tctm.CcsdsSeqCountFiller;
-import org.yamcs.tctm.cfs.CfsCommandPostprocessor;
+import org.yamcs.tctm.CommandPostprocessor;
 import org.yamcs.utils.ByteArrayUtils;
 import org.yamcs.utils.TimeEncoding;
 
-public class CfsCommandPostprocessorRFC1055 extends CfsCommandPostprocessor {
+public class CfsCommandPostprocessorRFC1055 implements CommandPostprocessor {
 
   private final int END = (0xc0);
   private final int ESC = (0xdb);
@@ -25,14 +25,20 @@ public class CfsCommandPostprocessorRFC1055 extends CfsCommandPostprocessor {
   static Logger log = LoggerFactory.getLogger(CfsCommandPostprocessorRFC1055.class);
 
   protected CcsdsSeqCountFiller seqFiller = new CcsdsSeqCountFiller();
+  protected CommandHistoryPublisher commandHistoryPublisher;
   static final int CHECKSUM_OFFSET = 7;
   static final int FC_OFFSET = 6;
   static final int MIN_CMD_LENGTH = 7;
+  final String yamcsInstance;
   private boolean swapChecksumFc = false;
 
+  public CfsCommandPostprocessorRFC1055(String yamcsInstance) {
+    this.yamcsInstance = yamcsInstance;
+  }
+
   public CfsCommandPostprocessorRFC1055(String yamcsInstance, YConfiguration config) {
-    super(yamcsInstance, config);
-    // TODO Auto-generated constructor stub
+    this.yamcsInstance = yamcsInstance;
+    this.swapChecksumFc = config.getBoolean("swapChecksumFc", false);
   }
 
   /** SLIP implementation of send_packet in Java. https://datatracker.ietf.org/doc/html/rfc1055 */
@@ -91,7 +97,9 @@ public class CfsCommandPostprocessorRFC1055 extends CfsCommandPostprocessor {
 
   // TODO:Refactor this
   private byte[] preprocessCommand(PreparedCommand pc) {
-    byte[] binary = pc.getBinary();
+    byte[] binary = new byte[pc.getBinary().length];
+    System.arraycopy(pc.getBinary(), 0, binary, 0, pc.getBinary().length);
+
     if (binary.length < MIN_CMD_LENGTH) {
 
       String msg =
@@ -106,7 +114,7 @@ public class CfsCommandPostprocessorRFC1055 extends CfsCommandPostprocessor {
       return null;
     }
 
-    ByteArrayUtils.encodeShort(binary.length - 7, binary, 4); // set packet length
+    ByteArrayUtils.encodeUnsignedShort(binary.length - 7, binary, 4); // set packet length
     int seqCount = seqFiller.fill(binary);
     commandHistoryPublisher.publish(
         pc.getCommandId(), CommandHistoryPublisher.CcsdsSeq_KEY, seqCount);
@@ -126,5 +134,10 @@ public class CfsCommandPostprocessorRFC1055 extends CfsCommandPostprocessor {
 
     commandHistoryPublisher.publish(pc.getCommandId(), PreparedCommand.CNAME_BINARY, binary);
     return binary;
+  }
+
+  @Override
+  public void setCommandHistoryPublisher(CommandHistoryPublisher commandHistoryListener) {
+    this.commandHistoryPublisher = commandHistoryListener;
   }
 }
