@@ -6,10 +6,10 @@ import org.yamcs.algorithms.AlgorithmException;
 import org.yamcs.algorithms.AlgorithmExecutionContext;
 import org.yamcs.algorithms.AlgorithmExecutionResult;
 // import org.yamcs.algorithms.AlgorithmExecutionResult;
+import org.yamcs.mdb.ProcessingData;
 import org.yamcs.parameter.ParameterValue;
 import org.yamcs.xtce.Algorithm;
 import org.yamcs.xtce.InputParameter;
-import org.yamcs.xtceproc.ProcessingData;
 
 public class CFETime {
 
