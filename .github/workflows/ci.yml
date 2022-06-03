@@ -12,8 +12,13 @@ jobs:
         with:
           java-version: 11
       - name: Build
-        run: mvn -B --no-transfer-progress -DskipTests package
+        run: mvn -B package
 
+      - name: Coveralls report
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        run: |
+          mvn install jacoco:report coveralls:report -DrepoToken=$COVERALLS_TOKEN
   docs:
     name: Documentation
     runs-on: ubuntu-latest

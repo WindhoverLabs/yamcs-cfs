@@ -14,11 +14,10 @@ import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
 import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.tctm.AbstractThreadedTcDataLink;
-import org.yamcs.tctm.AggregatedDataLink;
 import org.yamcs.tctm.GenericCommandPostprocessor;
 import org.yamcs.tctm.Link.Status;
 
-public class SerialTcDatalink extends AbstractThreadedTcDataLink {
+public class SerialATTcDatalink extends AbstractThreadedTcDataLink {
   protected String deviceName;
   protected int baudRate;
   protected int dataBits;
@@ -29,12 +28,12 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
 
   SerialPort serialPort = null;
   OutputStream outputStream = null;
-  private AggregatedDataLink parent = null;
 
   @Override
   public void init(String instance, String name, YConfiguration config)
       throws ConfigurationException {
     super.init(instance, name, config);
+    System.out.println("Initialized 1" + this.getClass().getName());
     timeService = YamcsServer.getTimeService(yamcsInstance);
 
     this.deviceName = config.getString("device", "/dev/ttyUSB0");
@@ -66,6 +65,8 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
     if (this.stopBits != "1" && this.stopBits != "1.5" && this.stopBits != "2") {
       throw new ConfigurationException("Invalid Stop Bits (1, 1.5, or 2)");
     }
+
+    log.warn("Initialized 2" + this.getClass().getName());
   }
 
   @Override
@@ -87,77 +88,74 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
   }
 
   protected void openDevice() throws IOException {
-    if (serialPort == null) {
-      serialPort = SerialPortBuilder.newBuilder(deviceName).setBaudRate(baudRate).build();
-      switch (this.flowControl) {
-        case "NONE":
-          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.NONE);
-          break;
+    serialPort = SerialPortBuilder.newBuilder(deviceName).setBaudRate(baudRate).build();
 
-        case "RTS_CTS":
-          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.RTS_CTS);
-          break;
+    switch (this.flowControl) {
+      case "NONE":
+        serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.NONE);
+        break;
 
-        case "XON_XOFF":
-          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.XON_XOFF);
-          break;
-      }
+      case "RTS_CTS":
+        serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.RTS_CTS);
+        break;
 
-      switch (this.parity) {
-        case "NONE":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.NONE);
-          break;
+      case "XON_XOFF":
+        serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.XON_XOFF);
+        break;
+    }
 
-        case "ODD":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.ODD);
-          break;
+    switch (this.parity) {
+      case "NONE":
+        serialPort.setParity(org.openmuc.jrxtx.Parity.NONE);
+        break;
 
-        case "EVEN":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.EVEN);
-          break;
+      case "ODD":
+        serialPort.setParity(org.openmuc.jrxtx.Parity.ODD);
+        break;
 
-        case "MARK":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.MARK);
-          break;
+      case "EVEN":
+        serialPort.setParity(org.openmuc.jrxtx.Parity.EVEN);
+        break;
 
-        case "SPACE":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.SPACE);
-          break;
-      }
+      case "MARK":
+        serialPort.setParity(org.openmuc.jrxtx.Parity.MARK);
+        break;
 
-      switch (this.dataBits) {
-        case 5:
-          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_5);
-          break;
+      case "SPACE":
+        serialPort.setParity(org.openmuc.jrxtx.Parity.SPACE);
+        break;
+    }
 
-        case 6:
-          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_6);
-          break;
+    switch (this.dataBits) {
+      case 5:
+        serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_5);
+        break;
 
-        case 7:
-          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_7);
-          break;
+      case 6:
+        serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_6);
+        break;
 
-        case 8:
-          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_8);
-          break;
-      }
+      case 7:
+        serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_7);
+        break;
 
-      switch (this.stopBits) {
-        case "1":
-          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1);
-          break;
+      case 8:
+        serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_8);
+        break;
+    }
 
-        case "1.5":
-          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1_5);
-          break;
+    switch (this.stopBits) {
+      case "1":
+        serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1);
+        break;
 
-        case "2":
-          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_2);
-          break;
-      }
+      case "1.5":
+        serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1_5);
+        break;
 
-      log.info("Listening on {}", deviceName);
+      case "2":
+        serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_2);
+        break;
     }
 
     this.outputStream = serialPort.getOutputStream();
@@ -166,18 +164,22 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
   @Override
   protected void uplinkCommand(PreparedCommand pc) throws IOException {
     byte[] binary = cmdPostProcessor.process(pc);
+    System.out.println("uplinkCommand1");
     if (binary == null) {
       log.warn("command postprocessor did not process the command");
       return;
     }
 
+    System.out.println("uplinkCommand2");
     int retries = 5;
     boolean sent = false;
 
     ByteBuffer bb = ByteBuffer.wrap(binary);
+    System.out.println("uplinkCommand3");
     bb.rewind();
     String reason = null;
     while (!sent && (retries > 0)) {
+      System.out.println("uplinkCommand4");
       try {
         if (serialPort == null) {
           openDevice();
@@ -189,14 +191,14 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
       } catch (IOException e) {
         reason = String.format("Error writing to TC device to %s : %s", deviceName, e.getMessage());
         log.warn(reason);
-        //        try {
-        //          if (serialPort != null) {
-        ////            serialPort.close();
-        //          }
-        ////          serialPort = null;
-        //        } catch (IOException e1) {
-        //          e1.printStackTrace();
-        //        }
+        try {
+          if (serialPort != null) {
+            serialPort.close();
+          }
+          serialPort = null;
+        } catch (IOException e1) {
+          e1.printStackTrace();
+        }
       }
       retries--;
       if (!sent && (retries > 0)) {
@@ -224,31 +226,20 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
   }
 
   @Override
-  public void doEnable() {
-    new Thread(this).start();
-    try {
-      super.doEnable();
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+  protected void shutDown() throws Exception {
+    if (serialPort != null) {
+      try {
+        serialPort.close();
+      } catch (IOException e) {
+        log.warn("Exception got when closing the serial port:", e);
+      }
+      serialPort = null;
     }
   }
 
   @Override
-  protected void shutDown() throws Exception {
-    //    if (serialPort != null) {
-    //      try {
-    //        serialPort.close();
-    //      } catch (IOException e) {
-    //        log.warn("Exception got when closing the serial port:", e);
-    //      }
-    //      serialPort = null;
-    //    }
-  }
-
-  @Override
   protected Status connectionStatus() {
-    return (disabled.get()) ? Status.UNAVAIL : Status.OK;
+    return (serialPort == null) ? Status.UNAVAIL : Status.OK;
   }
 
   @Override
@@ -261,18 +252,5 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
     } else {
       return String.format("OK, connected to %s, sent %d commands", deviceName, dataCount.get());
     }
-  }
-
-  public void setSerialPort(SerialPort serialPort2) {
-    serialPort = serialPort2;
-  }
-
-  /** Set the parent link if this is a sublink of an aggregated link. */
-  public void setParent(AggregatedDataLink newParent) {
-    parent = newParent;
-  }
-
-  public AggregatedDataLink getParent() {
-    return parent;
   }
 }
