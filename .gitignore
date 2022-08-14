@@ -1,3 +1,7 @@
 target/**
 /bin/
 /target/
+.idea/
+.project
+.classpath
+*/venv/

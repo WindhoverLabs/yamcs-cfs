@@ -1,3 +1,5 @@
+[![CI](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml/badge.svg?branch=update-yamcs-tools)](https://github.com/WindhoverLabs/yamcs-cfs/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/WindhoverLabs/yamcs-cfs/badge.svg?branch=rfc_1055)](https://coveralls.io/github/WindhoverLabs/yamcs-cfs?branch=rfc_1055)
 # yamcs-cfs
 A YAMCS plugin for [ailriner](https://github.com/WindhoverLabs/airliner).
 
@@ -7,6 +9,7 @@ A YAMCS plugin for [ailriner](https://github.com/WindhoverLabs/airliner).
 3. [To Run](#to_run)
 4. [Add It to your YAMCS Install](#add_it_to_yamcs)   
 5. [XTCE Patterns and Conventions](#XTCE-Patterns-and-Conventions)
+5. [Build Documentation](#build_documentation)
 
 
 ### Dependencies <a name="dependencies"></a>
@@ -23,9 +26,11 @@ mvn install -DskipTests
 To package it:
 ```
 mvn package -DskipTests
+mvn dependency:copy-dependencies
 ```
 
 The `package` command will output a jar file at `yamcs-cfs/target`.
+Note the `dependency:copy-dependencies` command; this will copy all of the jars to the `yamcs-cfs/target/dependency` directory. Very useful for integrating third-party dependencies.
 
 ### To Run <a name="to_run"></a>
 For now this yamcs setup is pre-configured for airliner's `tutorial/cfs`, however do note that this can be re-configured 
@@ -49,8 +54,8 @@ The yamcs web interface should be accessible at the address at the bottom of the
 ### Add it to YAMCS <a name="add_it_to_yamcs"></a>
 Assuming YAMCS is installed at `/opt/yamcs`:
 ```
-wget https://github.com/WindhoverLabs/yamcs-cfs/releases/download/1.0.5/yamcs-cfs-1.0.5.jar
-cp yamcs-cfs-1.0.5.jar /opt/yamcs/lib/ext
+wget https://github.com/WindhoverLabs/yamcs-cfs/releases/download/1.1.7/yamcs-cfs-1.1.7.jar
+cp yamcs-cfs-1.1.7.jar /opt/yamcs/lib/ext
 ```
 
 
@@ -384,10 +389,13 @@ need to deal with any quirks this yamcs-flavored xtce standard may have. Below a
 so far:
 - It seems that yamcs has issues processing any `Paramter` entries that have a '#' in the name.
 
-### Strings - What is a string?
+### Build Documentation <a name="build_documentation"></a>
 
-**TODO:** Document what a string is in the context of our xtce files.
+```
+cd docs/
+pip3 install -r requirements.txt
+make html
+```
+**NOTE**: This documentation is subject to change as our tools evolve.  
+Documented on July 5th, 2021
 
-**NOTE**: This documentation is subject to change as our toolchain evolves.
-
-Documented on December 17, 2020
