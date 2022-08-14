@@ -36,6 +36,7 @@ import org.yamcs.http.Context;
 import org.yamcs.http.ForbiddenException;
 import org.yamcs.http.HttpException;
 import org.yamcs.http.InternalServerErrorException;
+import org.yamcs.mdb.XtceDbFactory;
 import org.yamcs.parameter.ParameterRequestManager;
 import org.yamcs.parameter.ParameterValueWithId;
 import org.yamcs.parameter.ParameterWithIdConsumer;
@@ -47,7 +48,6 @@ import org.yamcs.security.User;
 import org.yamcs.tctm.Link;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.xtce.XtceDb;
-import org.yamcs.xtceproc.XtceDbFactory;
 
 public class CfsApi extends AbstractCfsApi<Context> {
 
