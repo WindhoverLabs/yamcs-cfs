@@ -15,3 +15,12 @@ instances:
 # Secret key unique to a particular Yamcs installation.
 # This is used to provide cryptographic signing.
 secretKey: changeme
+
+
+#The bucket with name of "displays" must ALWAYS be called "displays". The YAMCS Webapp looks for a bucket with ths exact name when loading displays from the filesystem. 
+#See yamcs/yamcs-web/src/main/java/org/yamcs/web/WebPlugin.java for details.
+buckets:
+  - name: cfdpUp
+    path: cfdp_upload
+  - name: displays
+    path: Displays

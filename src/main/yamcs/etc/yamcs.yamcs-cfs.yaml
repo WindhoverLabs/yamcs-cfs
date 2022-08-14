@@ -5,7 +5,6 @@ services:
   - class: org.yamcs.archive.AlarmRecorder
   - class: org.yamcs.archive.EventRecorder
   - class: org.yamcs.archive.ReplayServer
-  - class: com.windhoverlabs.yamcs.cfs.registry.CfsRegistryService
   - class: org.yamcs.parameter.SystemParametersCollector
     args:
       provideJvmVariables: true
@@ -25,6 +24,21 @@ services:
   - class: org.yamcs.tctm.cfs.CfsEventDecoder
     args:
       msgIds: [0x0808]
+  - class: org.yamcs.cfdp.CfdpService
+    name: cfdp0
+    args:
+      inStream: cfdp_in
+      outStream: cfdp_out
+      localEntities:
+        - name: "0.23"
+          id: 23
+          bucket: cfdpUp
+      remoteEntities:
+        - name: "0.24"
+          id: 24
+          bucket: cfdpDown
+      receiverFaultHandlers:
+        AckLimitReached: suspend
 
 dataLinks:
   - name: udp-in
@@ -57,3 +71,4 @@ streamConfig:
   param: ["pp_realtime", "sys_param", "proc_param"]
   parameterAlarm: ["alarms_realtime"]
   tc: ["tc_realtime"]
+  sqlFile: "etc/extra_streams.sql"
