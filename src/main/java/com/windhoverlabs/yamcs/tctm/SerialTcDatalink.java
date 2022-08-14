@@ -45,31 +45,27 @@ public class SerialTcDatalink extends AbstractThreadedTcDataLink {
     this.parity = config.getString("parity", "NONE");
     this.flowControl = config.getString("flowControl", "NONE");
 
-    if (!(   "NONE".equalsIgnoreCase(this.parity)
-          || "EVEN".equalsIgnoreCase(this.parity)
-          || "ODD".equalsIgnoreCase(this.parity)
-          || "MARK".equalsIgnoreCase(this.parity)
-          || "SPACE".equalsIgnoreCase(this.parity)) {
+    if (!("NONE".equalsIgnoreCase(this.parity)
+        || "EVEN".equalsIgnoreCase(this.parity)
+        || "ODD".equalsIgnoreCase(this.parity)
+        || "MARK".equalsIgnoreCase(this.parity)
+        || "SPACE".equalsIgnoreCase(this.parity))) {
       throw new ConfigurationException("Invalid Parity (NONE, EVEN, ODD, MARK or SPACE)");
     }
 
-    if (!(   "NONE".equalsIgnoreCase(this.flowControl)
-          || "RTS_CTS".equalsIgnoreCase(this.flowControl)
-          || "XON_XOFF".equalsIgnoreCase(this.flowContro)) {
+    if (!("NONE".equalsIgnoreCase(this.flowControl)
+        || "RTS_CTS".equalsIgnoreCase(this.flowControl)
+        || "XON_XOFF".equalsIgnoreCase(this.flowControl))) {
       throw new ConfigurationException("Invalid Flow Control (NONE, RTS_CTS, or XON_XOFF)");
     }
 
-    if (!(   this.dataBits == 5 
-          || this.dataBits == 6 
-          || this.dataBits == 7 
-          || this.dataBits == 8)) 
-    {
+    if (!(this.dataBits == 5 || this.dataBits == 6 || this.dataBits == 7 || this.dataBits == 8)) {
       throw new ConfigurationException("Invalid Data Bits (5, 6, 7, or 8)");
     }
 
-    if (!(   "1".equalsIgnoreCase(this.stopBits)
-          || "1.5".equalsIgnoreCase(this.stopBits)
-          || "2".equalsIgnoreCase(this.stopBits)) {
+    if (!("1".equalsIgnoreCase(this.stopBits)
+        || "1.5".equalsIgnoreCase(this.stopBits)
+        || "2".equalsIgnoreCase(this.stopBits))) {
       throw new ConfigurationException("Invalid Stop Bits (1, 1.5, or 2)");
     }
   }
