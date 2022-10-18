@@ -1,21 +1,20 @@
 package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Arrays;
 import org.yamcs.ConfigurationException;
 import org.yamcs.YConfiguration;
-import org.yamcs.tctm.CcsdsPacketInputStream;
-import org.yamcs.tctm.PacketInputStream;
 import org.yamcs.tctm.ccsds.AbstractTmFrameLink;
 import org.yamcs.utils.StringConverter;
-import org.yamcs.utils.YObjectLoader;
 
 /**
  * Receives telemetry fames via UDP. One UDP datagram = one TM frame.
+ *
+ * <p>This is a TEMPORARY fix. The proper fix is adding the logic of removing the 4 bytes in
+ * simlink.
  *
  * @author nm
  */
@@ -30,12 +29,6 @@ public class UdpTmFrameLink extends AbstractTmFrameLink implements Runnable {
   Object packetPreprocessorArgs;
   Thread thread;
 
-  String packetInputStreamClassName;
-  YConfiguration packetInputStreamArgs;
-  PacketInputStream packetInputStream;
-
-  private InputStream targetStream;
-
   /**
    * Creates a new UDP Frame Data Link
    *
@@ -45,32 +38,9 @@ public class UdpTmFrameLink extends AbstractTmFrameLink implements Runnable {
       throws ConfigurationException {
     super.init(instance, name, config);
     port = config.getInt("port");
-    //TODO:Move this "+ 4" nonsense to configuration
+    // TODO:Move this "+ 4" nonsense to configuration
     int maxLength = frameHandler.getMaxFrameSize() + 4;
     datagram = new DatagramPacket(new byte[maxLength], maxLength);
-
-    if (config.containsKey("packetInputStreamClassName")) {
-      this.packetInputStreamClassName = config.getString("packetInputStreamClassName");
-      this.packetInputStreamArgs = config.getConfig("packetInputStreamArgs");
-    } else {
-      this.packetInputStreamClassName = CcsdsPacketInputStream.class.getName();
-      this.packetInputStreamArgs = YConfiguration.emptyConfig();
-    }
-
-    try {
-      packetInputStream = YObjectLoader.loadObject(packetInputStreamClassName);
-    } catch (ConfigurationException e) {
-      log.error("Cannot instantiate the packetInput stream", e);
-      throw e;
-    }
-    //    try {
-    ////      targetStream = ByteSource.wrap(datagram.getData()).openStream();
-    ////      packetInputStream.init(targetStream, packetInputStreamArgs);
-    ////      targetStream.close();
-    //    } catch (IOException e) {
-    //      // TODO Auto-generated catch block
-    //      e.printStackTrace();
-    //    }
   }
 
   @Override
@@ -106,10 +76,9 @@ public class UdpTmFrameLink extends AbstractTmFrameLink implements Runnable {
                   datagram.getData(), datagram.getOffset(), datagram.getLength(), true));
         }
 
+        // NOTE: This is a TEMPORARY fix. The proper fix is adding the logic of removing the 4 bytes
+        // in simlink.
         byte[] packet = Arrays.copyOfRange(datagram.getData(), 4, datagram.getLength());
-        System.out.println(org.yamcs.utils.StringConverter.arrayToHexString(packet, 0, 4));
-        System.out.println("length of packet-->" + packet.length);
-        System.out.println("datagram.getLength()-->" + (datagram.getLength() - 4));
         handleFrame(timeService.getHresMissionTime(), packet, 0, datagram.getLength() - 4);
 
       } catch (IOException e) {
