@@ -1,18 +1,10 @@
 package com.windhoverlabs.yamcs.tctm.ccsds;
 
 import com.google.common.util.concurrent.RateLimiter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import org.openmuc.jrxtx.SerialPort;
-import org.openmuc.jrxtx.SerialPortBuilder;
 import org.yamcs.ConfigurationException;
 import org.yamcs.YConfiguration;
 import org.yamcs.commanding.PreparedCommand;
@@ -44,13 +36,13 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
 
   static TupleDefinition gftdef;
 
-  final static String RECTIME_CNAME = "rectime";
-  final static String DATA_CNAME = "data";
-  
+  static final String RECTIME_CNAME = "rectime";
+  static final String DATA_CNAME = "data";
+
   static {
-      gftdef = new TupleDefinition();
-      gftdef.addColumn(new ColumnDefinition(PreparedCommand.CNAME_GENTIME, DataType.TIMESTAMP));
-      gftdef.addColumn(new ColumnDefinition(DATA_CNAME, DataType.BINARY));
+    gftdef = new TupleDefinition();
+    gftdef.addColumn(new ColumnDefinition(PreparedCommand.CNAME_GENTIME, DataType.TIMESTAMP));
+    gftdef.addColumn(new ColumnDefinition(DATA_CNAME, DataType.BINARY));
   }
 
   /**
@@ -69,28 +61,25 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
     this.syncSymbol = config.getString("syncSymbol", "");
 
     String streamName = config.getString("stream");
-    
+
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(instance);
     this.stream = getStream(ydb, streamName);
-
   }
-  
-  
+
   private static Stream getStream(YarchDatabaseInstance ydb, String streamName) {
-      Stream stream = ydb.getStream(streamName);
-      if (stream == null) {
-          try {
-              ydb.execute("create stream " + streamName + gftdef.getStringDefinition());
-              //ydb.execute("create stream " + streamName);
-          } catch (Exception e) {
-              throw new ConfigurationException(e);
-          }
-          stream = ydb.getStream(streamName);
+    Stream stream = ydb.getStream(streamName);
+    if (stream == null) {
+      try {
+        ydb.execute("create stream " + streamName + gftdef.getStringDefinition());
+        // ydb.execute("create stream " + streamName);
+      } catch (Exception e) {
+        throw new ConfigurationException(e);
       }
-      return stream;
+      stream = ydb.getStream(streamName);
+    }
+    return stream;
   }
 
-  
   @Override
   public void run() {
     while (isRunningAndEnabled()) {
@@ -118,7 +107,7 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
         }
 
         this.stream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, data)));
-        
+
         frameCount++;
       }
     }
@@ -140,8 +129,7 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
   @Override
   protected void doStart() {
     try {
-      if (!isDisabled()) {
-      }
+      if (!isDisabled()) {}
 
       doEnable();
       notifyStarted();
@@ -172,5 +160,4 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
   public void sendTc(PreparedCommand pc) {
     // Not used when framing commands.
   }
-
 }

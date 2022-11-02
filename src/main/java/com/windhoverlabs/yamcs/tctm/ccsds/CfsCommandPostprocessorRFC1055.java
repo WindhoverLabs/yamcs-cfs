@@ -1,6 +1,6 @@
 package com.windhoverlabs.yamcs.tctm.ccsds;
 
-import static org.yamcs.cmdhistory.CommandHistoryPublisher.AcknowledgeSent;
+import static org.yamcs.cmdhistory.CommandHistoryPublisher.AcknowledgeSent_KEY;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -101,7 +101,6 @@ public class CfsCommandPostprocessorRFC1055 implements CommandPostprocessor {
     System.arraycopy(pc.getBinary(), 0, binary, 0, pc.getBinary().length);
 
     if (binary.length < MIN_CMD_LENGTH) {
-
       String msg =
           ("Short command received, length:"
               + binary.length
@@ -109,7 +108,8 @@ public class CfsCommandPostprocessorRFC1055 implements CommandPostprocessor {
               + MIN_CMD_LENGTH);
       log.warn(msg);
       long t = TimeEncoding.getWallclockTime();
-      commandHistoryPublisher.publishAck(pc.getCommandId(), AcknowledgeSent, t, AckStatus.NOK, msg);
+
+      commandHistoryPublisher.publishAck(pc.getCommandId(), AcknowledgeSent_KEY, t, AckStatus.NOK, msg);
       commandHistoryPublisher.commandFailed(pc.getCommandId(), t, msg);
       return null;
     }
