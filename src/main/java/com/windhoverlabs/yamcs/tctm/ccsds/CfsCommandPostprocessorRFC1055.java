@@ -109,7 +109,8 @@ public class CfsCommandPostprocessorRFC1055 implements CommandPostprocessor {
       log.warn(msg);
       long t = TimeEncoding.getWallclockTime();
 
-      commandHistoryPublisher.publishAck(pc.getCommandId(), AcknowledgeSent_KEY, t, AckStatus.NOK, msg);
+      commandHistoryPublisher.publishAck(
+          pc.getCommandId(), AcknowledgeSent_KEY, t, AckStatus.NOK, msg);
       commandHistoryPublisher.commandFailed(pc.getCommandId(), t, msg);
       return null;
     }

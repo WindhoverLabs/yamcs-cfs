@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.windhoverlabs</groupId>
 	<artifactId>yamcs-cfs</artifactId>
-	<version>1.2.1</version>
+	<version>1.2.2</version>
 
 	<packaging>jar</packaging>
 	<name>Telemetry and Command provider for Core Flight Software</name>
 
 	<properties>
-		<yamcsVersion>5.7.0</yamcsVersion>
+		<yamcsVersion>5.7.9</yamcsVersion>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
