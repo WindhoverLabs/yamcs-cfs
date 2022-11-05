@@ -1,4 +1,4 @@
-package org.yamcs.tctm.ccsds;
+package com.windhoverlabs.yamcs.tctm;
 
 import com.google.common.util.concurrent.RateLimiter;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import org.yamcs.ConfigurationException;
 import org.yamcs.YConfiguration;
+import org.yamcs.tctm.ccsds.AbstractTcFrameLink;
+import org.yamcs.tctm.ccsds.TcTransferFrame;
 import org.yamcs.utils.StringConverter;
 
 /**

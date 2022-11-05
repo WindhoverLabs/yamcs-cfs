@@ -1,5 +1,6 @@
 package com.windhoverlabs.yamcs.tctm;
 
+import com.fazecast.jSerialComm.SerialPort;
 import com.google.common.util.concurrent.RateLimiter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,8 +13,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import org.openmuc.jrxtx.SerialPort;
-import org.openmuc.jrxtx.SerialPortBuilder;
 import org.yamcs.AbstractYamcsService;
 import org.yamcs.ConfigurationException;
 import org.yamcs.InitException;
@@ -125,6 +124,10 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
    * @throws ConfigurationException if port is not defined in the configuration
    */
   public void init(String instance, String name, YConfiguration config) {
+    log = new Log(getClass(), instance);
+	log.setContext(name);
+	log.info("Initializing");
+	    
     try {
       super.init(instance, name, config);
     } catch (InitException e1) {
@@ -177,8 +180,6 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
     leftTrim = config.getInt("leftTrim", 0);
     rightTrim = config.getInt("rightTrim", 0);
     maxLength = config.getInt("maxFrameLength", MAX_LENGTH);
-    log = new Log(getClass(), instance);
-    log.setContext(name);
     eventProducer = EventProducerFactory.getEventProducer(instance, name, 10000);
     this.timeService = YamcsServer.getTimeService(instance);
     String inStreamName = config.getString("in_stream");
@@ -318,6 +319,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
 
   @Override
   public void run() {
+    log.info("Running");
     if (initialDelay > 0) {
       try {
         Thread.sleep(initialDelay);
@@ -375,10 +377,11 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
         openDevice();
         byte[] packet = packetInputStream.readPacket();
 
-        // for(int i = 0; i < packet.length; ++i) {
-        //    System.console().printf("%02x ", packet[i]);
-        // }
-        // System.console().printf("\n");
+        //log.info("Got packet");
+        //for(int i = 0; i < packet.length; ++i) {
+        //  System.console().printf("%02x ", packet[i]);
+        //}
+        //System.console().printf("\n");
         updateInStats(packet.length);
         pkt = new TmPacket(timeService.getMissionTime(), packet);
         pkt.setEarthRceptionTime(timeService.getHresMissionTime());
@@ -398,7 +401,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
           }
         }
         try {
-          serialPort.close();
+          serialPort.closePort();
         } catch (Exception e2) {
         }
         serialPort = null;
@@ -416,7 +419,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
       } catch (PacketTooLongException e) {
         log.warn(e.toString());
         try {
-          serialPort.close();
+          serialPort.closePort();
         } catch (Exception e2) {
         }
         serialPort = null;
@@ -426,91 +429,116 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
   }
 
   protected void openDevice() throws IOException {
-    if (serialPort == null) {
-      serialPort = SerialPortBuilder.newBuilder(deviceName).setBaudRate(baudRate).build();
+    if (this.serialPort == null) {
+      log.info("Opening device {}", deviceName);
+      this.serialPort = SerialPort.getCommPort(this.deviceName);
+      this.serialPort.openPort();
+      this.serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+
       switch (this.flowControl) {
         case "NONE":
-          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.NONE);
+            log.info("Set Flow Control to NONE");
+        	this.serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
           break;
 
         case "RTS_CTS":
-          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.RTS_CTS);
+            log.info("Set Flow Control to RTS_CTS");
+        	this.serialPort.setFlowControl(
+              SerialPort.FLOW_CONTROL_CTS_ENABLED | SerialPort.FLOW_CONTROL_RTS_ENABLED);
           break;
 
         case "XON_XOFF":
-          serialPort.setFlowControl(org.openmuc.jrxtx.FlowControl.XON_XOFF);
+            log.info("Set Flow Control to XON_XOFF");
+        	this.serialPort.setFlowControl(SerialPort.FLOW_CONTROL_XONXOFF_IN_ENABLED);
           break;
       }
 
       switch (this.parity) {
         case "NONE":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.NONE);
+            log.info("Set Parity to NONE");
+        	this.serialPort.setParity(SerialPort.NO_PARITY);
           break;
 
         case "ODD":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.ODD);
+            log.info("Set Parity to ODD_PARITY");
+        	this.serialPort.setParity(SerialPort.ODD_PARITY);
           break;
 
         case "EVEN":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.EVEN);
+            log.info("Set Parity to EVEN_PARITY");
+        	this.serialPort.setParity(SerialPort.EVEN_PARITY);
           break;
 
         case "MARK":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.MARK);
+            log.info("Set Parity to MARK_PARITY");
+        	this.serialPort.setParity(SerialPort.MARK_PARITY);
           break;
 
         case "SPACE":
-          serialPort.setParity(org.openmuc.jrxtx.Parity.SPACE);
+            log.info("Set Parity to SPACE_PARITY");
+        	this.serialPort.setParity(SerialPort.SPACE_PARITY);
           break;
       }
 
-      switch (this.dataBits) {
-        case 5:
-          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_5);
-          break;
-
-        case 6:
-          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_6);
-          break;
-
-        case 7:
-          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_7);
-          break;
-
-        case 8:
-          serialPort.setDataBits(org.openmuc.jrxtx.DataBits.DATABITS_8);
-          break;
+      if (this.serialPort.setNumDataBits(this.dataBits) == false) {
+        throw new IOException("Invalid dataBits");
       }
+      ;
 
       switch (this.stopBits) {
         case "1":
-          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1);
+          log.info("Set Stop Bits to 1");
+          if (this.serialPort.setNumStopBits(SerialPort.ONE_STOP_BIT) == false) {
+            throw new IOException("Invalid stopBits");
+          }
+          ;
           break;
 
         case "1.5":
-          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_1_5);
+            log.info("Set Stop Bits to 1.5");
+          if (this.serialPort.setNumStopBits(SerialPort.ONE_POINT_FIVE_STOP_BITS) == false) {
+            throw new IOException("Invalid stopBits");
+          }
+          ;
           break;
 
         case "2":
-          serialPort.setStopBits(org.openmuc.jrxtx.StopBits.STOPBITS_2);
+            log.info("Set Stop Bits to 2");
+          if (this.serialPort.setNumStopBits(SerialPort.TWO_STOP_BITS) == false) {
+            throw new IOException("Invalid stopBits");
+          }
+          ;
           break;
+
+        default:
+            log.error("Invalid stopBits");
+          throw new IOException("Invalid stopBits");
       }
 
-      log.info("Listening on {}", deviceName);
+      if (this.serialPort.setBaudRate(this.baudRate) == false) {
+        throw new IOException("Invalid baudRate");
+      }
+      ;
+
+      log.info("Opened device {}", deviceName);
     }
 
     if (packetInputStream == null) {
       try {
+        log.info("Loading PacketInputStream {}", packetInputStreamClassName);
         packetInputStream = YObjectLoader.loadObject(packetInputStreamClassName);
+        log.info("PacketInputStream {} loaded", packetInputStreamClassName);
       } catch (ConfigurationException e) {
         log.error("Cannot instantiate the packetInput stream", e);
         throw e;
       }
 
-      packetInputStream.init(serialPort.getInputStream(), packetInputStreamArgs);
+      log.info("Initializing {}", packetInputStreamClassName);
+      packetInputStream.init(this.serialPort.getInputStream(), packetInputStreamArgs);
+      log.info("{} initialized", packetInputStreamClassName);
     }
 
-    this.outputStream = serialPort.getOutputStream();
+    this.outputStream = this.serialPort.getOutputStream();
   }
 
   @Override

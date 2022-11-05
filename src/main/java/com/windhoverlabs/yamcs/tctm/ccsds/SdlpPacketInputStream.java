@@ -133,6 +133,11 @@ public class SdlpPacketInputStream implements PacketInputStream {
     asmCursor = 0;
     boolean isFatFrame = false;
     fatFrameBytes = 0;
+    //int printCount = 0;
+
+    //System.console().printf("************************************\n");
+    //System.console().printf("************************************\n");
+    //System.console().printf("************************************\n");
 
     while (parserState != ParserState.CADU_COMPLETE) {
       switch (parserState) {
@@ -142,6 +147,13 @@ public class SdlpPacketInputStream implements PacketInputStream {
              * at a time.
              */
             dataInputStream.readFully(asmField, 0, 1);
+        	//System.console().printf("%02x ", asmField[0]);
+        	//printCount++;
+        	//if(printCount >= 32) {
+        	//	System.console().printf("\n");
+        	//	printCount = 0;
+        	//}
+        	
 
             outOfSyncByteCount++;
 
@@ -322,6 +334,8 @@ public class SdlpPacketInputStream implements PacketInputStream {
      */
     TransitionToState(ParserState.AT_CADU_START);
 
+	//System.console().printf("\n");
+	
     return packet;
   }
 
