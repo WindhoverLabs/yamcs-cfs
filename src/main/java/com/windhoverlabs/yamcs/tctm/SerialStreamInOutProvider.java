@@ -125,9 +125,9 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
    */
   public void init(String instance, String name, YConfiguration config) {
     log = new Log(getClass(), instance);
-	log.setContext(name);
-	log.info("Initializing");
-	    
+    log.setContext(name);
+    log.info("Initializing");
+
     try {
       super.init(instance, name, config);
     } catch (InitException e1) {
@@ -377,11 +377,11 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
         openDevice();
         byte[] packet = packetInputStream.readPacket();
 
-        //log.info("Got packet");
-        //for(int i = 0; i < packet.length; ++i) {
+        // log.info("Got packet");
+        // for(int i = 0; i < packet.length; ++i) {
         //  System.console().printf("%02x ", packet[i]);
-        //}
-        //System.console().printf("\n");
+        // }
+        // System.console().printf("\n");
         updateInStats(packet.length);
         pkt = new TmPacket(timeService.getMissionTime(), packet);
         pkt.setEarthRceptionTime(timeService.getHresMissionTime());
@@ -437,46 +437,46 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
 
       switch (this.flowControl) {
         case "NONE":
-            log.info("Set Flow Control to NONE");
-        	this.serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
+          log.info("Set Flow Control to NONE");
+          this.serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
           break;
 
         case "RTS_CTS":
-            log.info("Set Flow Control to RTS_CTS");
-        	this.serialPort.setFlowControl(
+          log.info("Set Flow Control to RTS_CTS");
+          this.serialPort.setFlowControl(
               SerialPort.FLOW_CONTROL_CTS_ENABLED | SerialPort.FLOW_CONTROL_RTS_ENABLED);
           break;
 
         case "XON_XOFF":
-            log.info("Set Flow Control to XON_XOFF");
-        	this.serialPort.setFlowControl(SerialPort.FLOW_CONTROL_XONXOFF_IN_ENABLED);
+          log.info("Set Flow Control to XON_XOFF");
+          this.serialPort.setFlowControl(SerialPort.FLOW_CONTROL_XONXOFF_IN_ENABLED);
           break;
       }
 
       switch (this.parity) {
         case "NONE":
-            log.info("Set Parity to NONE");
-        	this.serialPort.setParity(SerialPort.NO_PARITY);
+          log.info("Set Parity to NONE");
+          this.serialPort.setParity(SerialPort.NO_PARITY);
           break;
 
         case "ODD":
-            log.info("Set Parity to ODD_PARITY");
-        	this.serialPort.setParity(SerialPort.ODD_PARITY);
+          log.info("Set Parity to ODD_PARITY");
+          this.serialPort.setParity(SerialPort.ODD_PARITY);
           break;
 
         case "EVEN":
-            log.info("Set Parity to EVEN_PARITY");
-        	this.serialPort.setParity(SerialPort.EVEN_PARITY);
+          log.info("Set Parity to EVEN_PARITY");
+          this.serialPort.setParity(SerialPort.EVEN_PARITY);
           break;
 
         case "MARK":
-            log.info("Set Parity to MARK_PARITY");
-        	this.serialPort.setParity(SerialPort.MARK_PARITY);
+          log.info("Set Parity to MARK_PARITY");
+          this.serialPort.setParity(SerialPort.MARK_PARITY);
           break;
 
         case "SPACE":
-            log.info("Set Parity to SPACE_PARITY");
-        	this.serialPort.setParity(SerialPort.SPACE_PARITY);
+          log.info("Set Parity to SPACE_PARITY");
+          this.serialPort.setParity(SerialPort.SPACE_PARITY);
           break;
       }
 
@@ -495,7 +495,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
           break;
 
         case "1.5":
-            log.info("Set Stop Bits to 1.5");
+          log.info("Set Stop Bits to 1.5");
           if (this.serialPort.setNumStopBits(SerialPort.ONE_POINT_FIVE_STOP_BITS) == false) {
             throw new IOException("Invalid stopBits");
           }
@@ -503,7 +503,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
           break;
 
         case "2":
-            log.info("Set Stop Bits to 2");
+          log.info("Set Stop Bits to 2");
           if (this.serialPort.setNumStopBits(SerialPort.TWO_STOP_BITS) == false) {
             throw new IOException("Invalid stopBits");
           }
@@ -511,7 +511,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
           break;
 
         default:
-            log.error("Invalid stopBits");
+          log.error("Invalid stopBits");
           throw new IOException("Invalid stopBits");
       }
 
