@@ -1,7 +1,6 @@
 package com.windhoverlabs.yamcs.tctm;
 
 import com.google.common.util.concurrent.RateLimiter;
-import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,12 +18,9 @@ import org.yamcs.yarch.YarchDatabase;
 import org.yamcs.yarch.YarchDatabaseInstance;
 
 /**
- * Receives telemetry fames via UDP. One UDP datagram = one TM frame.
+ * Receives telemetry frames via a YAMCS stream. One stream Tuple = one TM frame.
  *
- * <p>This is a TEMPORARY fix. The proper fix is adding the logic of removing the 4 bytes in
- * simlink.
- *
- * @author nm
+ * @author Mathew Benson
  */
 public class StreamTmFrameLink extends AbstractTmFrameLink implements StreamSubscriber {
   private volatile int invalidDatagramCount = 0;
@@ -52,15 +48,13 @@ public class StreamTmFrameLink extends AbstractTmFrameLink implements StreamSubs
   }
 
   /**
-   * Creates a new UDP Frame Data Link
+   * Creates a new Stream TM Frame Data Link
    *
    * @throws ConfigurationException if port is not defined in the configuration
    */
   public void init(String instance, String name, YConfiguration config)
       throws ConfigurationException {
     super.init(instance, name, config);
-    // TODO:Move this "+ 4" nonsense to configuration
-    int maxLength = frameHandler.getMaxFrameSize() + 4;
 
     String streamName = config.getString("in_stream");
     this.linkName = name;
@@ -141,7 +135,7 @@ public class StreamTmFrameLink extends AbstractTmFrameLink implements StreamSubs
   protected void doDisable() {}
 
   @Override
-  protected void doEnable() throws SocketException {}
+  protected void doEnable() {}
 
   @Override
   public long getDataInCount() {
@@ -181,9 +175,6 @@ public class StreamTmFrameLink extends AbstractTmFrameLink implements StreamSubs
       byte[] packet;
       packet = tuple.getColumn(DATA_CNAME);
 
-      // NOTE: This is a TEMPORARY fix. The proper fix is adding the logic of removing the 4 bytes
-      // in simlink.
-      // byte[] packet = Arrays.copyOfRange(datagram.getData(), 4, datagram.getLength());
       handleFrame(timeService.getHresMissionTime(), packet, 0, packet.length);
     }
   }
