@@ -10,7 +10,6 @@ import org.yamcs.YConfiguration;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.tctm.PacketInputStream;
-import org.yamcs.utils.StringConverter;
 
 /**
  * Reads CCSDS packets from an input stream: This packet input stream reads and verifies the data 1
@@ -39,6 +38,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
   int inSyncByteCount = 0;
 
   int rcvdCaduCount = 0;
+  int inSyncCaduCount = 0;
 
   int rcvdFatCaduCount = 0;
   boolean dropMalformed = true;
@@ -58,7 +58,7 @@ public class SdlpPacketInputStream implements PacketInputStream {
   private int fatFrameBytes;
   private int caduLength;
   // FIXME:Temporary. Don't want to be exposing this packet so easily.
-  private byte[] packet;
+  // private byte[] packet;
 
   private int fatFrameCount = 0;
 
@@ -67,8 +67,8 @@ public class SdlpPacketInputStream implements PacketInputStream {
     dataInputStream = new DataInputStream(inputStream);
     asmString = args.getString("asm", asmString);
     asmLength = asmString.length() / 2;
-    minLength = args.getInt("minLength", minLength);
-    maxLength = args.getInt("maxLength", maxLength);
+    minLength = args.getInt("minFrameLength", minLength);
+    maxLength = args.getInt("maxFrameLength", maxLength);
     dropMalformed = args.getBoolean("dropMalformed", dropMalformed);
 
     /* TODO: I really want to properly use YAMCS events here, but I really
@@ -78,25 +78,29 @@ public class SdlpPacketInputStream implements PacketInputStream {
      * the object without the instance by passing a null.
      */
     eventProducer =
-        EventProducerFactory.getEventProducer(null, SdlpPacketInputStream.class.getName(), 0);
+        EventProducerFactory.getEventProducer(null, SdlpPacketInputStream.class.getName(), 10000);
 
     if (maxLength < 0) {
-      throw new ConfigurationException("'maxLength' must be defined.");
+      throw new ConfigurationException("'maxFrameLength' must be defined.");
     }
 
     if (maxLength < minLength) {
       throw new ConfigurationException(
-          "'maxLength' (" + maxLength + ") must not be less than 'minLength' (" + minLength + ").");
+          "'maxFrameLength' ("
+              + maxLength
+              + ") must not be less than 'minLength' ("
+              + minLength
+              + ").");
     }
 
     if (maxLength < 0) {
       throw new ConfigurationException(
-          "'maxLength' (" + maxLength + ") must be greater than zero.");
+          "'maxFrameLength' (" + maxLength + ") must be greater than zero.");
     }
 
     if (minLength < 0) {
       throw new ConfigurationException(
-          "'minLength' (" + maxLength + ") must be greater than zero.");
+          "'minFrameLength' (" + minLength + ") must be greater than zero.");
     }
 
     if (dropMalformed && (maxLength < 0)) {
@@ -116,20 +120,24 @@ public class SdlpPacketInputStream implements PacketInputStream {
     inSyncByteCount = 0;
     rcvdCaduCount = 0;
     rcvdFatCaduCount = 0;
+    inSyncCaduCount = 0;
     parserState = ParserState.OUT_OF_SYNC;
   }
 
   @Override
   public byte[] readPacket() throws IOException {
     byte[] tmpPacket = null;
-    packet = null;
+    byte[] packet = null;
     byte[] asmField = new byte[asmLength];
     caduLength = 0;
     asmCursor = 0;
-    outOfSyncByteCount = 0;
-    inSyncByteCount = 0;
     boolean isFatFrame = false;
     fatFrameBytes = 0;
+    // int printCount = 0;
+
+    // System.console().printf("************************************\n");
+    // System.console().printf("************************************\n");
+    // System.console().printf("************************************\n");
 
     while (parserState != ParserState.CADU_COMPLETE) {
       switch (parserState) {
@@ -139,6 +147,12 @@ public class SdlpPacketInputStream implements PacketInputStream {
              * at a time.
              */
             dataInputStream.readFully(asmField, 0, 1);
+            // System.console().printf("%02x ", asmField[0]);
+            // printCount++;
+            // if(printCount >= 32) {
+            //	System.console().printf("\n");
+            //	printCount = 0;
+            // }
 
             outOfSyncByteCount++;
 
@@ -173,13 +187,13 @@ public class SdlpPacketInputStream implements PacketInputStream {
               /* Yes it is. Go ahead and just read the fixed number of bytes. */
               packet = new byte[fixedLength];
               dataInputStream.readFully(packet, 0, fixedLength);
+
               caduLength = fixedLength;
-              inSyncByteCount = caduLength;
+              inSyncByteCount += caduLength;
 
               /* Now make sure the next bytes we see are the next ASM. */
               asmCursor = 0;
               TransitionToState(ParserState.PARSING_ASM);
-              break;
             } else {
               /* The CADU is variable length. Start reading the contents of the CADU,
                * one byte at a time.
@@ -192,8 +206,9 @@ public class SdlpPacketInputStream implements PacketInputStream {
                */
               if (minLength > 0) {
                 dataInputStream.readFully(tmpPacket, 0, minLength);
+
                 caduLength = minLength;
-                inSyncByteCount = caduLength;
+                inSyncByteCount += caduLength;
               }
 
               /* If we got this far, the CADU is variable length so start parsing the
@@ -201,8 +216,9 @@ public class SdlpPacketInputStream implements PacketInputStream {
                */
               asmCursor = 0;
               TransitionToState(ParserState.PARSING_CADU);
-              break;
             }
+
+            break;
           }
 
         case PARSING_CADU:
@@ -293,14 +309,6 @@ public class SdlpPacketInputStream implements PacketInputStream {
                */
               asmCursor = 0;
               if (dropMalformed) {
-                inSyncByteCount = 0;
-                eventProducer.sendWarning(
-                    "Lost sync after "
-                        + rcvdCaduCount
-                        + " CADUs and "
-                        + inSyncByteCount
-                        + " bytes.");
-                asmCursor = 0;
                 caduLength = 0;
                 TransitionToState(ParserState.OUT_OF_SYNC);
               } else {
@@ -308,6 +316,12 @@ public class SdlpPacketInputStream implements PacketInputStream {
               }
             }
 
+            break;
+          }
+
+        default:
+          {
+            eventProducer.sendCritical("SDLP parser in an illegal state (" + parserState + ")");
             break;
           }
       }
@@ -319,6 +333,8 @@ public class SdlpPacketInputStream implements PacketInputStream {
      */
     TransitionToState(ParserState.AT_CADU_START);
 
+    // System.console().printf("\n");
+
     return packet;
   }
 
@@ -327,32 +343,45 @@ public class SdlpPacketInputStream implements PacketInputStream {
   private void TransitionToState(ParserState newParserState) {
     switch (newParserState) {
       case OUT_OF_SYNC:
-        outOfSyncByteCount = 0;
+        {
+          /* We're transitioning to out of sync.  Let the user know. */
+          eventProducer.sendWarning(
+              "Lost sync after " + inSyncCaduCount + " CADUs and " + inSyncByteCount + " bytes.");
 
-        eventProducer.sendWarning(
-            "Lost sync after " + rcvdCaduCount + " CADUs and " + inSyncByteCount + " bytes.");
-        break;
+          /* Reset the counts. */
+          inSyncCaduCount = 0;
+          inSyncByteCount = 0;
+          outOfSyncByteCount = 0;
+          break;
+        }
 
       case AT_CADU_START:
-        /* Only reset inSyncByteCount and send an event if we are transitioning from the OUT_OF_SYNC state.  */
-        if (ParserState.OUT_OF_SYNC == parserState) {
-          inSyncByteCount = 0;
-
-          eventProducer.sendInfo("Acquired sync after " + outOfSyncByteCount + " bytes.");
+        {
+          /* Only reset inSyncByteCount and send an event if we are transitioning from the OUT_OF_SYNC state.  */
+          if (ParserState.OUT_OF_SYNC == parserState) {
+            eventProducer.sendInfo("Acquired sync after " + outOfSyncByteCount + " bytes.");
+          }
+          break;
         }
-        break;
 
       case PARSING_CADU:
-        /* Do nothing. */
-        break;
+        {
+          /* Do nothing. */
+          break;
+        }
 
       case PARSING_ASM:
-        /* Do nothing. */
-        break;
+        {
+          /* Do nothing. */
+          break;
+        }
 
       case CADU_COMPLETE:
-        rcvdCaduCount++;
-        break;
+        {
+          rcvdCaduCount++;
+          inSyncCaduCount++;
+          break;
+        }
     }
 
     parserState = newParserState;
@@ -418,10 +447,6 @@ public class SdlpPacketInputStream implements PacketInputStream {
     return fatFrameCount;
   }
 
-  public String getPacket() {
-    return StringConverter.arrayToHexString(packet);
-  }
-
   public int getRcvdCaduCount() {
     return rcvdCaduCount;
   }
@@ -432,7 +457,6 @@ public class SdlpPacketInputStream implements PacketInputStream {
    * @throws IllegalArgumentException if fixedLength is less than 0.
    */
   public void setFixedLength(int fixedLength) throws Exception {
-
     if (this.minLength == this.maxLength) {
       if (fixedLength > 0) {
         this.fixedLength = fixedLength;

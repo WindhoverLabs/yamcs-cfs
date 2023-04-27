@@ -5,16 +5,9 @@ package org.yamcs.http.api;
 import com.windhoverlabs.yamcs.cfs.api.AbstractCfsApi;
 import com.windhoverlabs.yamcs.cfs.api.EntryState;
 import com.windhoverlabs.yamcs.cfs.api.GetSchTableRequest;
-import com.windhoverlabs.yamcs.cfs.api.ResetSdlpPacketInputStreamRequest;
-import com.windhoverlabs.yamcs.cfs.api.ResetSdlpPacketInputStreamResponse;
 import com.windhoverlabs.yamcs.cfs.api.SchTableEntry;
 import com.windhoverlabs.yamcs.cfs.api.SchTableEntry.Builder;
 import com.windhoverlabs.yamcs.cfs.api.SchTableResponse;
-import com.windhoverlabs.yamcs.cfs.api.SdlpPacketInputStreamReconfigureRequest;
-import com.windhoverlabs.yamcs.cfs.api.SdlpPacketInputStreamReconfigureResponse;
-import com.windhoverlabs.yamcs.tctm.ccsds.SdlpPacketInputStream;
-import com.windhoverlabs.yamcs.tctm.ccsds.SerialTmFrameLink;
-import com.windhoverlabs.yamcs.tctm.ccsds.SerialTmTcFrameLink;
 import com.windhoverlabs.yamcs.util.CfsPlugin;
 import com.windhoverlabs.yamcs.util.RegistryUtil;
 import java.util.ArrayList;
@@ -45,7 +38,6 @@ import org.yamcs.protobuf.Pvalue.ParameterValue;
 import org.yamcs.protobuf.Yamcs.NamedObjectId;
 import org.yamcs.protobuf.Yamcs.Value;
 import org.yamcs.security.User;
-import org.yamcs.tctm.Link;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.xtce.XtceDb;
 
@@ -455,73 +447,5 @@ public class CfsApi extends AbstractCfsApi<Context> {
         observer.complete(SchTableResponse.newBuilder().build());
       }
     }
-  }
-
-  /** Reconfigure the SdlpPacketInputStream. */
-  @Override
-  public void reconfigureSdlpPacketInputStream(
-      Context ctx,
-      SdlpPacketInputStreamReconfigureRequest request,
-      Observer<SdlpPacketInputStreamReconfigureResponse> observer) {
-    // TODO Not sure if I should publish events here...
-    YamcsServerInstance instance = YamcsServer.getServer().getInstance(request.getInstance());
-
-    EventProducer eventProducer =
-        EventProducerFactory.getEventProducer(
-            request.getInstance(), this.getClass().getSimpleName(), 10000);
-    SerialTmTcFrameLink tctmLink =
-        ((SerialTmTcFrameLink) instance.getLinkManager().getLink(request.getName()));
-
-    for (Link l : tctmLink.getSubLinks()) {
-      if (l instanceof SerialTmFrameLink) {
-        SerialTmFrameLink tmLink = (SerialTmFrameLink) l;
-        SdlpPacketInputStream inputStream = (SdlpPacketInputStream) tmLink.getPacketInputStream();
-
-        // TODO Add error-checking
-        int newLength = Integer.parseInt(request.getConfigArgsMap().get("FixedLength"));
-        try {
-          inputStream.setFixedLength(newLength);
-          eventProducer.sendInfo("SdlpPacketInputStream FixedLength set to " + newLength);
-
-        } catch (IllegalArgumentException e) {
-          eventProducer.sendCritical("setFixedLength failed:" + e.toString());
-        } catch (Exception e) {
-          // TODO Auto-generated catch block
-          eventProducer.sendCritical("setFixedLength failed:" + e.toString());
-        }
-      }
-    }
-
-    observer.complete(SdlpPacketInputStreamReconfigureResponse.newBuilder().build());
-  }
-
-  /**
-   * Reset rcvdCaduCount and fatFrameCount on SdlpPacketInputStream.
-   *
-   * <p>On success, a "SdlpPacketInputStream counts reset." event will be raised.
-   */
-  @Override
-  public void resetSdlpPacketInputStream(
-      Context ctx,
-      ResetSdlpPacketInputStreamRequest request,
-      Observer<ResetSdlpPacketInputStreamResponse> observer) {
-    EventProducer eventProducer =
-        EventProducerFactory.getEventProducer(
-            request.getInstance(), this.getClass().getSimpleName(), 10000);
-    YamcsServerInstance instance = YamcsServer.getServer().getInstance(request.getInstance());
-    SerialTmTcFrameLink tctmLink =
-        ((SerialTmTcFrameLink) instance.getLinkManager().getLink(request.getName()));
-
-    for (Link l : tctmLink.getSubLinks()) {
-      if (l instanceof SerialTmFrameLink) {
-        SerialTmFrameLink tmLink = (SerialTmFrameLink) l;
-        SdlpPacketInputStream inputStream = (SdlpPacketInputStream) tmLink.getPacketInputStream();
-        inputStream.resetCounts();
-
-        eventProducer.sendInfo("SdlpPacketInputStream counts reset.");
-      }
-    }
-
-    observer.complete(ResetSdlpPacketInputStreamResponse.newBuilder().build());
   }
 }
