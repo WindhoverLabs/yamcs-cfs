@@ -34,6 +34,7 @@ import org.yamcs.tctm.PacketTooLongException;
 import org.yamcs.time.SimulationTimeService;
 import org.yamcs.time.TimeService;
 import org.yamcs.utils.DataRateMeter;
+import org.yamcs.utils.StringConverter;
 import org.yamcs.utils.YObjectLoader;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.yarch.ColumnDefinition;
@@ -626,6 +627,19 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
               openDevice();
             }
             WritableByteChannel channel = Channels.newChannel(outputStream);
+            byte[] commandBytes = bb.array();
+            StringBuilder commandByteDetails = new StringBuilder();
+            commandByteDetails.append("***************************");
+            for (byte b : commandBytes) {
+              commandByteDetails.append(String.format("0x%x ", b));
+            }
+            commandByteDetails.append("***************************");
+            eventProducer.sendInfo(commandByteDetails.toString());
+            eventProducer.sendInfo(
+                "Sent Command:"
+                    + StringConverter.arrayToHexString(commandBytes, 0, commandBytes.length, true));
+            eventProducer.sendInfo("Sent Command Length:" + commandBytes.length);
+
             channel.write(bb);
             updateOutStats(pktData.length);
             sent = true;
