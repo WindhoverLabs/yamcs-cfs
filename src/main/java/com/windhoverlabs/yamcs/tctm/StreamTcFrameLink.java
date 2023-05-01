@@ -55,7 +55,7 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
   public void init(String yamcsInstance, String name, YConfiguration config) {
     super.init(yamcsInstance, name, config);
 
-    String streamName = config.getString("in_stream");
+    String streamName = config.getString("stream");
     this.linkName = name;
 
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(yamcsInstance);
@@ -104,6 +104,7 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
       TcTransferFrame tf = multiplexer.getFrame();
       if (tf != null) {
         byte[] data = tf.getData();
+        long rectime = tf.getGenerationTime();
         if (log.isTraceEnabled()) {
           log.trace("Outgoing frame data: {}", StringConverter.arrayToHexString(data, true));
         }
@@ -117,7 +118,7 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
         }
 
         /* Send it via the stream. */
-        stream.emitTuple(new Tuple(gftdef, Arrays.asList(0, data)));
+        stream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, data)));
 
         if (tf.isBypass()) {
           ackBypassFrame(tf);

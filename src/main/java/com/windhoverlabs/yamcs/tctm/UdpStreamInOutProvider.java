@@ -214,6 +214,7 @@ public class UdpStreamInOutProvider extends AbstractYamcsService
         outSocket = new DatagramSocket();
         new Thread(this).start();
       } catch (SocketException e) {
+        log.error("Socket exception", e);
         notifyFailed(e);
       }
     }
@@ -255,7 +256,7 @@ public class UdpStreamInOutProvider extends AbstractYamcsService
 
     byte[] trimmedByteArray =
         Arrays.copyOfRange(byteArray, this.offset, byteArray.length - this.rightTrim);
-
+    
     inStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
 
     if (updateSimulationTime) {
@@ -407,7 +408,7 @@ public class UdpStreamInOutProvider extends AbstractYamcsService
   public void onTuple(Stream arg0, Tuple tuple) {
     if (isRunningAndEnabled()) {
       byte[] pktData = tuple.getColumn(DATA_CNAME);
-      long recTime = tuple.getColumn(PreparedCommand.CNAME_GENTIME);
+      long recTime = tuple.getColumn(RECTIME_CNAME);
       if (pktData == null) {
         throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
       } else {
