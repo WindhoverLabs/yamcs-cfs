@@ -274,7 +274,7 @@ public class SlipStreamDecoder extends AbstractYamcsService
     long rectime = tmpkt.getReceptionTime();
     byte byteArray[] = tmpkt.getPacket();
 
-    if(byteArray.length < this.rightTrim + this.offset) {
+    if (byteArray.length < this.rightTrim + this.offset) {
       log.warn("Ignoring partial packet");
     } else {
       byte[] trimmedByteArray =

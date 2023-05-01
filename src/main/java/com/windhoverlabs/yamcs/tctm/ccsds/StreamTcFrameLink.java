@@ -107,7 +107,7 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
         }
 
         this.stream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, data)));
-        
+
         frameCount++;
       }
     }
