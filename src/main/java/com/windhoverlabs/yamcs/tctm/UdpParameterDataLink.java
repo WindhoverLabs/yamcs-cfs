@@ -144,7 +144,7 @@ public class UdpParameterDataLink extends AbstractParameterDataLink
               id);
         }
 
-        System.out.println("fqn-->" + fqn);
+        //        System.out.println("fqn-->" + fqn);
         ParameterValue pv = BasicParameterValue.fromGpb(fqn, gpv);
         long gentime = gpv.hasGenerationTime() ? pv.getGenerationTime() : now;
         pv.setGenerationTime(gentime);
@@ -159,8 +159,8 @@ public class UdpParameterDataLink extends AbstractParameterDataLink
         if (nameObjectIdtoParamValue.get(fqn) == null) {
           // For now we are doing this ourselves since we want to be able  to add params dynamically
           // and not let the link manage it.
-          System.out.println(
-              "pv.getParameter().getParameterType()-->" + pv.getEngValue().getType());
+          //          System.out.println(
+          //              "pv.getParameter().getParameterType()-->" + pv.getEngValue().getType());
           SystemParameter p =
               collector.createSystemParameter(
                   "paradigm/" + fqn, pv.getEngValue().getType(), "Data from SIM.");
