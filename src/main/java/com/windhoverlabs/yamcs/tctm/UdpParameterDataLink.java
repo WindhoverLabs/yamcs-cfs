@@ -32,9 +32,8 @@ import org.yamcs.time.TimeService;
 import org.yamcs.xtce.SystemParameter;
 
 /**
- * Very similar to org.yamcs.tctm.UdpParameterDataLink, except that the data is exposed
- * to the database as params.
- * Receives PP data via UDP.
+ * Very similar to org.yamcs.tctm.UdpParameterDataLink, except that the data is exposed to the
+ * database as params. Receives PP data via UDP.
  *
  * <p>The UDP packets are protobuf encoded ParameterData. We don't use any checksum, assume it's
  * done by UDP.
