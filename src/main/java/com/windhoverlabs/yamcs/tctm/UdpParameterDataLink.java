@@ -188,9 +188,9 @@ public class UdpParameterDataLink extends AbstractParameterDataLink
 
     for (ParameterValue val : nameObjectIdtoParamValue.values()) {
       //		System.out.println("val.getParameter()-->" + val.getParameter());
-      System.out.println("val.getEngValue()-->" + val.getEngValue());
-      System.out.println("val.getParameter()-->" + val.getParameter());
-      System.out.println("time-->" + gentime);
+      //      System.out.println("val.getEngValue()-->" + val.getEngValue());
+      //      System.out.println("val.getParameter()-->" + val.getParameter());
+      //      System.out.println("time-->" + gentime);
       pvlist.add(getPV(val.getParameter(), gentime, val.getEngValue()));
     }
 
