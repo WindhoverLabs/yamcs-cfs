@@ -28,7 +28,7 @@ import org.yamcs.yarch.YarchDatabaseInstance;
  *       of the datagram. Default: 0
  * </ul>
  */
-public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscriber {
+public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscriber, Runnable {
   private volatile int invalidDatagramCount = 0;
 
   static final int MAX_LENGTH = 1500;
@@ -39,6 +39,10 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
 
   static final String RECTIME_CNAME = "rectime";
   static final String DATA_CNAME = "data";
+
+  volatile TmPacket currentProcessedPacket = null;
+
+  private final Object lock = new Object();
 
   static {
     gftdef = new TupleDefinition();
@@ -83,6 +87,12 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
 
   @Override
   public void doStart() {
+
+    if (!isDisabled()) {
+      Thread thread = new Thread(this);
+      thread.setName("StreamTmDataLink-" + linkName);
+      thread.start();
+    }
     notifyStarted();
   }
 
@@ -113,7 +123,9 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
    * @throws SocketException
    */
   @Override
-  public void doEnable() {}
+  public void doEnable() {
+    new Thread(this).start();
+  }
 
   @Override
   protected Status connectionStatus() {
@@ -121,29 +133,47 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
   }
 
   @Override
+  public void run() {
+    while (isRunningAndEnabled()) {
+      synchronized (lock) {
+        TmPacket tmpkt = currentProcessedPacket;
+        if (tmpkt != null) {
+          processPacket(tmpkt);
+          currentProcessedPacket = null;
+        }
+      }
+    }
+  }
+
+  @Override
   public void onTuple(Stream arg0, Tuple tuple) {
     if (isRunningAndEnabled()) {
-      byte[] packet;
-      packet = tuple.getColumn(DATA_CNAME);
+      byte[] streamPacket;
+      streamPacket = tuple.getColumn(DATA_CNAME);
+      long recTime = tuple.getColumn(RECTIME_CNAME);
 
-      int pktLength = packet.length - initialBytesToStrip;
-
+      int pktLength = streamPacket.length - initialBytesToStrip;
       if (pktLength <= 0) {
         log.warn(
             "received datagram of size {} <= {} (initialBytesToStrip); ignored.",
-            packet.length,
+            streamPacket.length,
             initialBytesToStrip);
         invalidDatagramCount++;
         return;
       }
 
-      updateStats(packet.length);
-      packet = new byte[pktLength];
-      System.arraycopy(packet, initialBytesToStrip, packet, 0, pktLength);
+      updateStats(streamPacket.length);
+      byte[] packet = new byte[pktLength];
+      System.arraycopy(streamPacket, 0, packet, 0, pktLength);
 
-      TmPacket tmPacket = new TmPacket(timeService.getMissionTime(), packet);
+      TmPacket tmPacket = new TmPacket(recTime, packet);
       tmPacket.setEarthRceptionTime(timeService.getHresMissionTime());
-      packetPreprocessor.process(tmPacket);
+
+      TmPacket processedPacket = packetPreprocessor.process(tmPacket);
+
+      if (processedPacket != null) {
+        processPacket(processedPacket);
+      }
     }
   }
 }

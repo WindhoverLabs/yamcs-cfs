@@ -19,7 +19,6 @@ import org.yamcs.Spec;
 import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
-import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.logging.Log;
@@ -214,6 +213,7 @@ public class UdpStreamInOutProvider extends AbstractYamcsService
         outSocket = new DatagramSocket();
         new Thread(this).start();
       } catch (SocketException e) {
+        log.error("Socket exception", e);
         notifyFailed(e);
       }
     }
@@ -407,7 +407,7 @@ public class UdpStreamInOutProvider extends AbstractYamcsService
   public void onTuple(Stream arg0, Tuple tuple) {
     if (isRunningAndEnabled()) {
       byte[] pktData = tuple.getColumn(DATA_CNAME);
-      long recTime = tuple.getColumn(PreparedCommand.CNAME_GENTIME);
+      long recTime = tuple.getColumn(RECTIME_CNAME);
       if (pktData == null) {
         throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
       } else {

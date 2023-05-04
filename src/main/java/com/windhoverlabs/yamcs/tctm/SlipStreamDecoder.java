@@ -274,15 +274,19 @@ public class SlipStreamDecoder extends AbstractYamcsService
     long rectime = tmpkt.getReceptionTime();
     byte byteArray[] = tmpkt.getPacket();
 
-    byte[] trimmedByteArray =
-        Arrays.copyOfRange(byteArray, this.offset, byteArray.length - this.rightTrim);
+    if (byteArray.length < this.rightTrim + this.offset) {
+      log.warn("Ignoring partial packet");
+    } else {
+      byte[] trimmedByteArray =
+          Arrays.copyOfRange(byteArray, this.offset, byteArray.length - this.rightTrim);
 
-    inStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
+      inStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
 
-    if (updateSimulationTime) {
-      SimulationTimeService sts = (SimulationTimeService) timeService;
-      if (!tmpkt.isInvalid()) {
-        sts.setSimElapsedTime(tmpkt.getGenerationTime());
+      if (updateSimulationTime) {
+        SimulationTimeService sts = (SimulationTimeService) timeService;
+        if (!tmpkt.isInvalid()) {
+          sts.setSimElapsedTime(tmpkt.getGenerationTime());
+        }
       }
     }
   }
