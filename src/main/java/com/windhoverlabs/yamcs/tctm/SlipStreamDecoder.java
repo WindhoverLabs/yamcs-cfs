@@ -13,6 +13,7 @@ import org.yamcs.AbstractYamcsService;
 import org.yamcs.ConfigurationException;
 import org.yamcs.InitException;
 import org.yamcs.Spec;
+import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
@@ -273,7 +274,7 @@ public class SlipStreamDecoder extends AbstractYamcsService
   protected void processPacket(TmPacket tmpkt) {
     long rectime = tmpkt.getReceptionTime();
     byte byteArray[] = tmpkt.getPacket();
-
+    
     int payloadSize = byteArray.length - this.offset - this.rightTrim;
 
     if(byteArray.length < payloadSize) {
@@ -612,11 +613,11 @@ public class SlipStreamDecoder extends AbstractYamcsService
           throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
         } else {
           int trimmedPacketLength = packet.length - this.offset - this.rightTrim;
-
-          if (packet.length < trimmedPacketLength) {
+          
+          if(packet.length < trimmedPacketLength) {
             log.error("Ignoring partial packet");
           } else {
-            if (trimmedPacketLength < 0) {
+            if(trimmedPacketLength < 0) {
               log.error("Trimmed packet length is < 0");
             } else {
               byte[] trimmedPacket = new byte[trimmedPacketLength];

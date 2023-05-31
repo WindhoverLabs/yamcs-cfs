@@ -19,6 +19,7 @@ import org.yamcs.Spec;
 import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
+import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.logging.Log;
@@ -255,7 +256,7 @@ public class UdpStreamInOutProvider extends AbstractYamcsService
 
     byte[] trimmedByteArray =
         Arrays.copyOfRange(byteArray, this.offset, byteArray.length - this.rightTrim);
-
+    
     inStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
 
     if (updateSimulationTime) {

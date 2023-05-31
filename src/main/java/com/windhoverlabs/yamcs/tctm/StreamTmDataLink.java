@@ -144,8 +144,8 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
       TmPacket tmPacket = new TmPacket(timeService.getMissionTime(), trimmedPacket);
       tmPacket.setEarthRceptionTime(timeService.getHresMissionTime());
       tmPacket = packetPreprocessor.process(tmPacket);
-      if (tmPacket != null) {
-        processPacket(tmPacket);
+      if(tmPacket != null) {
+          processPacket(tmPacket);
       }
     }
   }

@@ -248,7 +248,7 @@ public class SlipStreamEncoder extends AbstractYamcsService
     byte[] temp = new byte[1];
 
     payload.write(END);
-
+    
     for (byte character : pktData) {
       switch (character) {
           /* if it's the same code as an END character, we send a
