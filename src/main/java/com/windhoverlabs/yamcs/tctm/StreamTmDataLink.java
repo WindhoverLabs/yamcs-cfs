@@ -126,10 +126,10 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
       byte[] packet;
       packet = tuple.getColumn(DATA_CNAME);
 
-      int pktLength = packet.length - initialBytesToStrip;
+      int trimmedPacketLength = packet.length - initialBytesToStrip;
 
-      if (pktLength <= 0) {
-        log.warn(
+      if (trimmedPacketLength <= 0) {
+        log.error(
             "received datagram of size {} <= {} (initialBytesToStrip); ignored.",
             packet.length,
             initialBytesToStrip);
@@ -137,13 +137,16 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
         return;
       }
 
-      updateStats(packet.length);
-      packet = new byte[pktLength];
-      System.arraycopy(packet, initialBytesToStrip, packet, 0, pktLength);
+      byte[] trimmedPacket = new byte[trimmedPacketLength];
+      System.arraycopy(packet, initialBytesToStrip, trimmedPacket, 0, trimmedPacketLength);
+      updateStats(trimmedPacketLength);
 
-      TmPacket tmPacket = new TmPacket(timeService.getMissionTime(), packet);
+      TmPacket tmPacket = new TmPacket(timeService.getMissionTime(), trimmedPacket);
       tmPacket.setEarthRceptionTime(timeService.getHresMissionTime());
-      packetPreprocessor.process(tmPacket);
+      tmPacket = packetPreprocessor.process(tmPacket);
+      if (tmPacket != null) {
+        processPacket(tmPacket);
+      }
     }
   }
 }

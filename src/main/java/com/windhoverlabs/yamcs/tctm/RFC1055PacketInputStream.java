@@ -76,7 +76,7 @@ public class RFC1055PacketInputStream implements PacketInputStream {
     minLength = args.getInt("minLength", minLength);
     maxLength = args.getInt("maxLength", maxLength);
     dropMalformed = args.getBoolean("dropMalformed", dropMalformed);
-    initialBytesToStrip = args.getInt("initialBytesToStrip");
+    initialBytesToStrip = args.getInt("initialBytesToStrip", 0);
 
     /* TODO: I really want to properly use YAMCS events here, but I really
      * need the YAMCS instance to use it properly as well as the instance

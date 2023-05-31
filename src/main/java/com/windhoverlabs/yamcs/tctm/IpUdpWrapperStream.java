@@ -1,8 +1,6 @@
 package com.windhoverlabs.yamcs.tctm;
 
 import com.google.common.util.concurrent.RateLimiter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,9 +29,6 @@ import org.yamcs.yarch.Tuple;
 import org.yamcs.yarch.TupleDefinition;
 import org.yamcs.yarch.YarchDatabase;
 import org.yamcs.yarch.YarchDatabaseInstance;
-import org.yamcs.events.EventProducer;
-import org.yamcs.events.EventProducerFactory;
-import java.math.BigInteger;
 
 /**
  * Receives telemetry fames via UDP. One UDP datagram = one TM frame.
@@ -62,9 +57,9 @@ public class IpUdpWrapperStream extends AbstractYamcsService
   int ipIdentification;
   String srcAddress = "192.168.1.55";
   String dstAddress = "192.168.3.2";
-  int    srcPort = 42001;
-  int    dstPort = 42000;
-  int    ttl = 64;
+  int srcPort = 42001;
+  int dstPort = 42000;
+  int ttl = 64;
 
   // FIXME:Temporary. Don't want to be exposing this packet so easily.
   private byte[] packet;
@@ -106,19 +101,16 @@ public class IpUdpWrapperStream extends AbstractYamcsService
     srcAddress = config.getString("srcAddress", "127.0.0.1");
     dstAddress = config.getString("dstAddress", "127.0.0.1");
     srcPort = config.getInt("srcPort");
-    if(srcPort > 0xffff) {
-        throw new ConfigurationException(
-            "Source Port must be less than 65536");
+    if (srcPort > 0xffff) {
+      throw new ConfigurationException("Source Port must be less than 65536");
     }
     dstPort = config.getInt("dstPort");
-    if(dstPort > 0xffff) {
-        throw new ConfigurationException(
-            "Destination Port must be less than 65536");
+    if (dstPort > 0xffff) {
+      throw new ConfigurationException("Destination Port must be less than 65536");
     }
     ttl = config.getInt("ttl", 64);
-    if(ttl > 0xff) {
-        throw new ConfigurationException(
-            "TTL must be less than 256");
+    if (ttl > 0xff) {
+      throw new ConfigurationException("TTL must be less than 256");
     }
 
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(instance);
@@ -258,217 +250,217 @@ public class IpUdpWrapperStream extends AbstractYamcsService
       }
     }
   }
-  
-    
-    public static byte[] genUdpPacket (byte[] payload, int identification, String srcAddress, String dstAddress, int srcPort, int dstPort, int TTL) {
-        /* The total length is the size of the IP header (20 bytes) + UDP header (8 bytes) + payload size */
-        int totalLength = 20 + 8 + payload.length;
-        byte[] packet = new byte[totalLength];
-        
-        /* NOTE: The IP protocol numbers bits left to right, not right to left, so the comments
-           below are following the same ordering. */
-           
-        /* Version ID - Word 0 bits 0-3 (byte 0, bits 0-3 ... so shift left 4 */
-        /* This is IPv4 so its always 4.  This is NOT configurable. */
-        packet[0] = (byte)(4 << 4);
-        
-        /* Set IHL - Word 0 bits 4-7 (byte 0, bits 4-7 ... so NO shift 
-         * This is number of 32 bit words. If the options flag is not set, there is no options
-         * field and the header will be 5 32 bit words in size.  We are not including options, so
-         * set this to 5. */
-        packet[0] = (byte)(packet[0] | 5);
-        
-        /* Differentiated Services Field.  Word 0 bits 8-15. (byte 1)  We aren't doing any thing 
-         * crazy here. Just set this to zero. 
-         */
-        packet[1] = 0;
-        
-        /* Total Length - Word 0 bits 16-31 (bytes 2-3)
-         * The total length is the size of the IP header (20 bytes) + UDP header (8 bytes) + payload
-         */
-        packet[2] = getHighByteFromInt(totalLength);
-        packet[3] = getLowByteFromInt(totalLength);
-        
-        /* Identification.  Word 1 bits 0-15 (bytes 4-5)
-         */   
-        packet[4] = getHighByteFromInt(identification);
-        packet[5] = getLowByteFromInt(identification);
-        
-        /* Flags and fragment offset.  Word 1 bits 16 - 31 (bytes 6-7)
-         * We're just going to set the "Don't Fragment" bit set because reasons.  This equates to 
-         * 0x4000
-         */   
-        packet[6] = getHighByteFromInt(0x0000);
-        packet[7] = getLowByteFromInt(0x0000);
-        
-        /* TTL. Word 2 bits 0-7 (byte 8) */
-        packet[8] = getLowByteFromInt(TTL);
-        
-        /* Protocol. Word 2 bits 8-15 (byte 9) 
-         * Obviously, we're going to set this to UDP. "UDP" is 17.
-         */
-        packet[9] = 17;
-        
-        /* Checksum. Word 2 bits 16-31 (bytes 10-11) 
-         * We don't have the packet populated yet, so we can't calculate the checksum just yet. Set 
-         * this to zero for now.
-         */
-        packet[10] = 0;
-        packet[11] = 0;
-        
-        /* Source IP address. Word 3 bits 0-31 (bytes 12-15)
-         * First we need to convert the string to a byte array.  Start with splitting the string with "." as
-         * the token. Then convert each array element to an integer.
-         */
-        String[] splitSrcAddress = srcAddress.split("\\.");
-        packet[12] = (byte)(Integer.parseInt(splitSrcAddress[0]));
-        packet[13] = (byte)(Integer.parseInt(splitSrcAddress[1]));
-        packet[14] = (byte)(Integer.parseInt(splitSrcAddress[2]));
-        packet[15] = (byte)(Integer.parseInt(splitSrcAddress[3]));
-        
-        /* Destination IP address. Word 4 bits 0-31 (bytes 16-19)
-         * First we need to convert the string to a byte array.  Start with splitting the string with "." as
-         * the token. Then convert each array element to an integer.
-         */
-        String[] splitDstAddress = dstAddress.split("\\.");
-        packet[16] = (byte)(Integer.parseInt(splitDstAddress[0]));
-        packet[17] = (byte)(Integer.parseInt(splitDstAddress[1]));
-        packet[18] = (byte)(Integer.parseInt(splitDstAddress[2]));
-        packet[19] = (byte)(Integer.parseInt(splitDstAddress[3]));
-        
-        /* Now we can populate the checksum. First calculate it. */
-        int checksum = 0;
-        for(int i = 0; i < 20; i=i+2) {
-            int value = convertBytesToInt(packet[i], packet[i+1]);           
-            checksum = addWithCarry(checksum, value);
-        }
-        /* Take the ones complement  */
-        checksum = ~checksum;
-        /* Store the IP checksum. */
-        packet[10] = getHighByteFromInt(checksum);
-        packet[11] = getLowByteFromInt(checksum);
-        
-        /* UDP */
-        /* Source Port */
-        packet[20] = getHighByteFromInt(srcPort);
-        packet[21] = getLowByteFromInt(srcPort);
 
-        /* Destination Port */
-        packet[22] = getHighByteFromInt(dstPort);
-        packet[23] = getLowByteFromInt(dstPort);
+  public static byte[] genUdpPacket(
+      byte[] payload,
+      int identification,
+      String srcAddress,
+      String dstAddress,
+      int srcPort,
+      int dstPort,
+      int TTL) {
+    /* The total length is the size of the IP header (20 bytes) + UDP header (8 bytes) + payload size */
+    int totalLength = 20 + 8 + payload.length;
+    byte[] packet = new byte[totalLength];
 
-        /* Length */
-        int udpLength = 8 + payload.length;
-        packet[24] = getHighByteFromInt(udpLength);
-        packet[25] = getLowByteFromInt(udpLength);   
-        
-        /* Store checksum temporarily */
-        packet[26] = 0;
-        packet[27] = 0;
+    /* NOTE: The IP protocol numbers bits left to right, not right to left, so the comments
+    below are following the same ordering. */
 
-        /* Copy payload */
-        for(int i = 0; i < payload.length; ++i) {
-        	packet[28+i] = payload[i];
-        }
-        
-        /* UDP Checksum 
-         * Start by clearing the checksum 
-         */
-        checksum = 0;
-        
-        /* Now sum the 'pseudo header' starting with the protocol field. */
-        checksum = addWithCarry(checksum, 0x0011);
-        	
-        /* Add in the UDP Length field. */          
-        checksum = addWithCarry(checksum, udpLength);
-        
-        /* Now add in the UDP header and the payload. */
-        int i;
-        for(i = 12; i < (totalLength-1); i=i+2) {
-            int value = convertBytesToInt(packet[i], packet[i+1]);            
-            checksum = addWithCarry(checksum, value);
-        }
-        /* Check for an odd length message.  If the total length is an odd number we have one 
-         * last byte to add in.  The spec states that when this happens, to just add the 
-         * remaining byte as is.  No padding to make it 16 bits. 
-         */
-        if(i < totalLength) {
-        	checksum = addWithCarry(checksum, packet[i] << 16);
-        }
-     
-        /* Get the ones complement */
-        checksum = ~checksum;
-        packet[26] = getHighByteFromInt(checksum);
-        packet[27] = getLowByteFromInt(checksum);
-        
-        return packet;
+    /* Version ID - Word 0 bits 0-3 (byte 0, bits 0-3 ... so shift left 4 */
+    /* This is IPv4 so its always 4.  This is NOT configurable. */
+    packet[0] = (byte) (4 << 4);
+
+    /* Set IHL - Word 0 bits 4-7 (byte 0, bits 4-7 ... so NO shift
+     * This is number of 32 bit words. If the options flag is not set, there is no options
+     * field and the header will be 5 32 bit words in size.  We are not including options, so
+     * set this to 5. */
+    packet[0] = (byte) (packet[0] | 5);
+
+    /* Differentiated Services Field.  Word 0 bits 8-15. (byte 1)  We aren't doing any thing
+     * crazy here. Just set this to zero.
+     */
+    packet[1] = 0;
+
+    /* Total Length - Word 0 bits 16-31 (bytes 2-3)
+     * The total length is the size of the IP header (20 bytes) + UDP header (8 bytes) + payload
+     */
+    packet[2] = getHighByteFromInt(totalLength);
+    packet[3] = getLowByteFromInt(totalLength);
+
+    /* Identification.  Word 1 bits 0-15 (bytes 4-5)
+     */
+    packet[4] = getHighByteFromInt(identification);
+    packet[5] = getLowByteFromInt(identification);
+
+    /* Flags and fragment offset.  Word 1 bits 16 - 31 (bytes 6-7)
+     * We're just going to set the "Don't Fragment" bit set because reasons.  This equates to
+     * 0x4000
+     */
+    packet[6] = getHighByteFromInt(0x0000);
+    packet[7] = getLowByteFromInt(0x0000);
+
+    /* TTL. Word 2 bits 0-7 (byte 8) */
+    packet[8] = getLowByteFromInt(TTL);
+
+    /* Protocol. Word 2 bits 8-15 (byte 9)
+     * Obviously, we're going to set this to UDP. "UDP" is 17.
+     */
+    packet[9] = 17;
+
+    /* Checksum. Word 2 bits 16-31 (bytes 10-11)
+     * We don't have the packet populated yet, so we can't calculate the checksum just yet. Set
+     * this to zero for now.
+     */
+    packet[10] = 0;
+    packet[11] = 0;
+
+    /* Source IP address. Word 3 bits 0-31 (bytes 12-15)
+     * First we need to convert the string to a byte array.  Start with splitting the string with "." as
+     * the token. Then convert each array element to an integer.
+     */
+    String[] splitSrcAddress = srcAddress.split("\\.");
+    packet[12] = (byte) (Integer.parseInt(splitSrcAddress[0]));
+    packet[13] = (byte) (Integer.parseInt(splitSrcAddress[1]));
+    packet[14] = (byte) (Integer.parseInt(splitSrcAddress[2]));
+    packet[15] = (byte) (Integer.parseInt(splitSrcAddress[3]));
+
+    /* Destination IP address. Word 4 bits 0-31 (bytes 16-19)
+     * First we need to convert the string to a byte array.  Start with splitting the string with "." as
+     * the token. Then convert each array element to an integer.
+     */
+    String[] splitDstAddress = dstAddress.split("\\.");
+    packet[16] = (byte) (Integer.parseInt(splitDstAddress[0]));
+    packet[17] = (byte) (Integer.parseInt(splitDstAddress[1]));
+    packet[18] = (byte) (Integer.parseInt(splitDstAddress[2]));
+    packet[19] = (byte) (Integer.parseInt(splitDstAddress[3]));
+
+    /* Now we can populate the checksum. First calculate it. */
+    int checksum = 0;
+    for (int i = 0; i < 20; i = i + 2) {
+      int value = convertBytesToInt(packet[i], packet[i + 1]);
+      checksum = addWithCarry(checksum, value);
     }
-    
-    
-    public static byte getHighByteFromInt(int intValue) {
-        byte result;
-        
-        /* Get the high byte from the network order integer. */
-        result = (byte)((intValue & 0x0000ff00) >> 8);
-        
-        return result; 
-    }
-    
-    
-    public static byte getLowByteFromInt(int intValue) {
-        byte result;
+    /* Take the ones complement  */
+    checksum = ~checksum;
+    /* Store the IP checksum. */
+    packet[10] = getHighByteFromInt(checksum);
+    packet[11] = getLowByteFromInt(checksum);
 
-        /* Get the low byte from the network order integer. */    
-        result = (byte)(intValue &  0x000000ff);  
-        
-        return result;
-    }
-    
-    
-    public static int convertBytesToInt(byte HI, byte LO) {
-        int result;
-        
-        result = ((int)(HI << 8) & 0x0000ff00) | (int)(LO & 0x000000ff);
-        
-        return result;
-    }
-    
-    
-    public static int addWithCarry(int A, int B) {
-        int result;
+    /* UDP */
+    /* Source Port */
+    packet[20] = getHighByteFromInt(srcPort);
+    packet[21] = getLowByteFromInt(srcPort);
 
-        /* Add the two values together as 32 bit integers.  We need to do this so we 
-         * can get the carry digit next.
-         */
-        int temp = (A & 0x0000ffff) + (B & 0x0000ffff);
+    /* Destination Port */
+    packet[22] = getHighByteFromInt(dstPort);
+    packet[23] = getLowByteFromInt(dstPort);
 
-        /* Get the carry digit */
-        int carry = ((temp & 0x00010000) >>> 16);
+    /* Length */
+    int udpLength = 8 + payload.length;
+    packet[24] = getHighByteFromInt(udpLength);
+    packet[25] = getLowByteFromInt(udpLength);
 
-        /* Add the carry digit to the summed result. */
-        result = (temp + carry) & 0x0000ffff;
-        
-        return result;
-    }
-    
-    
-    public static int addWithCarry(int A, byte B) {
-        int result;
+    /* Store checksum temporarily */
+    packet[26] = 0;
+    packet[27] = 0;
 
-        /* Add the two values together as 32 bit integers.  We need to do this so we 
-         * can get the carry digit next.
-         */
-        int temp = (A & 0x0000ffff) + (B & 0x000000ff);
-
-        /* Get the carry digit */
-        int carry = ((temp & 0xffff0000) >>> 16);
-
-        /* Add the carry digit to the summed result. */
-        result = (temp + carry) & 0x0000ffff;
-        
-        return result;
+    /* Copy payload */
+    for (int i = 0; i < payload.length; ++i) {
+      packet[28 + i] = payload[i];
     }
 
+    /* UDP Checksum
+     * Start by clearing the checksum
+     */
+    checksum = 0;
+
+    /* Now sum the 'pseudo header' starting with the protocol field. */
+    checksum = addWithCarry(checksum, 0x0011);
+
+    /* Add in the UDP Length field. */
+    checksum = addWithCarry(checksum, udpLength);
+
+    /* Now add in the UDP header and the payload. */
+    int i;
+    for (i = 12; i < (totalLength - 1); i = i + 2) {
+      int value = convertBytesToInt(packet[i], packet[i + 1]);
+      checksum = addWithCarry(checksum, value);
+    }
+    /* Check for an odd length message.  If the total length is an odd number we have one
+     * last byte to add in.  The spec states that when this happens, to just add the
+     * remaining byte as is.  No padding to make it 16 bits.
+     */
+    if (i < totalLength) {
+      checksum = addWithCarry(checksum, packet[i] << 16);
+    }
+
+    /* Get the ones complement */
+    checksum = ~checksum;
+    packet[26] = getHighByteFromInt(checksum);
+    packet[27] = getLowByteFromInt(checksum);
+
+    return packet;
+  }
+
+  public static byte getHighByteFromInt(int intValue) {
+    byte result;
+
+    /* Get the high byte from the network order integer. */
+    result = (byte) ((intValue & 0x0000ff00) >> 8);
+
+    return result;
+  }
+
+  public static byte getLowByteFromInt(int intValue) {
+    byte result;
+
+    /* Get the low byte from the network order integer. */
+    result = (byte) (intValue & 0x000000ff);
+
+    return result;
+  }
+
+  public static int convertBytesToInt(byte HI, byte LO) {
+    int result;
+
+    result = ((int) (HI << 8) & 0x0000ff00) | (int) (LO & 0x000000ff);
+
+    return result;
+  }
+
+  public static int addWithCarry(int A, int B) {
+    int result;
+
+    /* Add the two values together as 32 bit integers.  We need to do this so we
+     * can get the carry digit next.
+     */
+    int temp = (A & 0x0000ffff) + (B & 0x0000ffff);
+
+    /* Get the carry digit */
+    int carry = ((temp & 0x00010000) >>> 16);
+
+    /* Add the carry digit to the summed result. */
+    result = (temp + carry) & 0x0000ffff;
+
+    return result;
+  }
+
+  public static int addWithCarry(int A, byte B) {
+    int result;
+
+    /* Add the two values together as 32 bit integers.  We need to do this so we
+     * can get the carry digit next.
+     */
+    int temp = (A & 0x0000ffff) + (B & 0x000000ff);
+
+    /* Get the carry digit */
+    int carry = ((temp & 0xffff0000) >>> 16);
+
+    /* Add the carry digit to the summed result. */
+    result = (temp + carry) & 0x0000ffff;
+
+    return result;
+  }
 
   public String getPacket() {
     return StringConverter.arrayToHexString(packet);
@@ -530,9 +522,17 @@ public class IpUdpWrapperStream extends AbstractYamcsService
     if (isRunningAndEnabled()) {
 
       byte[] packet;
-       
+
       this.ipIdentification++;
-      packet = genUdpPacket(tuple.getColumn(DATA_CNAME), this.ipIdentification, this.srcAddress, this.dstAddress, this.srcPort, this.dstPort, this.ttl);
+      packet =
+          genUdpPacket(
+              tuple.getColumn(DATA_CNAME),
+              this.ipIdentification,
+              this.srcAddress,
+              this.dstAddress,
+              this.srcPort,
+              this.dstPort,
+              this.ttl);
 
       // long recTime = tuple.getColumn(PreparedCommand.CNAME_GENTIME);
       if (packet == null) {

@@ -13,7 +13,6 @@ import org.yamcs.AbstractYamcsService;
 import org.yamcs.ConfigurationException;
 import org.yamcs.InitException;
 import org.yamcs.Spec;
-import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
@@ -270,15 +269,18 @@ public class SlipStreamDecoder extends AbstractYamcsService
    *
    * @param tmpkt
    */
+  /*
   protected void processPacket(TmPacket tmpkt) {
     long rectime = tmpkt.getReceptionTime();
     byte byteArray[] = tmpkt.getPacket();
 
-    if(byteArray.length < this.rightTrim + this.offset) {
+    int payloadSize = byteArray.length - this.offset - this.rightTrim;
+
+    if(byteArray.length < payloadSize) {
       log.warn("Ignoring partial packet");
     } else {
       byte[] trimmedByteArray =
-          Arrays.copyOfRange(byteArray, this.offset, byteArray.length - this.rightTrim);
+          Arrays.copyOfRange(byteArray, this.offset, payloadSize);
 
       inStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
 
@@ -290,6 +292,7 @@ public class SlipStreamDecoder extends AbstractYamcsService
       }
     }
   }
+  */
 
   /**
    * called when a new packet is received to update the statistics
@@ -608,13 +611,23 @@ public class SlipStreamDecoder extends AbstractYamcsService
         if (packet == null) {
           throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
         } else {
-          byte[] trimmedPacket = new byte[packet.length - offset];
+          int trimmedPacketLength = packet.length - this.offset - this.rightTrim;
 
-          System.arraycopy(packet, offset, trimmedPacket, 0, packet.length - offset);
-          outStream.emitTuple(
-              new Tuple(gftdef, Arrays.asList(tuple.getColumn(RECTIME_CNAME), trimmedPacket)));
+          if (packet.length < trimmedPacketLength) {
+            log.error("Ignoring partial packet");
+          } else {
+            if (trimmedPacketLength < 0) {
+              log.error("Trimmed packet length is < 0");
+            } else {
+              byte[] trimmedPacket = new byte[trimmedPacketLength];
 
-          updateOutStats(trimmedPacket.length);
+              System.arraycopy(packet, this.offset, trimmedPacket, 0, trimmedPacketLength);
+              outStream.emitTuple(
+                  new Tuple(gftdef, Arrays.asList(tuple.getColumn(RECTIME_CNAME), trimmedPacket)));
+
+              updateOutStats(trimmedPacket.length);
+            }
+          }
         }
       } catch (IOException e) {
         // TODO Auto-generated catch block
