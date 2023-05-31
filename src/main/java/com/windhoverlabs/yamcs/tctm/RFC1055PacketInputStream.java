@@ -127,10 +127,10 @@ public class RFC1055PacketInputStream implements PacketInputStream {
   @Override
   public byte[] readPacket() throws IOException {
     byte[] packet = getPayload(dataInputStream);
+
     byte[] trimmedPacket = new byte[packet.length - initialBytesToStrip];
 
-    //    System.arraycopy(trimmedPacket, initialBytesToStrip, packet, 0, initialBytesToStrip);
-    System.arraycopy(packet, initialBytesToStrip, trimmedPacket, 0, trimmedPacket.length);
+    System.arraycopy(trimmedPacket, initialBytesToStrip, packet, 0, initialBytesToStrip);
 
     return trimmedPacket;
   }
