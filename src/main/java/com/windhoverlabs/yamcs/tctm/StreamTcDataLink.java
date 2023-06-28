@@ -2,10 +2,14 @@ package com.windhoverlabs.yamcs.tctm;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.yamcs.ConfigurationException;
 import org.yamcs.YConfiguration;
+import org.yamcs.YamcsServer;
 import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.tctm.AbstractThreadedTcDataLink;
+import org.yamcs.tctm.GenericCommandPostprocessor;
 import org.yamcs.yarch.ColumnDefinition;
 import org.yamcs.yarch.DataType;
 import org.yamcs.yarch.Stream;
@@ -13,10 +17,6 @@ import org.yamcs.yarch.Tuple;
 import org.yamcs.yarch.TupleDefinition;
 import org.yamcs.yarch.YarchDatabase;
 import org.yamcs.yarch.YarchDatabaseInstance;
-import org.yamcs.YamcsServer;
-import org.yamcs.tctm.GenericCommandPostprocessor;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Sends packets out a YAMCS Stream.
@@ -44,7 +44,7 @@ public class StreamTcDataLink extends AbstractThreadedTcDataLink {
       throws ConfigurationException {
     super.init(yamcsInstance, name, config);
     timeService = YamcsServer.getTimeService(yamcsInstance);
-        
+
     this.streamName = config.getString("out_stream");
 
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(yamcsInstance);
@@ -58,24 +58,24 @@ public class StreamTcDataLink extends AbstractThreadedTcDataLink {
 
   @Override
   protected void initPostprocessor(String instance, YConfiguration config) {
-      Map<String, Object> m = null;
-      if (config == null) {
-          m = new HashMap<>();
-          config = YConfiguration.wrap(m);
-      } else if (!config.containsKey("commandPostprocessorClassName")) {
-          m = config.getRoot();
-      }
-      if (m != null) {
-          log.warn(
-                  "Please set the commandPostprocessorClassName for the StreamTcDataLink; in the future versions it will default to GenericCommandPostprocessor");
-          m.put("commandPostprocessorClassName", GenericCommandPostprocessor.class.getName());
-      }
-      super.initPostprocessor(instance, config);
+    Map<String, Object> m = null;
+    if (config == null) {
+      m = new HashMap<>();
+      config = YConfiguration.wrap(m);
+    } else if (!config.containsKey("commandPostprocessorClassName")) {
+      m = config.getRoot();
+    }
+    if (m != null) {
+      log.warn(
+          "Please set the commandPostprocessorClassName for the StreamTcDataLink; in the future versions it will default to GenericCommandPostprocessor");
+      m.put("commandPostprocessorClassName", GenericCommandPostprocessor.class.getName());
+    }
+    super.initPostprocessor(instance, config);
   }
 
   @Override
   public void uplinkCommand(PreparedCommand pc) throws IOException {
-    
+
     byte[] binary = postprocess(pc);
     if (binary == null) {
       return;
@@ -111,12 +111,11 @@ public class StreamTcDataLink extends AbstractThreadedTcDataLink {
     }
     return stream;
   }
-  
-  
+
   @Override
   protected void doHousekeeping() {
-      if (!isRunningAndEnabled()) {
-          return;
-      }
+    if (!isRunningAndEnabled()) {
+      return;
+    }
   }
 }

@@ -1,29 +1,22 @@
 package com.windhoverlabs.yamcs.tctm;
 
-import com.google.common.util.concurrent.RateLimiter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.yamcs.AbstractYamcsService;
 import org.yamcs.ConfigurationException;
 import org.yamcs.InitException;
-import org.yamcs.Spec;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.logging.Log;
 import org.yamcs.parameter.SystemParametersProducer;
-import org.yamcs.tctm.Link;
-import org.yamcs.time.SimulationTimeService;
 import org.yamcs.time.TimeService;
 import org.yamcs.utils.DataRateMeter;
-import org.yamcs.utils.StringConverter;
 import org.yamcs.yarch.ColumnDefinition;
 import org.yamcs.yarch.DataType;
 import org.yamcs.yarch.Stream;
@@ -44,7 +37,7 @@ public class SlipStreamDecoder extends AbstractYamcsService
   private final byte ESC = (byte) 0xdb;
   private final byte ESC_END = (byte) 0xdc;
   private final byte ESC_ESC = (byte) 0xdd;
-  
+
   protected YConfiguration config;
   protected Log log;
   protected EventProducer eventProducer;
@@ -58,7 +51,7 @@ public class SlipStreamDecoder extends AbstractYamcsService
   DataRateMeter outDataRateMeter = new DataRateMeter();
   protected Stream inStream;
   protected Stream outStream;
-  
+
   private byte[] packet;
 
   static TupleDefinition gftdef;
@@ -99,61 +92,63 @@ public class SlipStreamDecoder extends AbstractYamcsService
 
     this.inStream.addSubscriber(this);
 
-    //if (config.containsKey("frameMaxRate")) {
+    // if (config.containsKey("frameMaxRate")) {
     //  outRateLimiter = RateLimiter.create(config.getDouble("frameMaxRate"), 1, TimeUnit.SECONDS);
-    //}
+    // }
 
-    //if (config.containsKey(CFG_PREPRO_CLASS)) {
+    // if (config.containsKey(CFG_PREPRO_CLASS)) {
     //  this.hasPreprocessor = true;
-    //}
+    // }
 
-    //updateSimulationTime = config.getBoolean("updateSimulationTime", false);
-    //if (updateSimulationTime) {
+    // updateSimulationTime = config.getBoolean("updateSimulationTime", false);
+    // if (updateSimulationTime) {
     //  if (timeService instanceof SimulationTimeService) {
     //    SimulationTimeService sts = (SimulationTimeService) timeService;
     //    sts.setTime0(0);
     //  } else {
     //    throw new ConfigurationException(
     //        "updateSimulationTime can only be used together with SimulationTimeService "
-    //            + "(add 'timeService: org.yamcs.time.SimulationTimeService' in yamcs.<instance>.yaml)");
+    //            + "(add 'timeService: org.yamcs.time.SimulationTimeService' in
+    // yamcs.<instance>.yaml)");
     //  }
-    //}
+    // }
 
-    //if (maxLength < 0) {
+    // if (maxLength < 0) {
     //  throw new ConfigurationException("'maxLength' must be defined.");
-    //}
+    // }
 
-    //if (maxLength < minLength) {
+    // if (maxLength < minLength) {
     //  throw new ConfigurationException(
-    //      "'maxLength' (" + maxLength + ") must not be less than 'minLength' (" + minLength + ").");
-    //}
+    //      "'maxLength' (" + maxLength + ") must not be less than 'minLength' (" + minLength +
+    // ").");
+    // }
 
-    //if (maxLength < 0) {
+    // if (maxLength < 0) {
     //  throw new ConfigurationException(
     //      "'maxLength' (" + maxLength + ") must be greater than zero.");
-    //}
+    // }
 
-    //if (minLength < 0) {
+    // if (minLength < 0) {
     //  throw new ConfigurationException(
     //      "'minLength' (" + maxLength + ") must be greater than zero.");
-    //}
+    // }
 
-    //if (dropMalformed && (maxLength < 0)) {
+    // if (dropMalformed && (maxLength < 0)) {
     //  throw new ConfigurationException(
     //      "'dropMalformed' must not be 'true' unless 'maxLength' is defined.");
-    //}
+    // }
 
-    //asm = fromHexString(asmString);
+    // asm = fromHexString(asmString);
 
-    //if (minLength == maxLength) {
+    // if (minLength == maxLength) {
     //  fixedLength = minLength;
-    //}
+    // }
 
-    //outOfSyncByteCount = 0;
-    //inSyncByteCount = 0;
-    //rcvdCaduCount = 0;
-    //rcvdFatCaduCount = 0;
-    //parserState = ParserState.OUT_OF_SYNC;
+    // outOfSyncByteCount = 0;
+    // inSyncByteCount = 0;
+    // rcvdCaduCount = 0;
+    // rcvdFatCaduCount = 0;
+    // parserState = ParserState.OUT_OF_SYNC;
   }
 
   private static Stream getStream(YarchDatabaseInstance ydb, String streamName) {
@@ -175,17 +170,16 @@ public class SlipStreamDecoder extends AbstractYamcsService
     return config;
   }
 
-  //@Override
-  //public String getName() {
+  // @Override
+  // public String getName() {
   //  return linkName;
-  //}
-
+  // }
 
   @Override
   public void doStart() {
-    //if (!isDisabled()) {
+    // if (!isDisabled()) {
     //  // new Thread(this).start();
-    //}
+    // }
     notifyStarted();
   }
 
@@ -338,11 +332,9 @@ public class SlipStreamDecoder extends AbstractYamcsService
           payload.write(nextByte[0]);
       }
     }
-    
+
     return payload.toByteArray();
   }
-
-
 
   /**
    * Getter methods for understanding the state of the parser. Very useful when exposed to the
@@ -350,53 +342,50 @@ public class SlipStreamDecoder extends AbstractYamcsService
    *
    * @return
    */
-  //public int getOutOfSyncByteCount() {
+  // public int getOutOfSyncByteCount() {
   //  return outOfSyncByteCount;
-  //}
+  // }
 
-  //public int getInSyncByteCount() {
+  // public int getInSyncByteCount() {
   //  return inSyncByteCount;
-  //}
+  // }
 
-  //public int getAsmCursor() {
+  // public int getAsmCursor() {
   //  return asmCursor;
-  //}
+  // }
 
-
-  //public int getFatFrameBytes() {
+  // public int getFatFrameBytes() {
   //  return fatFrameBytes;
-  //}
+  // }
 
-  //public int getCaduLength() {
+  // public int getCaduLength() {
   //  return caduLength;
-  //}
+  // }
 
-  //public int getFixedLength() {
+  // public int getFixedLength() {
   //  return fixedLength;
-  //}
+  // }
 
-  //public int getFatFrameCount() {
+  // public int getFatFrameCount() {
   //  return fatFrameCount;
-  //}
+  // }
 
-  //public String getPacket() {
+  // public String getPacket() {
   //  return StringConverter.arrayToHexString(packet);
-  //}
+  // }
 
-  //public int getRcvdCaduCount() {
+  // public int getRcvdCaduCount() {
   //  return rcvdCaduCount;
-  //}
-
- 
+  // }
 
   /** Resets rcvdCaduCount and fatFrameCount to 0. */
-  //public void resetCounts() {
+  // public void resetCounts() {
   //  rcvdCaduCount = 0;
   //  fatFrameCount = 0;
-  //}
-//
-  //@Override
-  //public void enable() {
+  // }
+  //
+  // @Override
+  // public void enable() {
   //  boolean b = disabled.getAndSet(false);
   //  if (b) {
   //    try {
@@ -407,44 +396,44 @@ public class SlipStreamDecoder extends AbstractYamcsService
   //      log.warn("Failed to enable link", e);
   //    }
   //  }
-  //}
+  // }
 
-  //@Override
-  //public long getDataInCount() {
+  // @Override
+  // public long getDataInCount() {
   //  return inPacketCount.get();
-  //}
+  // }
 
-  //@Override
-  //public long getDataOutCount() {
+  // @Override
+  // public long getDataOutCount() {
   //  return outPacketCount.get();
-  //}
+  // }
 
-  //@Override
-  //public Status getLinkStatus() {
+  // @Override
+  // public Status getLinkStatus() {
   //  if (isDisabled()) {
   //    return Status.DISABLED;
   //  }
   //  if (state() == State.FAILED) {
   //    return Status.FAILED;
   //  }
-//
+  //
   //  return connectionStatus();
-  //}
+  // }
 
-  //@Override
-  //public boolean isDisabled() {
+  // @Override
+  // public boolean isDisabled() {
   //  return disabled.get();
-  //}
+  // }
 
-  //protected Status connectionStatus() {
+  // protected Status connectionStatus() {
   //  return Status.OK;
-  //}
+  // }
 
-  //@Override
-  //public Spec getSpec() {
+  // @Override
+  // public Spec getSpec() {
   //  // TODO Auto-generated method stub
   //  return super.getSpec();
-  //}
+  // }
 
   @Override
   public void onTuple(Stream arg0, Tuple tuple) {
@@ -460,9 +449,9 @@ public class SlipStreamDecoder extends AbstractYamcsService
         } else {
           if (packet.length <= 0) {
             log.error("Packet length is <= 0");
-          } else {  
+          } else {
             outStream.emitTuple(
-              new Tuple(gftdef, Arrays.asList(tuple.getColumn(RECTIME_CNAME), packet)));
+                new Tuple(gftdef, Arrays.asList(tuple.getColumn(RECTIME_CNAME), packet)));
 
             updateOutStats(packet.length);
           }

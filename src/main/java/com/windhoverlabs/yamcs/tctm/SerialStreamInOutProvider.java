@@ -20,7 +20,6 @@ import org.yamcs.Spec;
 import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
-import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.logging.Log;

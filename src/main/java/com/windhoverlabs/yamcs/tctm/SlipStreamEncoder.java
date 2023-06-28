@@ -109,7 +109,7 @@ public class SlipStreamEncoder extends AbstractYamcsService
     }
 
     if (config.containsKey("prefaceSlipEnd")) {
-      prefaceSlipEnd = RateLimiter.create(config.getBoolean("prefaceSlipEnd"), false);
+      prefaceSlipEnd = config.getBoolean("prefaceSlipEnd", false);
     }
 
     updateSimulationTime = config.getBoolean("updateSimulationTime", false);
@@ -252,7 +252,7 @@ public class SlipStreamEncoder extends AbstractYamcsService
 
     byte[] temp = new byte[1];
 
-    if(this.prefaceSlipEnd) {
+    if (this.prefaceSlipEnd) {
       payload.write(END);
     }
 

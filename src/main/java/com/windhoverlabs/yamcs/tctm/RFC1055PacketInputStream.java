@@ -6,12 +6,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.yamcs.ConfigurationException;
 import org.yamcs.YConfiguration;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.tctm.PacketInputStream;
-import org.yamcs.utils.StringConverter;
 
 /**
  * Reads CCSDS packets from an input stream: This packet input stream reads and verifies the data 1
@@ -109,7 +107,6 @@ public class RFC1055PacketInputStream implements PacketInputStream {
       }
     }
   }
-
 
   @Override
   public void close() throws IOException {
