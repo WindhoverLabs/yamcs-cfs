@@ -13,9 +13,13 @@ import org.yamcs.yarch.Tuple;
 import org.yamcs.yarch.TupleDefinition;
 import org.yamcs.yarch.YarchDatabase;
 import org.yamcs.yarch.YarchDatabaseInstance;
+import org.yamcs.YamcsServer;
+import org.yamcs.tctm.GenericCommandPostprocessor;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Sends raw packets on UDP socket.
+ * Sends packets out a YAMCS Stream.
  *
  * @author nm
  */
@@ -39,6 +43,8 @@ public class StreamTcDataLink extends AbstractThreadedTcDataLink {
   public void init(String yamcsInstance, String name, YConfiguration config)
       throws ConfigurationException {
     super.init(yamcsInstance, name, config);
+    timeService = YamcsServer.getTimeService(yamcsInstance);
+        
     this.streamName = config.getString("out_stream");
 
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(yamcsInstance);
@@ -51,7 +57,25 @@ public class StreamTcDataLink extends AbstractThreadedTcDataLink {
   }
 
   @Override
+  protected void initPostprocessor(String instance, YConfiguration config) {
+      Map<String, Object> m = null;
+      if (config == null) {
+          m = new HashMap<>();
+          config = YConfiguration.wrap(m);
+      } else if (!config.containsKey("commandPostprocessorClassName")) {
+          m = config.getRoot();
+      }
+      if (m != null) {
+          log.warn(
+                  "Please set the commandPostprocessorClassName for the StreamTcDataLink; in the future versions it will default to GenericCommandPostprocessor");
+          m.put("commandPostprocessorClassName", GenericCommandPostprocessor.class.getName());
+      }
+      super.initPostprocessor(instance, config);
+  }
+
+  @Override
   public void uplinkCommand(PreparedCommand pc) throws IOException {
+    
     byte[] binary = postprocess(pc);
     if (binary == null) {
       return;
@@ -86,5 +110,13 @@ public class StreamTcDataLink extends AbstractThreadedTcDataLink {
       stream = ydb.getStream(streamName);
     }
     return stream;
+  }
+  
+  
+  @Override
+  protected void doHousekeeping() {
+      if (!isRunningAndEnabled()) {
+          return;
+      }
   }
 }

@@ -126,7 +126,7 @@ public class UdpStreamInOutProvider extends AbstractYamcsService
     this.inStream = getStream(ydb, inStreamName);
     this.outStream = getStream(ydb, outStreamName);
 
-    this.outStream.addSubscriber(this);
+    this.inStream.addSubscriber(this);
 
     try {
       address = InetAddress.getByName(host);
@@ -256,7 +256,7 @@ public class UdpStreamInOutProvider extends AbstractYamcsService
     byte[] trimmedByteArray =
         Arrays.copyOfRange(byteArray, this.offset, byteArray.length - this.rightTrim);
 
-    inStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
+    outStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
 
     if (updateSimulationTime) {
       SimulationTimeService sts = (SimulationTimeService) timeService;
