@@ -189,7 +189,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
     this.inStream = getStream(ydb, inStreamName);
     this.outStream = getStream(ydb, outStreamName);
 
-    this.outStream.addSubscriber(this);
+    this.inStream.addSubscriber(this);
 
     if (config.containsKey("frameMaxRate")) {
       outRateLimiter = RateLimiter.create(config.getDouble("frameMaxRate"), 1, TimeUnit.SECONDS);
@@ -307,7 +307,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
     byte[] trimmedByteArray =
         Arrays.copyOfRange(byteArray, this.leftTrim, byteArray.length - this.rightTrim);
 
-    inStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
+    outStream.emitTuple(new Tuple(gftdef, Arrays.asList(rectime, trimmedByteArray)));
 
     if (updateSimulationTime) {
       SimulationTimeService sts = (SimulationTimeService) timeService;
@@ -610,7 +610,7 @@ public class SerialStreamInOutProvider extends AbstractYamcsService
   public void onTuple(Stream arg0, Tuple tuple) {
     if (isRunningAndEnabled()) {
       byte[] pktData = tuple.getColumn(DATA_CNAME);
-      long recTime = tuple.getColumn(PreparedCommand.CNAME_GENTIME);
+      long recTime = tuple.getColumn(RECTIME_CNAME);
       if (pktData == null) {
         throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
       } else {

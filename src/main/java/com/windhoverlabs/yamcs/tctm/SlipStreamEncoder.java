@@ -60,6 +60,7 @@ public class SlipStreamEncoder extends AbstractYamcsService
   protected PacketPreprocessor packetPreprocessor;
   protected Stream inStream;
   protected Stream outStream;
+  protected Boolean prefaceSlipEnd;
 
   // FIXME:Temporary. Don't want to be exposing this packet so easily.
   private byte[] packet;
@@ -105,6 +106,10 @@ public class SlipStreamEncoder extends AbstractYamcsService
 
     if (config.containsKey("frameMaxRate")) {
       outRateLimiter = RateLimiter.create(config.getDouble("frameMaxRate"), 1, TimeUnit.SECONDS);
+    }
+
+    if (config.containsKey("prefaceSlipEnd")) {
+      prefaceSlipEnd = RateLimiter.create(config.getBoolean("prefaceSlipEnd"), false);
     }
 
     updateSimulationTime = config.getBoolean("updateSimulationTime", false);
@@ -247,7 +252,9 @@ public class SlipStreamEncoder extends AbstractYamcsService
 
     byte[] temp = new byte[1];
 
-    payload.write(END);
+    if(this.prefaceSlipEnd) {
+      payload.write(END);
+    }
 
     for (byte character : pktData) {
       switch (character) {
