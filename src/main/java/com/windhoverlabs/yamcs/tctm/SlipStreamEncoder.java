@@ -275,15 +275,9 @@ public class SlipStreamEncoder extends AbstractYamcsService
            */
         case ESC:
           temp[0] = (byte) (ESC);
-          try {
-            payload.write(temp);
-            temp[0] = (byte) ESC_ESC;
-            payload.write(temp);
-            payload.write(character);
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
+          payload.write(temp);
+          temp[0] = (byte) ESC_ESC;
+          payload.write(temp);
           break;
 
           /* otherwise, we just send the character
