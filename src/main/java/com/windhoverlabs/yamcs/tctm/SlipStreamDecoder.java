@@ -54,6 +54,9 @@ public class SlipStreamDecoder extends AbstractYamcsService
 
   private byte[] packet;
 
+  private int offset;
+  private int rightTrim;
+
   static TupleDefinition gftdef;
 
   static final String RECTIME_CNAME = "rectime";
@@ -85,6 +88,9 @@ public class SlipStreamDecoder extends AbstractYamcsService
     this.timeService = YamcsServer.getTimeService(instance);
     String inStreamName = config.getString("in_stream");
     String outStreamName = config.getString("out_stream");
+
+    this.offset = config.getInt("offset", 0);
+    this.rightTrim = config.getInt("rightTrim", 0);
 
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(instance);
     this.inStream = getStream(ydb, inStreamName);
@@ -443,17 +449,22 @@ public class SlipStreamDecoder extends AbstractYamcsService
       try {
         packet = getPayload(tuple.getColumn(DATA_CNAME));
 
+        int trimmedPacketSize = packet.length - this.offset - this.rightTrim;
+
+        byte[] trimmedPacket =
+            Arrays.copyOfRange(packet, this.offset, packet.length - this.rightTrim);
+
         // long recTime = tuple.getColumn(PreparedCommand.CNAME_GENTIME);
         if (packet == null) {
           throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
         } else {
-          if (packet.length <= 0) {
+          if (trimmedPacket.length <= 0) {
             log.error("Packet length is <= 0");
           } else {
             outStream.emitTuple(
-                new Tuple(gftdef, Arrays.asList(tuple.getColumn(RECTIME_CNAME), packet)));
+                new Tuple(gftdef, Arrays.asList(tuple.getColumn(RECTIME_CNAME), trimmedPacket)));
 
-            updateOutStats(packet.length);
+            updateOutStats(trimmedPacket.length);
           }
         }
       } catch (IOException e) {
