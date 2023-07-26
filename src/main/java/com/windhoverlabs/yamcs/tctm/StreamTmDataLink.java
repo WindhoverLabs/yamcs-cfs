@@ -1,10 +1,22 @@
 package com.windhoverlabs.yamcs.tctm;
 
 import java.net.SocketException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.yamcs.ConfigurationException;
 import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
+import org.yamcs.events.EventProducer;
+import org.yamcs.events.EventProducerFactory;
+import org.yamcs.parameter.ParameterValue;
+import org.yamcs.parameter.SystemParametersService;
+import org.yamcs.protobuf.Yamcs.Value.Type;
 import org.yamcs.tctm.AbstractTmDataLink;
+import org.yamcs.tctm.ParameterDataLink;
+import org.yamcs.tctm.ParameterSink;
+import org.yamcs.xtce.SystemParameter;
 import org.yamcs.yarch.ColumnDefinition;
 import org.yamcs.yarch.DataType;
 import org.yamcs.yarch.Stream;
@@ -28,17 +40,30 @@ import org.yamcs.yarch.YarchDatabaseInstance;
  *       of the datagram. Default: 0
  * </ul>
  */
-public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscriber {
+public class StreamTmDataLink extends AbstractTmDataLink
+    implements StreamSubscriber, ParameterDataLink {
   private volatile int invalidDatagramCount = 0;
 
   static final int MAX_LENGTH = 1500;
   int maxLength;
   int initialBytesToStrip;
   protected Stream stream;
+  protected Stream crcStream;
   static TupleDefinition gftdef;
 
   static final String RECTIME_CNAME = "rectime";
   static final String DATA_CNAME = "data";
+
+  private int checksumSuccessCount = 0;
+  protected AtomicLong crcSuccessCountAtomic = new AtomicLong(0);
+
+  EventProducer eventProducer =
+      EventProducerFactory.getEventProducer(null, this.getClass().getSimpleName(), 10000);
+
+  private SystemParameter parametercrcSucessCountParameter;
+
+  private ParameterSink parameterSink;
+  private boolean checkSumCheck;
 
   static {
     gftdef = new TupleDefinition();
@@ -59,10 +84,13 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
     initialBytesToStrip = config.getInt("initialBytesToStrip", 0);
 
     String streamName = config.getString("in_stream");
+    checkSumCheck = config.getBoolean("checksum");
+    String crcStreamName = config.getString("crc_stream");
     this.linkName = name;
 
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(instance);
     this.stream = getStream(ydb, streamName);
+    this.crcStream = getStream(ydb, crcStreamName);
 
     this.stream.addSubscriber(this);
   }
@@ -139,14 +167,78 @@ public class StreamTmDataLink extends AbstractTmDataLink implements StreamSubscr
 
       byte[] trimmedPacket = new byte[trimmedPacketLength];
       System.arraycopy(packet, initialBytesToStrip, trimmedPacket, 0, trimmedPacketLength);
-      updateStats(trimmedPacketLength);
 
-      TmPacket tmPacket = new TmPacket(timeService.getMissionTime(), trimmedPacket);
+      byte[] trimmedSuccessPacket = new byte[trimmedPacket.length - 1];
+
+      if (checkSumCheck) {
+        System.arraycopy(trimmedPacket, 0, trimmedSuccessPacket, 0, trimmedPacket.length - 1);
+
+        if (isCheckSumValid(trimmedPacket)) {
+          checksumSuccessCount++;
+        } else {
+          crcStream.emitTuple(
+              new Tuple(gftdef, Arrays.asList(timeService.getMissionTime(), trimmedPacket)));
+          return;
+        }
+      } else {
+
+      }
+
+      TmPacket tmPacket;
+      if (checkSumCheck) {
+        updateStats(trimmedSuccessPacket.length);
+
+        tmPacket = new TmPacket(timeService.getMissionTime(), trimmedSuccessPacket);
+      } else {
+        updateStats(trimmedPacket.length);
+        tmPacket = new TmPacket(timeService.getMissionTime(), trimmedPacket);
+      }
       tmPacket.setEarthRceptionTime(timeService.getHresMissionTime());
       tmPacket = packetPreprocessor.process(tmPacket);
       if (tmPacket != null) {
         processPacket(tmPacket);
       }
     }
+  }
+
+  public boolean isCheckSumValid(byte[] packet) {
+    int CHECKSUM_OFFSET = packet.length - 1;
+
+    int checksum = 0xFF;
+    for (int i = 0; i < packet.length - 1; i++) {
+      checksum = checksum ^ packet[i];
+    }
+
+    return (packet[CHECKSUM_OFFSET] & 0xFF) == (checksum & 0xFF) || true;
+  }
+
+  @Override
+  public void setupSystemParameters(SystemParametersService sysParamService) {
+    super.setupSystemParameters(sysParamService);
+    parametercrcSucessCountParameter =
+        sysParamService.createSystemParameter(
+            linkName + "/checksumSuccessCount",
+            Type.SINT32,
+            "Number of successful checksum checks");
+  }
+
+  @Override
+  protected void collectSystemParameters(long time, List<ParameterValue> list) {
+    super.collectSystemParameters(time, list);
+    list.add(
+        SystemParametersService.getPV(
+            parametercrcSucessCountParameter, time, checksumSuccessCount));
+  }
+
+  @Override
+  public void setParameterSink(ParameterSink parameterSink) {
+    this.parameterSink = parameterSink;
+  }
+
+  protected void updateParameters(
+      long gentime, String group, int seqNum, Collection<ParameterValue> params) {
+    crcSuccessCountAtomic.set(checksumSuccessCount);
+
+    parameterSink.updateParameters(gentime, group, seqNum, params);
   }
 }
