@@ -108,9 +108,7 @@ public class SlipStreamEncoder extends AbstractYamcsService
       outRateLimiter = RateLimiter.create(config.getDouble("frameMaxRate"), 1, TimeUnit.SECONDS);
     }
 
-    if (config.containsKey("prefaceSlipEnd")) {
-      prefaceSlipEnd = config.getBoolean("prefaceSlipEnd", false);
-    }
+    prefaceSlipEnd = config.getBoolean("prefaceSlipEnd", false);
 
     updateSimulationTime = config.getBoolean("updateSimulationTime", false);
     if (updateSimulationTime) {
