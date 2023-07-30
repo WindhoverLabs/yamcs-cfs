@@ -16,6 +16,7 @@ import org.yamcs.protobuf.Yamcs.Value.Type;
 import org.yamcs.tctm.AbstractTmDataLink;
 import org.yamcs.tctm.ParameterDataLink;
 import org.yamcs.tctm.ParameterSink;
+import org.yamcs.utils.ByteArrayUtils;
 import org.yamcs.xtce.SystemParameter;
 import org.yamcs.yarch.ColumnDefinition;
 import org.yamcs.yarch.DataType;
@@ -169,6 +170,8 @@ public class StreamTmDataLink extends AbstractTmDataLink
       System.arraycopy(packet, initialBytesToStrip, trimmedPacket, 0, trimmedPacketLength);
 
       byte[] trimmedSuccessPacket = new byte[trimmedPacket.length - 1];
+      
+//      subsecs = ByteArrayUtils.decodeUnsignedShort(packet, 10);
 
       if (checkSumCheck) {
         System.arraycopy(trimmedPacket, 0, trimmedSuccessPacket, 0, trimmedPacket.length - 1);
@@ -209,7 +212,7 @@ public class StreamTmDataLink extends AbstractTmDataLink
       checksum = checksum ^ packet[i];
     }
 
-    return (packet[CHECKSUM_OFFSET] & 0xFF) == (checksum & 0xFF) || true;
+    return (packet[CHECKSUM_OFFSET] & 0xFF) == (checksum & 0xFF);
   }
 
   @Override
