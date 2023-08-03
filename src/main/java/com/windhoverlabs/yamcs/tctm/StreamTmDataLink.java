@@ -84,8 +84,8 @@ public class StreamTmDataLink extends AbstractTmDataLink
     initialBytesToStrip = config.getInt("initialBytesToStrip", 0);
 
     String streamName = config.getString("in_stream");
-    checkSumCheck = config.getBoolean("checksum");
-    String crcStreamName = config.getString("crc_stream");
+    checkSumCheck = config.getBoolean("checksum", false);
+    String crcStreamName = config.getString("crc_stream", "crc_error_stream");
     this.linkName = name;
 
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(instance);
@@ -209,7 +209,7 @@ public class StreamTmDataLink extends AbstractTmDataLink
       checksum = checksum ^ packet[i];
     }
 
-    return (packet[CHECKSUM_OFFSET] & 0xFF) == (checksum & 0xFF) || true;
+    return (packet[CHECKSUM_OFFSET] & 0xFF) == (checksum & 0xFF);
   }
 
   @Override
