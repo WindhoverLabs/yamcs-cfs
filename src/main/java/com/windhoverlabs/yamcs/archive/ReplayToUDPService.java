@@ -2,10 +2,26 @@ package com.windhoverlabs.yamcs.archive;
 
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
+import com.windhoverlabs.yamcs.archive.api.SimMessage;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.yamcs.AbstractYamcsService;
 import org.yamcs.ConfigurationException;
 import org.yamcs.InitException;
@@ -15,12 +31,20 @@ import org.yamcs.ProcessorFactory;
 import org.yamcs.ValidationException;
 import org.yamcs.YConfiguration;
 import org.yamcs.archive.ReplayOptions;
+import org.yamcs.client.ClientException;
+import org.yamcs.client.ConnectionListener;
 import org.yamcs.client.ParameterSubscription;
+import org.yamcs.client.YamcsClient;
 import org.yamcs.logging.Log;
+import org.yamcs.protobuf.Pvalue.ParameterValue;
+import org.yamcs.protobuf.SubscribeParametersRequest;
+import org.yamcs.protobuf.SubscribeParametersRequest.Action;
 import org.yamcs.protobuf.Yamcs.EndAction;
+import org.yamcs.protobuf.Yamcs.NamedObjectId;
 import org.yamcs.protobuf.Yamcs.ReplayRequest;
 
-public class ReplayToUDPService extends AbstractYamcsService {
+public class ReplayToUDPService extends AbstractYamcsService
+    implements ParameterSubscription.Listener, ConnectionListener {
   private ReplayOptions replayOptions;
   private String processorName;
   private Processor processor;
@@ -33,8 +57,18 @@ public class ReplayToUDPService extends AbstractYamcsService {
 
   private ParameterSubscription subscription;
 
-  private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  private AtomicBoolean subscriptionDirty = new AtomicBoolean(false);
+
+  private Map<NamedObjectId, Set<String>> pvsById = new LinkedHashMap<>();
+
+  private ArrayList<NamedObjectId> ids = new ArrayList<NamedObjectId>();
+
+  private HashMap<String, ParameterValue> paramsToSend = new HashMap<String, ParameterValue>();
+
+  private HashMap<String, String> pvsToSend = new HashMap<String, String>();
+  private YamcsClient yclient;
+
+  private DatagramSocket outSocket;
+  private Map<String, String> pvMap;
 
   @Override
   public void init(String yamcsInstance, String serviceName, YConfiguration config)
@@ -42,10 +76,16 @@ public class ReplayToUDPService extends AbstractYamcsService {
     this.yamcsInstance = yamcsInstance;
     this.serviceName = serviceName;
     this.config = config;
-    processorName = this.config.getString("", "ReplayToUDPService");
+    processorName = this.config.getString("processorName", "ReplayToUDPService");
+    //    TODO:Probably a much easier way of doing this...
+    //    YamcsServer.getServer().getInstance(yamcsInstance).addProcessor(processor);
+    //    YamcsServer.getServer().getInstance(yamcsInstance)
 
     start = this.config.getString("start");
     stop = this.config.getString("stop");
+
+    pvMap = this.config.getMap("pvMap");
+    
     log = new Log(getClass(), yamcsInstance);
     try {
       startTimeStamp = Timestamps.parse(start);
@@ -86,7 +126,161 @@ public class ReplayToUDPService extends AbstractYamcsService {
     log.info("Starting new processor '{}'", processor.getName());
     processor.startAsync();
     processor.awaitRunning();
-    processor.getTmPacketProvider();
+    //    processor.getTmPacketProvider();
+
+    //    TODO: This is unnecessarily complicated
+    yclient =
+        YamcsClient.newBuilder("http://localhost:8091")
+            //            .withConnectionAttempts(config.getInt("connectionAttempts", 20))
+            //            .withRetryDelay(reconnectionDelay)
+            //            .withVerifyTls(config.getBoolean("verifyTls", true))
+            .build();
+    yclient.addConnectionListener(this);
+
+    try {
+      yclient.connectWebSocket();
+    } catch (ClientException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    try {
+      outSocket = new DatagramSocket();
+    } catch (SocketException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    notifyStarted();
+  }
+
+  public static NamedObjectId identityOf(String pvName) {
+    return NamedObjectId.newBuilder().setName(pvName).build();
+  }
+
+  /** Async adds a Yamcs PV for receiving updates. */
+  public void register(String pvName) {
+    NamedObjectId id = identityOf(pvName);
+    //    executor.execute(
+    //        () -> {
+    //          Set<String> pvs = pvsById.computeIfAbsent(id, x -> new HashSet<>());
+    //          pvs.add(pvName);
+    //          subscriptionDirty.set(true);
+    //        });
+    //
+    //    ids.add(id);
+
+    System.out.println("id:" + id);
+    try {
+      subscription.sendMessage(
+          SubscribeParametersRequest.newBuilder()
+              .setInstance(this.yamcsInstance)
+              .setProcessor(processorName)
+              .setSendFromCache(true)
+              .setAbortOnInvalid(false)
+              .setUpdateOnExpiration(false)
+              .addId(id)
+              .setAction(Action.ADD)
+              .build());
+    } catch (Exception e) {
+      System.out.println("e:" + e);
+    }
+  }
+
+  @Override
+  protected void doStop() {
+    // TODO Auto-generated method stub
+    processor.doStop();
+    outSocket.close();
+    notifyStopped();
+  }
+
+  private Set<NamedObjectId> getRequestedIdentifiers() {
+    return pvsById.entrySet().stream()
+        .filter(entry -> !entry.getValue().isEmpty())
+        .map(Entry::getKey)
+        .collect(Collectors.toSet());
+  }
+
+  @Override
+  public void onData(List<ParameterValue> values) {
+    // TODO Auto-generated method stub
+    for (ParameterValue p : values) {
+      if (pvMap.containsValue(p.getId().getName())) {
+        System.out.println("Send " + p.getId().getName() + " over UDP");
+        paramsToSend.put(pvMap.get(p.getId().getName()), p);
+      }
+    }
+
+    InetAddress address = null;
+    try {
+      address = InetAddress.getByName("172.16.100.237");
+    } catch (UnknownHostException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    };
+
+      SimMessage.VehicleStateMessage msg =
+          SimMessage.VehicleStateMessage.newBuilder()
+              .setAlt(
+                  paramsToSend
+                      .get("Altitude")
+                      .getEngValue()
+                      .getFloatValue())
+              .setLat(
+                  paramsToSend
+                      .get("Lat")
+                      .getEngValue()
+                      .getDoubleValue())
+              .setLon(
+                  paramsToSend
+                      .get("Lon")
+                      .getEngValue()
+                      .getDoubleValue())
+              .setPitch(
+                  Math.toRadians(
+                      paramsToSend
+                          .get("Pitch")
+                          .getEngValue()
+                          .getFloatValue()))
+              .setRoll(
+                  Math.toRadians(
+                      paramsToSend
+                          .get("Roll")
+                          .getEngValue()
+                          .getFloatValue()))
+              .setYaw(
+                  Math.toRadians(
+                      paramsToSend
+                          .get("Yaw")
+                          .getEngValue()
+                          .getFloatValue()))
+              .build();
+      msg.getLat();
+
+      System.out.println("msg.toByteArray().length-->" + msg.toByteArray().length);
+      DatagramPacket dtg =
+          new DatagramPacket(msg.toByteArray(), msg.toByteArray().length, address, 8000);
+
+      try {
+        outSocket.send(dtg);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    
+  }
+
+  @Override
+  public void connecting() {
+    // TODO Auto-generated method stub
+
+  }
+
+  public void connected() {
+    // TODO Auto-generated method stub
+    System.out.println("*****connected*****");
+    subscription = yclient.createParameterSubscription();
 
     // Periodically check if the subscription needs a refresh
     // (PVs send individual events, so this bundles them)
@@ -94,6 +288,7 @@ public class ReplayToUDPService extends AbstractYamcsService {
     //        () -> {
     //          if (subscriptionDirty.getAndSet(false) && subscription != null) {
     //            Set<NamedObjectId> ids = getRequestedIdentifiers();
+    //            System.out.println();
     //            // TODO:Make log level configurable
     //            //            log.info(String.format("Modifying subscription to %s", ids));
     //            subscription.sendMessage(
@@ -103,20 +298,29 @@ public class ReplayToUDPService extends AbstractYamcsService {
     //                    .setAbortOnInvalid(false)
     //                    .setUpdateOnExpiration(true)
     //                    .addAllId(ids)
-    //                    .setProcessor(currentProcessor)
+    //                    .setProcessor(processorName)
     //                    .build());
     //          }
     //        },
     //        500,
     //        500,
     //        TimeUnit.MILLISECONDS);
-    //  }
-    notifyStarted();
+    subscription.addListener(this);
+    // TODO:Make this configurable
+    for (Map.Entry<String, String> pvName : pvMap.entrySet()) {
+      register(pvName.getValue());
+    }
   }
 
   @Override
-  protected void doStop() {
+  public void connectionFailed(Throwable cause) {
     // TODO Auto-generated method stub
-    notifyStopped();
+
+  }
+
+  @Override
+  public void disconnected() {
+    // TODO Auto-generated method stub
+
   }
 }
