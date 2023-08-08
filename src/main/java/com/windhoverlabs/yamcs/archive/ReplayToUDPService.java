@@ -11,11 +11,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.yamcs.AbstractYamcsService;
 import org.yamcs.ConfigurationException;
@@ -51,8 +49,6 @@ public class ReplayToUDPService extends AbstractYamcsService
   private Timestamp stopTimeStamp;
 
   private ParameterSubscription subscription;
-
-  private Map<NamedObjectId, Set<String>> pvsById = new LinkedHashMap<>();
 
   private HashMap<String, ParameterValue> paramsToSend = new HashMap<String, ParameterValue>();
 
@@ -209,16 +205,49 @@ public class ReplayToUDPService extends AbstractYamcsService
         paramsToSend.put(pvLabel, p);
       }
     }
-
-    SimMessage.VehicleStateMessage msg =
-        SimMessage.VehicleStateMessage.newBuilder()
-            .setAlt(paramsToSend.get("Altitude").getEngValue().getFloatValue())
-            .setLat(paramsToSend.get("Lat").getEngValue().getDoubleValue())
-            .setLon(paramsToSend.get("Lon").getEngValue().getDoubleValue())
-            .setPitch(Math.toRadians(paramsToSend.get("Pitch").getEngValue().getFloatValue()))
-            .setRoll(Math.toRadians(paramsToSend.get("Roll").getEngValue().getFloatValue()))
-            .setYaw(Math.toRadians(paramsToSend.get("Yaw").getEngValue().getFloatValue()))
-            .build();
+    SimMessage.VehicleStateMessage.Builder msgBuilder = SimMessage.VehicleStateMessage.newBuilder();
+    for (Map.Entry<String, ParameterValue> pSet : paramsToSend.entrySet()) {
+      org.yamcs.protobuf.Yamcs.Value pv = pSet.getValue().getEngValue();
+      switch (pv.getType()) {
+        case AGGREGATE:
+          break;
+        case ARRAY:
+          break;
+        case BINARY:
+          break;
+        case BOOLEAN:
+          break;
+        case DOUBLE:
+          msgBuilder.setField(
+              SimMessage.VehicleStateMessage.getDescriptor().findFieldByName(pSet.getKey()),
+              pv.getDoubleValue());
+          break;
+        case ENUMERATED:
+          break;
+        case FLOAT:
+          msgBuilder.setField(
+              SimMessage.VehicleStateMessage.getDescriptor().findFieldByName(pSet.getKey()),
+              pv.getFloatValue());
+          break;
+        case NONE:
+          break;
+        case SINT32:
+          break;
+        case SINT64:
+          break;
+        case STRING:
+          break;
+        case TIMESTAMP:
+          break;
+        case UINT32:
+          break;
+        case UINT64:
+          break;
+        default:
+          break;
+      }
+    }
+    SimMessage.VehicleStateMessage msg = msgBuilder.build();
     DatagramPacket dtg =
         new DatagramPacket(msg.toByteArray(), msg.toByteArray().length, udpAddress, udpPort);
 
