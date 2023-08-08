@@ -10,17 +10,12 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.yamcs.AbstractYamcsService;
 import org.yamcs.ConfigurationException;
@@ -57,18 +52,20 @@ public class ReplayToUDPService extends AbstractYamcsService
 
   private ParameterSubscription subscription;
 
-
   private Map<NamedObjectId, Set<String>> pvsById = new LinkedHashMap<>();
-
-  private ArrayList<NamedObjectId> ids = new ArrayList<NamedObjectId>();
 
   private HashMap<String, ParameterValue> paramsToSend = new HashMap<String, ParameterValue>();
 
-  private HashMap<String, String> pvsToSend = new HashMap<String, String>();
   private YamcsClient yclient;
 
   private DatagramSocket outSocket;
   private Map<String, String> pvMap;
+  private String yamcsHost;
+  private int yamcsPort;
+
+  private String udpHost;
+  private int udpPort;
+  private InetAddress udpAddress;
 
   @Override
   public void init(String yamcsInstance, String serviceName, YConfiguration config)
@@ -85,7 +82,13 @@ public class ReplayToUDPService extends AbstractYamcsService
     stop = this.config.getString("stop");
 
     pvMap = this.config.getMap("pvMap");
-    
+
+    yamcsHost = this.getConfig().getString("yamcsHost", "http://localhost");
+    yamcsPort = this.getConfig().getInt("yamcsPort", 8090);
+
+    udpHost = this.getConfig().getString("udpHost", "172.16.100.237");
+    udpPort = this.getConfig().getInt("udpPort", 8000);
+
     log = new Log(getClass(), yamcsInstance);
     try {
       startTimeStamp = Timestamps.parse(start);
@@ -126,11 +129,10 @@ public class ReplayToUDPService extends AbstractYamcsService
     log.info("Starting new processor '{}'", processor.getName());
     processor.startAsync();
     processor.awaitRunning();
-    //    processor.getTmPacketProvider();
 
     //    TODO: This is unnecessarily complicated
     yclient =
-        YamcsClient.newBuilder("http://localhost:8091")
+        YamcsClient.newBuilder(yamcsHost + ":" + yamcsPort)
             //            .withConnectionAttempts(config.getInt("connectionAttempts", 20))
             //            .withRetryDelay(reconnectionDelay)
             //            .withVerifyTls(config.getBoolean("verifyTls", true))
@@ -151,6 +153,14 @@ public class ReplayToUDPService extends AbstractYamcsService
       e.printStackTrace();
     }
 
+    try {
+      udpAddress = InetAddress.getByName(udpHost);
+    } catch (UnknownHostException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    ;
+
     notifyStarted();
   }
 
@@ -161,16 +171,6 @@ public class ReplayToUDPService extends AbstractYamcsService
   /** Async adds a Yamcs PV for receiving updates. */
   public void register(String pvName) {
     NamedObjectId id = identityOf(pvName);
-    //    executor.execute(
-    //        () -> {
-    //          Set<String> pvs = pvsById.computeIfAbsent(id, x -> new HashSet<>());
-    //          pvs.add(pvName);
-    //          subscriptionDirty.set(true);
-    //        });
-    //
-    //    ids.add(id);
-
-    System.out.println("id:" + id);
     try {
       subscription.sendMessage(
           SubscribeParametersRequest.newBuilder()
@@ -195,80 +195,39 @@ public class ReplayToUDPService extends AbstractYamcsService
     notifyStopped();
   }
 
-  private Set<NamedObjectId> getRequestedIdentifiers() {
-    return pvsById.entrySet().stream()
-        .filter(entry -> !entry.getValue().isEmpty())
-        .map(Entry::getKey)
-        .collect(Collectors.toSet());
-  }
-
   @Override
   public void onData(List<ParameterValue> values) {
     // TODO Auto-generated method stub
     for (ParameterValue p : values) {
       if (pvMap.containsValue(p.getId().getName())) {
-        System.out.println("Send " + p.getId().getName() + " over UDP");
-        paramsToSend.put(pvMap.get(p.getId().getName()), p);
+        String pvLabel =
+            pvMap.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(p.getId().getName()))
+                .map(Entry::getKey)
+                .collect(Collectors.toList())
+                .get(0);
+        paramsToSend.put(pvLabel, p);
       }
     }
 
-    InetAddress address = null;
+    SimMessage.VehicleStateMessage msg =
+        SimMessage.VehicleStateMessage.newBuilder()
+            .setAlt(paramsToSend.get("Altitude").getEngValue().getFloatValue())
+            .setLat(paramsToSend.get("Lat").getEngValue().getDoubleValue())
+            .setLon(paramsToSend.get("Lon").getEngValue().getDoubleValue())
+            .setPitch(Math.toRadians(paramsToSend.get("Pitch").getEngValue().getFloatValue()))
+            .setRoll(Math.toRadians(paramsToSend.get("Roll").getEngValue().getFloatValue()))
+            .setYaw(Math.toRadians(paramsToSend.get("Yaw").getEngValue().getFloatValue()))
+            .build();
+    DatagramPacket dtg =
+        new DatagramPacket(msg.toByteArray(), msg.toByteArray().length, udpAddress, udpPort);
+
     try {
-      address = InetAddress.getByName("172.16.100.237");
-    } catch (UnknownHostException e) {
+      outSocket.send(dtg);
+    } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    };
-
-      SimMessage.VehicleStateMessage msg =
-          SimMessage.VehicleStateMessage.newBuilder()
-              .setAlt(
-                  paramsToSend
-                      .get("Altitude")
-                      .getEngValue()
-                      .getFloatValue())
-              .setLat(
-                  paramsToSend
-                      .get("Lat")
-                      .getEngValue()
-                      .getDoubleValue())
-              .setLon(
-                  paramsToSend
-                      .get("Lon")
-                      .getEngValue()
-                      .getDoubleValue())
-              .setPitch(
-                  Math.toRadians(
-                      paramsToSend
-                          .get("Pitch")
-                          .getEngValue()
-                          .getFloatValue()))
-              .setRoll(
-                  Math.toRadians(
-                      paramsToSend
-                          .get("Roll")
-                          .getEngValue()
-                          .getFloatValue()))
-              .setYaw(
-                  Math.toRadians(
-                      paramsToSend
-                          .get("Yaw")
-                          .getEngValue()
-                          .getFloatValue()))
-              .build();
-      msg.getLat();
-
-      System.out.println("msg.toByteArray().length-->" + msg.toByteArray().length);
-      DatagramPacket dtg =
-          new DatagramPacket(msg.toByteArray(), msg.toByteArray().length, address, 8000);
-
-      try {
-        outSocket.send(dtg);
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    
+    }
   }
 
   @Override
@@ -278,33 +237,9 @@ public class ReplayToUDPService extends AbstractYamcsService
   }
 
   public void connected() {
-    // TODO Auto-generated method stub
-    System.out.println("*****connected*****");
+    //	  TODO:Send Event instead?
+    //    System.out.println("*****connected*****");
     subscription = yclient.createParameterSubscription();
-
-    // Periodically check if the subscription needs a refresh
-    // (PVs send individual events, so this bundles them)
-    //    executor.scheduleWithFixedDelay(
-    //        () -> {
-    //          if (subscriptionDirty.getAndSet(false) && subscription != null) {
-    //            Set<NamedObjectId> ids = getRequestedIdentifiers();
-    //            System.out.println();
-    //            // TODO:Make log level configurable
-    //            //            log.info(String.format("Modifying subscription to %s", ids));
-    //            subscription.sendMessage(
-    //                SubscribeParametersRequest.newBuilder()
-    //                    .setAction(Action.REPLACE)
-    //                    .setSendFromCache(true)
-    //                    .setAbortOnInvalid(false)
-    //                    .setUpdateOnExpiration(true)
-    //                    .addAllId(ids)
-    //                    .setProcessor(processorName)
-    //                    .build());
-    //          }
-    //        },
-    //        500,
-    //        500,
-    //        TimeUnit.MILLISECONDS);
     subscription.addListener(this);
     // TODO:Make this configurable
     for (Map.Entry<String, String> pvName : pvMap.entrySet()) {
