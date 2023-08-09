@@ -1,0 +1,28 @@
+syntax = "proto3";
+option java_package = "com.windhoverlabs.yamcs.archive.api";
+message VehicleStateMessage {
+    uint32 versionID = 1;
+    uint32 contextID = 2;
+    double lat_0        = 4;  // degrees lattitude of origin
+    double lon_0        = 5;  // degrees longitude of origin
+    double alt_0        = 6;  // meters altitude of origin
+    double lat          = 7;  // degrees current lattitude
+    double lon          = 8;  // degrees current longitude
+    double alt          = 9;  // meters current altitude
+    double pos_north    = 10; // meters north of origin
+    double pos_east     = 11; // meters east of origin
+    double pos_down     = 12; // meters down from veh to origin
+    double vel_north    = 13; // m/s
+    double vel_east     = 14; // m/s
+    double vel_down     = 15; // m/s
+    double roll         = 16; // radians roll angle
+    double pitch        = 17; // radians pitch angle
+    double yaw          = 18; // radians yaw angle
+    double roll_rate    = 19; // rad/s
+    double pitch_rate   = 20; // rad/s
+    double yaw_rate     = 21; // rad/s
+    double q1           = 22; // quaternion scalar element
+    double q2           = 23; // quaternion i element
+    double q3           = 24; // quaternion j element
+    double q4           = 25; // quaternion k element
+}
