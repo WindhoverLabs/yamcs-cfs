@@ -63,17 +63,19 @@ public class ReplayToUDPService extends AbstractYamcsService
   private int udpPort;
   private InetAddress udpAddress;
 
+  private boolean realtime;
+
   @Override
   public void init(String yamcsInstance, String serviceName, YConfiguration config)
       throws InitException {
     this.yamcsInstance = yamcsInstance;
     this.serviceName = serviceName;
     this.config = config;
-    processorName = this.config.getString("processorName", "ReplayToUDPService");
     //    TODO:Probably a much easier way of doing this...
     //    YamcsServer.getServer().getInstance(yamcsInstance).addProcessor(processor);
     //    YamcsServer.getServer().getInstance(yamcsInstance)
 
+    realtime = this.config.getBoolean("realtime", false);
     start = this.config.getString("start");
     stop = this.config.getString("stop");
 
@@ -86,6 +88,7 @@ public class ReplayToUDPService extends AbstractYamcsService
     udpPort = this.getConfig().getInt("udpPort", 8000);
 
     log = new Log(getClass(), yamcsInstance);
+
     try {
       startTimeStamp = Timestamps.parse(start);
       stopTimeStamp = Timestamps.parse(stop);
@@ -95,36 +98,46 @@ public class ReplayToUDPService extends AbstractYamcsService
     }
 
     //    TODO:Add these options to YAML
-    replayOptions =
-        new ReplayOptions(
-            ReplayRequest.newBuilder()
-                .setStart(startTimeStamp)
-                .setStop(stopTimeStamp)
-                .setEndAction(EndAction.LOOP)
-                .setAutostart(true)
-                .build());
 
-    try {
-      processor =
-          ProcessorFactory.create(
-              yamcsInstance,
-              processorName,
-              "Archive",
-              ReplayToUDPService.class.toString(),
-              replayOptions);
-    } catch (ProcessorException | ConfigurationException | ValidationException | InitException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    if (!this.realtime) {
+      processorName = this.config.getString("processorName", "ReplayToUDPService");
+      replayOptions =
+          new ReplayOptions(
+              ReplayRequest.newBuilder()
+                  .setStart(startTimeStamp)
+                  .setStop(stopTimeStamp)
+                  .setEndAction(EndAction.LOOP)
+                  .setAutostart(true)
+                  .build());
+
+      try {
+        processor =
+            ProcessorFactory.create(
+                yamcsInstance,
+                processorName,
+                "Archive",
+                ReplayToUDPService.class.toString(),
+                replayOptions);
+      } catch (ProcessorException
+          | ConfigurationException
+          | ValidationException
+          | InitException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    } else {
+      processorName = "realtime";
     }
   }
 
   @Override
   protected void doStart() {
     // TODO Auto-generated method stub
-
-    log.info("Starting new processor '{}'", processor.getName());
-    processor.startAsync();
-    processor.awaitRunning();
+    if (!realtime) {
+      log.info("Starting new processor '{}'", processor.getName());
+      processor.startAsync();
+      processor.awaitRunning();
+    }
 
     //    TODO: This is unnecessarily complicated
     yclient =
@@ -186,8 +199,10 @@ public class ReplayToUDPService extends AbstractYamcsService
   @Override
   protected void doStop() {
     // TODO Auto-generated method stub
-    processor.doStop();
-    outSocket.close();
+    if (!realtime) {
+      processor.doStop();
+      outSocket.close();
+    }
     notifyStopped();
   }
 
