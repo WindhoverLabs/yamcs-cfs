@@ -15,7 +15,6 @@ import org.yamcs.ConfigurationException;
 import org.yamcs.InitException;
 import org.yamcs.Spec;
 import org.yamcs.YConfiguration;
-import org.yamcs.commanding.PreparedCommand;
 import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.tctm.Link;
 import org.yamcs.utils.DataRateMeter;
@@ -208,7 +207,6 @@ public class UdpStreamOutProvider extends AbstractYamcsService
   public void onTuple(Stream arg0, Tuple tuple) {
     if (isRunningAndEnabled()) {
       byte[] pktData = tuple.getColumn(DATA_CNAME);
-      long recTime = tuple.getColumn(PreparedCommand.CNAME_GENTIME);
       if (pktData == null) {
         throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
       } else {
