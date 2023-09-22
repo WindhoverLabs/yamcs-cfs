@@ -399,7 +399,7 @@ make html
 
 ### Toggle UDP Sockets
 
-```
+```python
 import requests
 r = requests.post('http://127.0.0.1:8090/api/fsw/udp/:start',
                   json={"instance": "fsw",
