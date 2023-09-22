@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+package yamcs.protobuf.stats;
+
+option java_package = "com.windhoverlabs.yamcs.udp.api";
+option java_outer_classname = "StatsProto";
+option java_multiple_files = true;
+import "yamcs/api/annotations.proto";
+import "yamcs/api/httpbody.proto";
+
+//A collection of useful functions for clients interested in cfs-specific data
+service UDPApi {
+
+  // Start
+  rpc StartUDP(StartUDPRequest) returns (UDPConfig) {
+    option (yamcs.api.route) = {
+      post: "/api/{instance}/udp/:start"
+      body: "*"	
+    };
+  }
+  
+    // Stop
+  rpc StopUDP(StopUDPRequest) returns (UDPConfig) {
+    option (yamcs.api.route) = {
+      post: "/api/{instance}/udp/:stop"
+      body: "*"
+    };
+  }
+}
+
+message UDPConfig {
+	  optional string instance = 1;
+	  optional string linkName = 2;
+}
+message StopUDPRequest {
+  // Yamcs instance name.
+  optional string instance = 1;
+  optional string linkName = 2;
+}
+
+message StartUDPRequest {
+  // Yamcs instance name.
+  optional string instance = 1;
+  optional string linkName = 2;
+}

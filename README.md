@@ -396,6 +396,16 @@ cd docs/
 pip3 install -r requirements.txt
 make html
 ```
+
+### Toggle UDP Sockets
+
+```
+import requests
+r = requests.post('http://127.0.0.1:8090/api/fsw/udp/:start',
+                  json={"instance": "fsw",
+                        "linkName": "tm_ground_node_udp_out"})
+```
+
 **NOTE**: This documentation is subject to change as our tools evolve.  
 Documented on July 5th, 2021
 
