@@ -224,12 +224,14 @@ public class UdpStreamOutProvider extends AbstractYamcsService
           //        	{
           //                socket.send(dtg);
           //        	}
-
-          socket.send(dtg);
+          if (!socket.isClosed()) {
+            socket.send(dtg);
+          }
           updateStats(pktData.length);
         } catch (IOException e) {
+          eventProducer.sendInfo("Error sending datagram:" + e.toString());
           log.warn("Error sending datagram", e);
-          notifyFailed(e);
+          //          notifyFailed(e);
           return;
         }
       }
