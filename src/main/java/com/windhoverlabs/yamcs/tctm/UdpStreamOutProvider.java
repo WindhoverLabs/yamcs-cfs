@@ -15,6 +15,8 @@ import org.yamcs.ConfigurationException;
 import org.yamcs.InitException;
 import org.yamcs.Spec;
 import org.yamcs.YConfiguration;
+import org.yamcs.events.EventProducer;
+import org.yamcs.events.EventProducerFactory;
 import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.tctm.Link;
 import org.yamcs.utils.DataRateMeter;
@@ -46,6 +48,8 @@ public class UdpStreamOutProvider extends AbstractYamcsService
   DataRateMeter dataRateMeter = new DataRateMeter();
   protected String linkName;
   protected AtomicBoolean disabled = new AtomicBoolean(false);
+  private boolean receiving;
+  protected EventProducer eventProducer;
 
   static TupleDefinition gftdef;
 
@@ -88,6 +92,10 @@ public class UdpStreamOutProvider extends AbstractYamcsService
     if (config.containsKey("frameMaxRate")) {
       rateLimiter = RateLimiter.create(config.getDouble("frameMaxRate"), 1, TimeUnit.SECONDS);
     }
+    receiving = true;
+
+    eventProducer =
+        EventProducerFactory.getEventProducer(instance, this.getClass().getSimpleName(), 10000);
   }
 
   private static Stream getStream(YarchDatabaseInstance ydb, String streamName) {
@@ -205,13 +213,18 @@ public class UdpStreamOutProvider extends AbstractYamcsService
 
   @Override
   public void onTuple(Stream arg0, Tuple tuple) {
-    if (isRunningAndEnabled()) {
+    if (isRunningAndEnabled() && receiving) {
       byte[] pktData = tuple.getColumn(DATA_CNAME);
       if (pktData == null) {
         throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
       } else {
         DatagramPacket dtg = new DatagramPacket(pktData, pktData.length, address, port);
         try {
+          //        	synchronized (socket)
+          //        	{
+          //                socket.send(dtg);
+          //        	}
+
           socket.send(dtg);
           updateStats(pktData.length);
         } catch (IOException e) {
@@ -227,5 +240,36 @@ public class UdpStreamOutProvider extends AbstractYamcsService
   public Spec getSpec() {
     // TODO Auto-generated method stub
     return super.getSpec();
+  }
+
+  //  Not using the regular YAMCS "doStop" since I don't think that's meant to be called by API
+  // users
+  //   and I don't know if it'll have any side effects.
+  public void stopReceving() {
+    closeSockets();
+    receiving = false;
+  }
+
+  public void startReceving() {
+    if (receiving) {
+      eventProducer.sendInfo("Link is already receving.");
+      return;
+    }
+    try {
+      socket = new DatagramSocket(port);
+    } catch (SocketException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    receiving = true;
+  }
+
+  private void closeSockets() {
+    //  	synchronized (socket)
+    //  	{
+    //  	  socket.close();
+    //
+    //  	}
+    socket.close();
   }
 }

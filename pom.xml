@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.windhoverlabs</groupId>
 	<artifactId>yamcs-cfs</artifactId>
-	<version>1.6.7</version>
+	<version>1.6.8</version>
 
 	<packaging>jar</packaging>
 	<name>Telemetry and Command provider for Core Flight Software</name>
@@ -75,7 +75,8 @@
 			<plugin>
 				<groupId>org.yamcs</groupId>
 				<artifactId>yamcs-maven-plugin</artifactId>
-				<version>1.2.5</version>
+				<version>1.2.7</version>
+				
 			</plugin>
 
 			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
@@ -142,7 +143,7 @@
 			<plugin>
 				<groupId>org.yamcs</groupId>
 				<artifactId>yamcs-maven-plugin</artifactId>
-				<version>1.2.6</version>
+				<version>1.2.7</version>
 				<executions>
 					<!-- >execution>
             < goals>
@@ -166,6 +167,11 @@
 							</formats>
 						</configuration>
 					</execution>
+					    <execution>
+      <goals>
+        <goal>detect</goal>
+      </goals>
+    </execution>
 				</executions>
 			</plugin>
 			<plugin>
