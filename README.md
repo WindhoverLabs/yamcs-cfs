@@ -406,6 +406,13 @@ r = requests.post('http://127.0.0.1:8090/api/fsw/udp/:start',
                         "linkName": "tm_ground_node_udp_out"})
 ```
 
+```python
+import requests
+r = requests.post('http://127.0.0.1:8090/api/fsw/udp/:stop',
+                  json={"instance": "fsw",
+                        "linkName": "tm_ground_node_udp_out"})
+```
+
 **NOTE**: This documentation is subject to change as our tools evolve.  
 Documented on July 5th, 2021
 
