@@ -49,6 +49,7 @@ public class UdpStreamOutProvider extends AbstractYamcsService
   protected String linkName;
   protected AtomicBoolean disabled = new AtomicBoolean(false);
   private boolean receiving;
+  private boolean enabledAtStartup = true;
   protected EventProducer eventProducer;
 
   static TupleDefinition gftdef;
@@ -76,6 +77,7 @@ public class UdpStreamOutProvider extends AbstractYamcsService
     }
     host = config.getString("host");
     port = config.getInt("port");
+    enabledAtStartup = config.getBoolean("enabledAtStartup");
     String streamName = config.getString("stream");
     this.linkName = name;
 
@@ -96,6 +98,10 @@ public class UdpStreamOutProvider extends AbstractYamcsService
 
     eventProducer =
         EventProducerFactory.getEventProducer(instance, this.getClass().getSimpleName(), 10000);
+
+    if (!enabledAtStartup) {
+      disabled.getAndSet(true);
+    }
   }
 
   private static Stream getStream(YarchDatabaseInstance ydb, String streamName) {
@@ -257,6 +263,9 @@ public class UdpStreamOutProvider extends AbstractYamcsService
       eventProducer.sendInfo("Link is already receving.");
       return;
     }
+    if (disabled.get()) {
+      disabled.getAndSet(false);
+    }
     try {
       socket = new DatagramSocket(port);
     } catch (SocketException e) {
@@ -272,6 +281,8 @@ public class UdpStreamOutProvider extends AbstractYamcsService
     //  	  socket.close();
     //
     //  	}
-    socket.close();
+    if (socket != null) {
+      socket.close();
+    }
   }
 }
