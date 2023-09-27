@@ -26,6 +26,7 @@ import org.yamcs.YamcsServer;
 import org.yamcs.api.HttpBody;
 import org.yamcs.api.Observer;
 import org.yamcs.archive.ReplayOptions;
+import org.yamcs.client.Helpers;
 import org.yamcs.client.YamcsClient;
 import org.yamcs.client.archive.ArchiveClient;
 import org.yamcs.http.BadRequestException;
@@ -40,7 +41,6 @@ import org.yamcs.protobuf.Yamcs.NamedObjectId;
 import org.yamcs.protobuf.Yamcs.ParameterReplayRequest;
 import org.yamcs.security.ObjectPrivilegeType;
 import org.yamcs.security.User;
-import org.yamcs.utils.ParameterFormatter;
 import org.yamcs.utils.TimeEncoding;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.xtce.XtceDb;
@@ -58,6 +58,7 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
     boolean addMonitoring;
     int recordCount = 0;
     char columnDelimiter = '\t';
+    Instant firstInstant;
 
     CsvParameterStreamer(
         Observer<HttpBody> observer,
@@ -84,10 +85,16 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
 
       ByteString.Output data = ByteString.newOutput();
       try (Writer writer = new OutputStreamWriter(data, StandardCharsets.UTF_8);
-          ParameterFormatter formatter = new ParameterFormatter(writer, ids, columnDelimiter)) {
+          DeltaCountedParameterFormatter formatter =
+              new DeltaCountedParameterFormatter(writer, ids, columnDelimiter)) {
+        if (recordCount == 0) {
+          firstInstant =
+              Helpers.toInstant(params.get(0).getParameterValue().toGpb().getGenerationTime());
+        }
         formatter.setWriteHeader(recordCount == 0);
         formatter.setPrintRaw(addRaw);
         formatter.setPrintMonitoring(addMonitoring);
+        formatter.setFirstInstant(firstInstant);
         formatter.writeParameters(params);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
@@ -183,8 +190,6 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
     }
     //    TODO:Get names from conofig/api request
     for (String id : request.getParametersList()) {
-      //              ParameterWithId paramWithId = MdbApi.verifyParameterWithId(ctx, mdb, id);
-      //      NamedObjectId.newBuilder().build();
       ids.add(NamedObjectId.newBuilder().setName(id).build());
     }
     if (request.hasNamespace()) {
