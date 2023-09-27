@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -124,7 +125,7 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
   private String bucketName;
   private FileSystemBucket bucket;
   private Thread thread;
-  private FileOutputStream fis;
+  private HashMap<String, FileOutputStream> fisMap = new HashMap<String, FileOutputStream>();
   private Path bucketPath;
   private static final String CSV_NAME_POST_FIX = ".csv";
   private Map<String, List<String>> paramsMap = null;
@@ -266,7 +267,8 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
       ArrayList<String> parameters = new ArrayList<String>();
       //      String[] nameTokens = param.split("/");
 
-      fis = openFile(getNewFilePath(params.getKey()).toAbsolutePath().toString());
+      FileOutputStream fis = openFile(getNewFilePath(params.getKey()).toAbsolutePath().toString());
+      fisMap.put(getNewFilePath(params.getKey()).toAbsolutePath().toString(), fis);
       for (String param : params.getValue()) {
         //        String p = "/cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].MessagesSent";
         parameters.add(param);
@@ -292,7 +294,9 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
             @Override
             public void next(HttpBody message) {
               //              // TODO Auto-generated method stub
-              writeToCSV(message.getData().toByteArray());
+              writeToCSV(
+                  message.getData().toByteArray(),
+                  getNewFilePath(params.getKey()).toAbsolutePath().toString());
             }
 
             @Override
@@ -310,9 +314,9 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
     }
   }
 
-  private void writeToCSV(byte[] data) {
+  private void writeToCSV(byte[] data, String path) {
 
-    writeToFile(data, fis);
+    writeToFile(data, fisMap.get(path));
   }
 
   private void writeToFile(byte[] data, FileOutputStream fis) {
