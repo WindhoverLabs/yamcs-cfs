@@ -413,6 +413,44 @@ r = requests.post('http://127.0.0.1:8090/api/fsw/udp/:stop',
                         "linkName": "tm_ground_node_udp_out"})
 ```
 
+
+### Export CSVs
+
+```yaml
+  - class: com.windhoverlabs.yamcs.archive.CSVExporter
+    name: "csv_exporter"
+    args:
+      bucket: "cfdpDownCH1"
+      start: "2023-09-23T23:00:00.000Z"
+      stop: "2023-09-24T00:10:00.000Z"
+      params:
+        TO_HK_TLM_MID:
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.CmdCnt
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.CmdErrCnt
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.SentBytes
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelMaxMem
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].MemInUse
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].PeakMemInUse
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].TotalQueued
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].MessagesSent
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].SentBytes
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].CurrentlyQueuedCnt
+        PX4_VEHICLE_ATTITUDE_SETPOINT_MID:
+          - /cfs/cpd/apps/px4lib/PX4_VEHICLE_ATTITUDE_SETPOINT_MID.RollBody
+          - /cfs/cpd/apps/px4lib/PX4_VEHICLE_ATTITUDE_SETPOINT_MID.PitchBody
+        ASPD4525_HK_TLM_MID:
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fIndicatedAirSpeed
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTrueAirSpeed  
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTrueAirSpeedUnfiltered
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.uTemperatureCount
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.uStatus
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTemperature
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fPressureMinimum_PSI
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fPressureMaximum_PSI
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTemperatureMinimum_Celcius
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTemperatureMaximum_Celcius
+```
+
 **NOTE**: This documentation is subject to change as our tools evolve.  
 Documented on July 5th, 2021
 
