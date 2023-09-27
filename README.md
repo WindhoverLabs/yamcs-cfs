@@ -435,6 +435,20 @@ r = requests.post('http://127.0.0.1:8090/api/fsw/udp/:stop',
           - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].MessagesSent
           - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].SentBytes
           - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].CurrentlyQueuedCnt
+        PX4_VEHICLE_ATTITUDE_SETPOINT_MID:
+          - /cfs/cpd/apps/px4lib/PX4_VEHICLE_ATTITUDE_SETPOINT_MID.RollBody
+          - /cfs/cpd/apps/px4lib/PX4_VEHICLE_ATTITUDE_SETPOINT_MID.PitchBody
+        ASPD4525_HK_TLM_MID:
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fIndicatedAirSpeed
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTrueAirSpeed  
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTrueAirSpeedUnfiltered
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.uTemperatureCount
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.uStatus
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTemperature
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fPressureMinimum_PSI
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fPressureMaximum_PSI
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTemperatureMinimum_Celcius
+          - /cfs/cpd/apps/aspd4525/ASPD4525_HK_TLM_MID.fTemperatureMaximum_Celcius
 ```
 
 **NOTE**: This documentation is subject to change as our tools evolve.  
