@@ -1,15 +1,24 @@
 package com.windhoverlabs.yamcs.archive;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Timestamp;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.yamcs.AbstractYamcsService;
 import org.yamcs.InitException;
 import org.yamcs.YConfiguration;
@@ -24,7 +33,6 @@ import org.yamcs.http.MediaType;
 import org.yamcs.http.api.ManagementApi;
 import org.yamcs.http.api.ParameterReplayListener;
 import org.yamcs.http.api.ReplayFactory;
-// import org.yamcs.http.api.StreamArchiveApi.CsvParameterStreamer;
 import org.yamcs.mdb.XtceDbFactory;
 import org.yamcs.parameter.ParameterValueWithId;
 import org.yamcs.protobuf.Archive.ExportParameterValuesRequest;
@@ -36,8 +44,11 @@ import org.yamcs.utils.ParameterFormatter;
 import org.yamcs.utils.TimeEncoding;
 import org.yamcs.xtce.Parameter;
 import org.yamcs.xtce.XtceDb;
+import org.yamcs.yarch.FileSystemBucket;
+import org.yamcs.yarch.YarchDatabase;
+import org.yamcs.yarch.YarchDatabaseInstance;
 
-public class CSVExporter extends AbstractYamcsService {
+public class CSVExporter extends AbstractYamcsService implements Runnable {
 
   private static class CsvParameterStreamer extends ParameterReplayListener {
 
@@ -101,30 +112,51 @@ public class CSVExporter extends AbstractYamcsService {
   private YamcsClient yamcsClient;
   private ArchiveClient archiveClient;
   private boolean realtime;
-  private String start;
-  private String stop;
+  private Instant start;
+  private Instant stop;
+  private String bucketName;
+  private FileSystemBucket bucket;
+  private Thread thread;
+  private FileOutputStream fis;
+  private Path bucketPath;
+  private static final String CSV_NAME_POST_FIX = ".csv";
+  private Map<String, List<String>> paramsMap = null;
 
   @Override
   public void init(String yamcsInstance, String serviceName, YConfiguration config)
       throws InitException {
-    yamcsClient = YamcsClient.newBuilder("http://localhost", 8090).build();
-    archiveClient = yamcsClient.createArchiveClient(yamcsInstance);
 
-    realtime =
-        this.config.getBoolean(
-            "realtime", false); // might be useful for "always" writing to a CSV file...
-    start = this.config.getString("start");
-    stop = this.config.getString("stop");
+    //    realtime =
+    //        this.config.getBoolean(
+    //            "realtime", false); // might be useful for "always" writing to a CSV file...
+    start = Instant.parse("2023-09-23T23:00:00.000Z");
+    //    this.config.getString("start");
+    stop = Instant.parse("2023-09-24T00:10:00.000Z");
+    //    		this.config.getString("stop");
+
+    /* Read in our configuration parameters. */
+    bucketName = config.getString("bucket");
+    paramsMap = config.getMap("params");
+
+    //    System.out.println("params:" + paramsMap);
+
+    /* Iterate through the bucket names passed to us by the configuration file.  We're going to add the buckets
+     * to our internal list so we can process them later. */
+    YarchDatabaseInstance yarch = YarchDatabase.getInstance(YamcsServer.GLOBAL_INSTANCE);
+
+    try {
+      bucket = (FileSystemBucket) yarch.getBucket(bucketName);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
   protected void doStart() {
-    //		archiveClient
-    // TODO Auto-generated method stub
-    this.export(
-        YamcsServer.getServer().getSecurityStore().getDirectory().getUser("admin"),
-        ExportParameterValuesRequest.newBuilder().build(),
-        null);
+
+    thread = new Thread(this);
+    thread.start();
+    notifyStarted();
   }
 
   @Override
@@ -151,9 +183,9 @@ public class CSVExporter extends AbstractYamcsService {
     }
     //    TODO:Get names from conofig/api request
     for (String id : request.getParametersList()) {
-      //        ParameterWithId paramWithId = MdbApi.verifyParameterWithId(ctx, mdb, id);
-      NamedObjectId.newBuilder().build();
-      ids.add(NamedObjectId.newBuilder().build());
+      //              ParameterWithId paramWithId = MdbApi.verifyParameterWithId(ctx, mdb, id);
+      //      NamedObjectId.newBuilder().build();
+      ids.add(NamedObjectId.newBuilder().setName(id).build());
     }
     if (request.hasNamespace()) {
       namespace = request.getNamespace();
@@ -214,7 +246,104 @@ public class CSVExporter extends AbstractYamcsService {
           throw new BadRequestException("Unexpected column delimiter");
       }
     }
-    observer.setCancelHandler(l::requestReplayAbortion);
+    //    observer.setCancelHandler(l::requestReplayAbortion);
     ReplayFactory.replay(instance, user, repl, l);
+  }
+
+  @Override
+  public void run() {
+    exportPV();
+  }
+
+  private void exportPV() {
+
+    for (Entry<String, List<String>> params : paramsMap.entrySet()) {
+      ArrayList<String> parameters = new ArrayList<String>();
+      //      String[] nameTokens = param.split("/");
+
+      fis = openFile(getNewFilePath(params.getKey()).toAbsolutePath().toString());
+      for (String param : params.getValue()) {
+        //        String p = "/cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].MessagesSent";
+        parameters.add(param);
+      }
+      this.export(
+          YamcsServer.getServer().getSecurityStore().getDirectory().getUser("admin"),
+          ExportParameterValuesRequest.newBuilder()
+              .addAllParameters(parameters)
+              .setStart(
+                  Timestamp.newBuilder()
+                      .setNanos(start.getNano())
+                      .setSeconds(start.getEpochSecond())
+                      .build())
+              .setStop(
+                  Timestamp.newBuilder()
+                      .setNanos(stop.getNano())
+                      .setSeconds(stop.getEpochSecond())
+                      .build())
+              .setInstance("fsw")
+              .build(),
+          new Observer<HttpBody>() {
+
+            @Override
+            public void next(HttpBody message) {
+              //              // TODO Auto-generated method stub
+              writeToCSV(message.getData().toByteArray());
+            }
+
+            @Override
+            public void completeExceptionally(Throwable t) {
+              // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void complete() {
+              // TODO Auto-generated method stub
+              closeFile(fis);
+            }
+          });
+    }
+  }
+
+  private void writeToCSV(byte[] data) {
+
+    writeToFile(data, fis);
+  }
+
+  private void writeToFile(byte[] data, FileOutputStream fis) {
+    try {
+      fis.write(data, 0, data.length);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  private void closeFile(FileOutputStream fis) {
+    try {
+      fis.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  private FileOutputStream openFile(String path) {
+    File inputFile = new File(path);
+    FileOutputStream fis = null;
+    try {
+      fis = new FileOutputStream(inputFile);
+    } catch (FileNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return fis;
+  }
+
+  private Path getNewFilePath(String name) {
+    bucketPath = Paths.get(bucket.getBucketRoot().toString()).toAbsolutePath();
+    Path filePath = bucketPath.resolve(name + "_" + CSV_NAME_POST_FIX);
+
+    return filePath;
   }
 }
