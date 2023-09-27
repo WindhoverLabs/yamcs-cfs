@@ -288,6 +288,7 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
                       .setSeconds(stop.getEpochSecond())
                       .build())
               .setInstance(yamcsInstance)
+              .setDelimiter("COMMA")
               .build(),
           new Observer<HttpBody>() {
 
@@ -351,7 +352,7 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
 
   private Path getNewFilePath(String name) {
     bucketPath = Paths.get(bucket.getBucketRoot().toString()).toAbsolutePath();
-    Path filePath = bucketPath.resolve(name + "_" + CSV_NAME_POST_FIX);
+    Path filePath = bucketPath.resolve(name + CSV_NAME_POST_FIX);
 
     return filePath;
   }
