@@ -413,6 +413,28 @@ r = requests.post('http://127.0.0.1:8090/api/fsw/udp/:stop',
                         "linkName": "tm_ground_node_udp_out"})
 ```
 
+
+### Export CSVs
+
+```yaml
+  - class: com.windhoverlabs.yamcs.archive.CSVExporter
+    name: "csv_exporter"
+    args:
+      bucket: "cfdpDownCH1"
+      params:
+        TO_HK_TLM_MID:
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.CmdCnt
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.CmdErrCnt
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.SentBytes
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelMaxMem
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].MemInUse
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].PeakMemInUse
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].TotalQueued
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].MessagesSent
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].SentBytes
+          - /cfs/ppd/apps/to/TO_HK_TLM_MID.ChannelInfo[0].CurrentlyQueuedCnt
+```
+
 **NOTE**: This documentation is subject to change as our tools evolve.  
 Documented on July 5th, 2021
 
