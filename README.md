@@ -421,6 +421,8 @@ r = requests.post('http://127.0.0.1:8090/api/fsw/udp/:stop',
     name: "csv_exporter"
     args:
       bucket: "cfdpDownCH1"
+      start: "2023-09-23T23:00:00.000Z"
+      stop: "2023-09-24T00:10:00.000Z"
       params:
         TO_HK_TLM_MID:
           - /cfs/ppd/apps/to/TO_HK_TLM_MID.CmdCnt

@@ -129,10 +129,10 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
     //    realtime =
     //        this.config.getBoolean(
     //            "realtime", false); // might be useful for "always" writing to a CSV file...
-    start = Instant.parse("2023-09-23T23:00:00.000Z");
-    //    this.config.getString("start");
-    stop = Instant.parse("2023-09-24T00:10:00.000Z");
-    //    		this.config.getString("stop");
+    //    start = Instant.parse("2023-09-23T23:00:00.000Z");
+    start = Instant.parse(config.getString("start"));
+    //    stop = Instant.parse("2023-09-24T00:10:00.000Z");
+    stop = Instant.parse(config.getString("stop"));
 
     /* Read in our configuration parameters. */
     bucketName = config.getString("bucket");
