@@ -71,6 +71,7 @@ public class UdpStreamInProvider extends AbstractYamcsService
   private int port;
   private int offset;
   private int rightTrim;
+  private int rcvBufferSize;
   int maxLength;
   //  private volatile int invalidDatagramCount = 0;
 
@@ -91,6 +92,7 @@ public class UdpStreamInProvider extends AbstractYamcsService
     this.linkName = name;
     port = config.getInt("port");
     offset = config.getInt("offset", 0);
+    rcvBufferSize = config.getInt("rcvBufferSize", 0);
     rightTrim = config.getInt("rightTrim", 0);
     maxLength = config.getInt("maxLength", MAX_LENGTH);
     log = new Log(getClass(), instance);
@@ -172,6 +174,10 @@ public class UdpStreamInProvider extends AbstractYamcsService
     if (!isDisabled()) {
       try {
         tmSocket = new DatagramSocket(port);
+        if(rcvBufferSize > 0)
+        {
+          tmSocket.setReceiveBufferSize(rcvBufferSize);
+        }
         new Thread(this).start();
       } catch (SocketException e) {
         notifyFailed(e);

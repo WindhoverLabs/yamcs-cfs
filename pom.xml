@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.windhoverlabs</groupId>
 	<artifactId>yamcs-cfs</artifactId>
-	<version>1.7.2</version>
+	<version>1.8.0</version>
 
 	<packaging>jar</packaging>
 	<name>Telemetry and Command provider for Core Flight Software</name>
