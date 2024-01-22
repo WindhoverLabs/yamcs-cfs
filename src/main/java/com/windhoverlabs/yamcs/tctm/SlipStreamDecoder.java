@@ -446,18 +446,17 @@ public class SlipStreamDecoder extends AbstractYamcsService
     if (isRunningAndEnabled()) {
 
       byte[] packet;
+
       try {
         packet = getPayload(tuple.getColumn(DATA_CNAME));
 
-        int trimmedPacketSize = packet.length - this.offset - this.rightTrim;
-
-        byte[] trimmedPacket =
-            Arrays.copyOfRange(packet, this.offset, packet.length - this.rightTrim);
-
-        // long recTime = tuple.getColumn(PreparedCommand.CNAME_GENTIME);
         if (packet == null) {
-          throw new ConfigurationException("no column named '%s' in the tuple", DATA_CNAME);
+          log.error("Parsed an empty SLIP message. Ignoring message.");
         } else {
+          int trimmedPacketSize = packet.length - this.offset - this.rightTrim;
+          byte[] trimmedPacket =
+              Arrays.copyOfRange(packet, this.offset, packet.length - this.rightTrim);
+
           if (trimmedPacket.length <= 0) {
             log.error("Packet length is <= 0");
           } else {
