@@ -174,8 +174,7 @@ public class UdpStreamInProvider extends AbstractYamcsService
     if (!isDisabled()) {
       try {
         tmSocket = new DatagramSocket(port);
-        if(rcvBufferSize > 0)
-        {
+        if (rcvBufferSize > 0) {
           tmSocket.setReceiveBufferSize(rcvBufferSize);
         }
         new Thread(this).start();
