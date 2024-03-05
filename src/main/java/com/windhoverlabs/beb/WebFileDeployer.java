@@ -1,42 +1,34 @@
 package com.windhoverlabs.beb;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 import com.google.common.io.CharStreams;
-import com.google.gson.Gson;
-import com.google.protobuf.util.JsonFormat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.stream.Stream;
-import org.yamcs.CommandOption;
 import org.yamcs.Experimental;
-import org.yamcs.Plugin;
-import org.yamcs.PluginManager;
-import org.yamcs.ProcessorFactory;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
-import org.yamcs.commanding.CommandQueue;
-import org.yamcs.commanding.CommandQueueManager;
-import org.yamcs.http.api.ServerApi;
-import org.yamcs.http.auth.AuthHandler;
 import org.yamcs.logging.Log;
-import org.yamcs.management.ManagementService;
-import org.yamcs.protobuf.AuthInfo;
 // import org.yamcs.templating.ParseException;
 import org.yamcs.templating.ParseException;
 import org.yamcs.templating.TemplateProcessor;
+import org.yamcs.utils.FileUtils;
 
 /**
  * Deploys web files from a source to a target directory, while tweaking some files.
@@ -90,9 +82,10 @@ public class WebFileDeployer {
     System.out.println(
         "Beb web file deployer:" + YamcsServer.getServer().getConfigDirectory().getParent());
     target = YamcsServer.getServer().getConfigDirectory().getParent();
+    target = target.resolve("beb");
     //    Eventually this target directory will come from the API, something like webDisplays config
     // in the YAMCS Webapp
-    System.out.println("target:" + target.resolve("beb"));
+    //    System.out.println("target:" + target.resolve("beb"));
 
     YamcsServer yamcs = YamcsServer.getServer();
 
@@ -126,25 +119,27 @@ public class WebFileDeployer {
     //            source = source.toAbsolutePath().normalize();
     //        }
 
-//            TODO:Uncomment to deploy beb files
-            boolean deployed = false;
-            if (source != null) {
-                if (Files.exists(source)) {
-                    log.debug("Deploying yamcs-web from {}", source);
-    //                FileUtils.copyRecursively(source, target);
-                    deployed = true;
-    
-                    // Watch for changes
-                    new Redeployer(source, target).start();
-                } else {
-                    log.warn("Static root for yamcs-web not found at '{}'", source);
-                }
-            }
-            if (!deployed) {
-                deployWebsiteFromClasspath(target);
-            }
-    
-            prepareWebApplication();
+    //            TODO:Uncomment to deploy beb files
+    boolean deployed = false;
+    if (source != null) {
+      if (Files.exists(source)) {
+        log.debug("Deploying yamcs-web from {}", source);
+        //                FileUtils.copyRecursively(source, target);
+        deployed = true;
+
+        // Watch for changes
+        new Redeployer(source, target).start();
+      } else {
+        log.warn("Static root for yamcs-web not found at '{}'", source);
+      }
+    }
+
+    //    Not needed by BEB for now
+    //    if (!deployed) {
+    //      deployWebsiteFromClasspath(target);
+    //    }
+    //
+    prepareWebApplication();
   }
 
   /** Returns the directory where files are deployed */
@@ -154,6 +149,9 @@ public class WebFileDeployer {
 
   @Experimental
   public List<Path> getExtraStaticRoots() {
+    extraStaticRoots.add(
+        Path.of(
+            "/home/lgomez/projects/beb_integration/squeaky-weasel/software/airliner/build/venus_aero/sassie/sitl_commander_workspace/beb/index.html"));
     return extraStaticRoots;
   }
 
@@ -191,17 +189,32 @@ public class WebFileDeployer {
   }
 
   private synchronized void prepareWebApplication() throws IOException {
+    //    Path indexFile = target.resolve(PATH_INDEX);
+    //    String content = renderIndex(indexFile);
+    //    System.out.println("content:" + content);
+    //    Files.writeString(indexFile, content, UTF_8);
+    //	          hashTableOverrides.put("/" + PATH_INDEX, calculateSha1(content));
+    //	  NOTE:This complicated template logic is not really needed for beb
     // Keep track of SHA1 of modified files (for injection in ngsw.json)
-    HashMap hashTableOverrides = new HashMap<String, String>();
-
-    Path indexTemplateFile = target.resolve(PATH_INDEX_TEMPLATE);
-    Path indexFile = target.resolve(PATH_INDEX);
-    //        if (Files.exists(indexTemplateFile)) {
-    //            var content = renderIndex(indexTemplateFile);
-    //            Files.writeString(indexFile, content, UTF_8);
-    //            hashTableOverrides.put("/" + PATH_INDEX, calculateSha1(content));
-    //        }
-    Path webManifestFile = target.resolve(PATH_WEBMANIFEST);
+    //    HashMap<String, String> hashTableOverrides = new HashMap<String, String>();
+    //
+    ////    Path indexTemplateFile = target.resolve(PATH_INDEX_TEMPLATE);
+    ////    Path indexFile = target.resolve(PATH_INDEX);
+    ////    if (Files.exists(indexTemplateFile)) {
+    ////      String content = renderIndex(indexTemplateFile);
+    ////      Files.writeString(indexFile, content, UTF_8);
+    ////      hashTableOverrides.put("/" + PATH_INDEX, calculateSha1(content));
+    ////    }
+    ////
+    //
+    //    Path indexTemplateFile = target.resolve(PATH_INDEX_TEMPLATE);
+    //    Path indexFile = target.resolve(PATH_INDEX);
+    //    if (Files.exists(indexTemplateFile)) {
+    //      String content = renderIndex(indexTemplateFile);
+    ////      Files.writeString(indexFile, content, UTF_8);
+    ////      hashTableOverrides.put("/" + PATH_INDEX, calculateSha1(content));
+    //    }
+    //    Path webManifestFile = target.resolve(PATH_WEBMANIFEST);
     //        if (Files.exists(webManifestFile)) {
     //            var content = renderWebManifest(webManifestFile);
     //            Files.writeString(webManifestFile, content, UTF_8);
@@ -215,11 +228,12 @@ public class WebFileDeployer {
   }
 
   @SuppressWarnings("unchecked")
-  private String renderIndex(Path file) throws IOException, ParseException {
+  private String renderIndex(Path file) throws IOException {
     String template = new String(Files.readAllBytes(file), UTF_8);
 
     ArrayList<Path> cssFiles = new ArrayList<Path>();
     ArrayList<Path> jsFiles = new ArrayList<Path>();
+    System.out.println("extraStaticRoots:" + extraStaticRoots);
     for (Path extraStaticRoot : extraStaticRoots) {
       try (Stream<Path> listing = Files.list(extraStaticRoot)) {
         listing.forEachOrdered(
@@ -252,69 +266,79 @@ public class WebFileDeployer {
           .append("\" type=\"module\"></script>\n");
     }
 
-    extraHeaderHtml.append(config.getString("extraHeaderHTML", ""));
+    //    extraHeaderHtml.append(config.getString("extraHeaderHTML", ""));
 
     // Don't use template for this, because Angular compiler messes up the HTML
-    template = template.replace("<!--[[ EXTRA_HEADER_HTML ]]-->", extraHeaderHtml.toString());
 
-    HashMap webConfig = new HashMap<>(config.toMap());
-
-    // Remove filesystem path from custom logo
-    if (config.containsKey("logo")) {
-      Path logo = Paths.get(config.getString("logo"));
-      String filename = logo.getFileName().toString();
-      webConfig.put("logo", contextPath + "/" + filename);
-    }
-
-    AuthInfo authInfo = AuthHandler.createAuthInfo();
-    String authJson = JsonFormat.printer().print(authInfo);
-    Map authMap = new Gson().fromJson(authJson, Map.class);
-    webConfig.put("auth", authMap);
-
-    YamcsServer yamcs = YamcsServer.getServer();
-
-    PluginManager pluginManager = yamcs.getPluginManager();
-    ArrayList<String> plugins = new ArrayList<String>();
-    for (Plugin plugin : pluginManager.getPlugins()) {
-      String pluginName = pluginManager.getMetadata(plugin.getClass()).getName();
-      plugins.add(pluginName);
-    }
-    webConfig.put("plugins", plugins);
-
-    ArrayList<Map<String, Object>> commandOptions = new ArrayList<Map<String, Object>>();
-    for (CommandOption option : yamcs.getCommandOptions()) {
-      String json = JsonFormat.printer().print(ServerApi.toCommandOptionInfo(option));
-      commandOptions.add(new Gson().fromJson(json, Map.class));
-    }
-    webConfig.put("commandOptions", commandOptions);
-    webConfig.put("serverId", yamcs.getServerId());
-    webConfig.put("hasTemplates", !yamcs.getInstanceTemplates().isEmpty());
-
-    // Enable clearance-related UI only if there's potential for a processor
-    // that has it enabled (we expect most people to not use this feature).
-    boolean commandClearanceEnabled =
-        ProcessorFactory.getProcessorTypes().entrySet().stream()
-            .anyMatch(entry -> entry.getValue().checkCommandClearance());
-    webConfig.put("commandClearanceEnabled", commandClearanceEnabled);
-
-    // Make queue names directly available without API request. It is used
-    // for populating a command history combo box.
-    TreeSet<String> queueNames = new TreeSet<String>(); // Sorted
-    for (CommandQueueManager qmanager : ManagementService.getInstance().getCommandQueueManagers()) {
-      for (CommandQueue queue : qmanager.getQueues()) {
-        queueNames.add(queue.getName());
-      }
-    }
-    webConfig.put("queueNames", queueNames);
-
-    // May be used by web extensions to pass arbitrary information
-    webConfig.put("extra", extraConfigs);
-
-    HashMap<String, Object> args = new HashMap<String, Object>();
-    args.put("contextPath", contextPath);
-    args.put("config", webConfig);
-    args.put("configJson", new Gson().toJson(webConfig));
-    return TemplateProcessor.process(template, args);
+    return extraHeaderHtml.toString();
+    //        template = template.replace("<!--[[ EXTRA_HEADER_HTML ]]-->",
+    // extraHeaderHtml.toString());
+    //
+    //    HashMap webConfig = new HashMap<>(config.toMap());
+    //
+    //    // Remove filesystem path from custom logo
+    //    if (config.containsKey("logo")) {
+    //      Path logo = Paths.get(config.getString("logo"));
+    //      String filename = logo.getFileName().toString();
+    //      webConfig.put("logo", contextPath + "/" + filename);
+    //    }
+    //
+    //    AuthInfo authInfo = AuthHandler.createAuthInfo();
+    //    String authJson = JsonFormat.printer().print(authInfo);
+    //    Map authMap = new Gson().fromJson(authJson, Map.class);
+    //    webConfig.put("auth", authMap);
+    //
+    //    YamcsServer yamcs = YamcsServer.getServer();
+    //
+    //    PluginManager pluginManager = yamcs.getPluginManager();
+    //    ArrayList<String> plugins = new ArrayList<String>();
+    //    for (Plugin plugin : pluginManager.getPlugins()) {
+    //      String pluginName = pluginManager.getMetadata(plugin.getClass()).getName();
+    //      plugins.add(pluginName);
+    //    }
+    //    webConfig.put("plugins", plugins);
+    //
+    //    ArrayList<Map<String, Object>> commandOptions = new ArrayList<Map<String, Object>>();
+    //    for (CommandOption option : yamcs.getCommandOptions()) {
+    //      String json = JsonFormat.printer().print(ServerApi.toCommandOptionInfo(option));
+    //      commandOptions.add(new Gson().fromJson(json, Map.class));
+    //    }
+    //    webConfig.put("commandOptions", commandOptions);
+    //    webConfig.put("serverId", yamcs.getServerId());
+    //    webConfig.put("hasTemplates", !yamcs.getInstanceTemplates().isEmpty());
+    //
+    //    // Enable clearance-related UI only if there's potential for a processor
+    //    // that has it enabled (we expect most people to not use this feature).
+    //    boolean commandClearanceEnabled =
+    //        ProcessorFactory.getProcessorTypes().entrySet().stream()
+    //            .anyMatch(entry -> entry.getValue().checkCommandClearance());
+    //    webConfig.put("commandClearanceEnabled", commandClearanceEnabled);
+    //
+    //    // Make queue names directly available without API request. It is used
+    //    // for populating a command history combo box.
+    //    TreeSet<String> queueNames = new TreeSet<String>(); // Sorted
+    //    for (CommandQueueManager qmanager :
+    // ManagementService.getInstance().getCommandQueueManagers()) {
+    //      for (CommandQueue queue : qmanager.getQueues()) {
+    //        queueNames.add(queue.getName());
+    //      }
+    //    }
+    //    webConfig.put("queueNames", queueNames);
+    //
+    //    // May be used by web extensions to pass arbitrary information
+    //    webConfig.put("extra", extraConfigs);
+    //
+    //    HashMap<String, Object> args = new HashMap<String, Object>();
+    //    args.put("contextPath", contextPath);
+    //    args.put("config", webConfig);
+    //    args.put("configJson", new Gson().toJson(webConfig));
+    //    try {
+    //      return TemplateProcessor.process(template, args);
+    //    } catch (Exception e) {
+    //      // TODO Auto-generated catch block
+    //      e.printStackTrace();
+    //    }
+    //    return "";
   }
 
   private String renderWebManifest(Path file) throws IOException, ParseException {
@@ -390,41 +414,39 @@ public class WebFileDeployer {
 
     @Override
     public void run() {
-      //            try {
-      //                while (true) {
-      //                    if (Files.exists(source)) {
-      //                    	WatchService watchService = source.getFileSystem().newWatchService();
-      //                        source.register(watchService, ENTRY_CREATE, ENTRY_MODIFY);
-      //
-      //                        boolean forceDeploy = false;
-      //                        boolean loop = true;
-      //                        while (loop) {
-      //                        	WatchKey key = watchService.take();
-      //                            if (forceDeploy || !key.pollEvents().isEmpty()) {
-      //                                forceDeploy = false;
-      //
-      //                                log.debug("Redeploying yamcs-web from {}", source);
-      //                                FileUtils.deleteContents(target);
-      //                                FileUtils.copyRecursively(source, target);
-      //                                prepareWebApplication();
-      //                            }
-      //                            loop = key.reset();
-      //                        }
-      //
-      //                        // If the source directory goes away (webapp rebuild),
-      //                        // force a redeploy whenever the directory comes back.
-      //                        forceDeploy = true;
-      //                    } else {
-      //                        Thread.sleep(500);
-      //                    }
-      //                }
-      //            } catch (IOException e) {
-      //                throw new UncheckedIOException(e);
-      //            } catch (ParseException e) {
-      //                throw new RuntimeException(e);
-      //            } catch (InterruptedException e) {
-      //                Thread.currentThread().interrupt();
-      //            }
+      try {
+        while (true) {
+          if (Files.exists(source)) {
+            WatchService watchService = source.getFileSystem().newWatchService();
+            source.register(watchService, ENTRY_CREATE, ENTRY_MODIFY);
+
+            boolean forceDeploy = false;
+            boolean loop = true;
+            while (loop) {
+              WatchKey key = watchService.take();
+              if (forceDeploy || !key.pollEvents().isEmpty()) {
+                forceDeploy = false;
+
+                log.debug("Redeploying yamcs-web from {}", source);
+                FileUtils.deleteContents(target);
+                FileUtils.copyRecursively(source, target);
+                prepareWebApplication();
+              }
+              loop = key.reset();
+            }
+
+            // If the source directory goes away (webapp rebuild),
+            // force a redeploy whenever the directory comes back.
+            forceDeploy = true;
+          } else {
+            Thread.sleep(500);
+          }
+        }
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
     }
   }
 }

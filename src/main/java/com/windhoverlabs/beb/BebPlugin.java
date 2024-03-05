@@ -56,6 +56,9 @@ public class BebPlugin implements Plugin {
     HttpServer httpServer = yamcs.getGlobalService(HttpServer.class);
     String contextPath = httpServer.getContextPath();
 
+    extraStaticRoots.add(
+        Path.of(
+            "/home/lgomez/projects/beb_integration/squeaky-weasel/software/airliner/build/venus_aero/sassie/sitl_commander_workspace/beb"));
     //        Don't care about buckets, for now
     //        createBuckets(config);
 

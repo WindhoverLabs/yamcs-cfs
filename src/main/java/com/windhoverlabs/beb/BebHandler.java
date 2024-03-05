@@ -49,8 +49,6 @@ public class BebHandler extends StaticFileHandler {
   private static boolean PWA = false;
 
   private Path indexFile;
-  private Path webManifestFile;
-  private Path ngswFile;
 
   private String logo;
   private Path logoFile;
@@ -64,9 +62,15 @@ public class BebHandler extends StaticFileHandler {
         "",
         Stream.concat(Stream.of(mainDirectory), extraStaticRoots.stream())
             .collect(Collectors.toList()));
+
+    var staticRoots =
+        Stream.concat(Stream.of(mainDirectory), extraStaticRoots.stream())
+            .collect(Collectors.toList());
+
+    System.out.println("staticRoots:" + staticRoots);
+    System.out.println("extraStaticRoots:" + extraStaticRoots);
+    System.out.println("mainDirectory:" + mainDirectory);
     indexFile = mainDirectory.resolve(com.windhoverlabs.beb.WebFileDeployer.PATH_INDEX);
-    webManifestFile = mainDirectory.resolve(com.windhoverlabs.beb.WebFileDeployer.PATH_WEBMANIFEST);
-    ngswFile = mainDirectory.resolve(com.windhoverlabs.beb.WebFileDeployer.PATH_NGSW);
 
     if (config.containsKey("logo")) {
       logoFile = Paths.get(config.getString("logo"));
@@ -76,41 +80,53 @@ public class BebHandler extends StaticFileHandler {
 
   @Override
   public void handle(HandlerContext ctx) {
+
+    System.out.println("BEB handle***1");
     String filePath = getFilePath(ctx);
 
     // Serve custom brand, if configured
     if (logo != null && logo.equals(filePath)) {
+      System.out.println("BEB handle***2");
       serveLogo(ctx);
       return;
     }
 
-    switch (filePath) {
-      case com.windhoverlabs.beb.WebFileDeployer.PATH_WEBMANIFEST:
-        if (!PWA) {
-          throw new NotFoundException();
-        }
-        serveUncached(ctx, webManifestFile, "application/manifest+json");
-        return;
-      case com.windhoverlabs.beb.WebFileDeployer.PATH_NGSW:
-        if (!PWA) {
-          throw new NotFoundException();
-        }
-        serveUncached(ctx, ngswFile, "application/json");
-        return;
-    }
+    System.out.println("BEB handle***3:" + filePath);
+    //    switch (filePath) {
+    //      case com.windhoverlabs.beb.WebFileDeployer.PATH_WEBMANIFEST:
+    //        if (!PWA) {
+    //          System.out.println("BEB handle***4");
+    //          throw new NotFoundException();
+    //        }
+    //        System.out.println("BEB handle***5");
+    //        serveUncached(ctx, webManifestFile, "application/manifest+json");
+    //        return;
+    //      case com.windhoverlabs.beb.WebFileDeployer.PATH_NGSW:
+    //        if (!PWA) {
+    //          System.out.println("BEB handle***6");
+    //          throw new NotFoundException();
+    //        }
+    //        System.out.println("BEB handle***7");
+    //        serveUncached(ctx, ngswFile, "application/json");
+    //        return;
+    //    }
 
+    System.out.println("BEB handle***4:" + filePath);
     // Try to serve a static file
     File file = locateFile(filePath);
-    if (file != null && !filePath.isEmpty()) {
-      //            super.handle(ctx);
-      return;
-    }
+    //    if (file != null && !filePath.isEmpty()) {
+    //      System.out.println("BEB handle***5:" + file);
+    //      super.handle(ctx);
+    //      return;
+    //    }
 
     // Set-up HTML5 deep-linking:
     // Catch any non-handled URL and make it return the contents of our index.html
     // This will cause initialization of the Angular app on any requested path. The
     // Angular router will interpret this and do client-side routing as needed.
-    serveUncached(ctx, indexFile, "text/html");
+    System.out.println("BEB handle***6:" + file);
+    serveUncached(ctx, Paths.get(filePath), "application/json");
+    //    serveUncached(ctx, indexFile, "application/json");
   }
 
   /**
