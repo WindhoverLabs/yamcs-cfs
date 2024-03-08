@@ -48,7 +48,7 @@ public class UdpStreamInProvider extends AbstractYamcsService
   protected boolean updateSimulationTime;
   DataRateMeter packetRateMeter = new DataRateMeter();
   DataRateMeter dataRateMeter = new DataRateMeter();
-  protected PacketPreprocessor packetPreprocessor;
+  protected org.yamcs.tctm.PacketPreprocessor packetPreprocessor;
   protected boolean hasPreprocessor = false;
   protected Stream stream;
 
