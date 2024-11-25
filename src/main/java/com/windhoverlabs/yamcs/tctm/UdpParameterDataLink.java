@@ -11,7 +11,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -182,7 +181,7 @@ public class UdpParameterDataLink extends AbstractParameterDataLink
   }
 
   @Override
-  public Collection<ParameterValue> getSystemParameters(long gentime) {
+  public List<ParameterValue> getSystemParameters(long gentime) {
     super.getSystemParameters(gentime);
     List<ParameterValue> pvlist = new ArrayList<>();
 

@@ -22,7 +22,6 @@ import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.logging.Log;
-import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.tctm.Link;
 import org.yamcs.time.SimulationTimeService;
 import org.yamcs.time.TimeService;
@@ -43,7 +42,7 @@ import org.yamcs.yarch.YarchDatabaseInstance;
  * @author nm
  */
 public class UdpStreamInOutProvider extends AbstractYamcsService
-    implements Link, StreamSubscriber, SystemParametersProducer, Runnable {
+    implements Link, StreamSubscriber, Runnable {
   String host;
   DatagramSocket socket;
   InetAddress address;

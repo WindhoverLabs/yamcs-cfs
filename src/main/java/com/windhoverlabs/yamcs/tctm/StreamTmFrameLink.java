@@ -127,7 +127,7 @@ public class StreamTmFrameLink extends AbstractTmFrameLink implements StreamSubs
     } else {
       return String.format(
           "OK %nValid datagrams received: %d%nInvalid datagrams received: %d",
-          frameCount.get(), invalidDatagramCount);
+          validFrameCount.get(), invalidFrameCount.get());
     }
   }
 

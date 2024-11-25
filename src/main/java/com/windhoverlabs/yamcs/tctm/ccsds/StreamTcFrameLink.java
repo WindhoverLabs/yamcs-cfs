@@ -157,7 +157,8 @@ public class StreamTcFrameLink extends AbstractTcFrameLink implements Runnable {
   }
 
   @Override
-  public void sendTc(PreparedCommand pc) {
+  public boolean sendCommand(PreparedCommand pc) {
     // Not used when framing commands.
+    return true;
   }
 }

@@ -29,6 +29,7 @@ import org.yamcs.http.Context;
 import org.yamcs.http.ForbiddenException;
 import org.yamcs.http.HttpException;
 import org.yamcs.http.InternalServerErrorException;
+import org.yamcs.mdb.Mdb;
 import org.yamcs.mdb.XtceDbFactory;
 import org.yamcs.parameter.ParameterRequestManager;
 import org.yamcs.parameter.ParameterValueWithId;
@@ -381,7 +382,7 @@ public class CfsApi extends AbstractCfsApi<Context> {
 
             NamedObjectId id = null;
             try {
-              id = MdbApi.verifyParameterId(ctx, mdb, aggregateParam.getQualifiedName());
+              id = MdbApi.verifyParameterId(ctx, (Mdb) mdb, aggregateParam.getQualifiedName());
             } catch (Exception e) {
               eventProducer.sendWarning(
                   String.format(

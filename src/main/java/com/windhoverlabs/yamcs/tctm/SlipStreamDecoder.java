@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 import org.yamcs.AbstractYamcsService;
 import org.yamcs.ConfigurationException;
@@ -14,6 +15,7 @@ import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.logging.Log;
+import org.yamcs.parameter.ParameterValue;
 import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.time.TimeService;
 import org.yamcs.utils.DataRateMeter;
@@ -471,5 +473,11 @@ public class SlipStreamDecoder extends AbstractYamcsService
         e.printStackTrace();
       }
     }
+  }
+
+  @Override
+  public Collection<ParameterValue> getSystemParameters(long gentime) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

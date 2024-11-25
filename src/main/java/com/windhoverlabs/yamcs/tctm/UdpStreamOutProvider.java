@@ -17,7 +17,6 @@ import org.yamcs.Spec;
 import org.yamcs.YConfiguration;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
-import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.tctm.Link;
 import org.yamcs.utils.DataRateMeter;
 import org.yamcs.yarch.ColumnDefinition;
@@ -34,8 +33,7 @@ import org.yamcs.yarch.YarchDatabaseInstance;
  *
  * @author nm
  */
-public class UdpStreamOutProvider extends AbstractYamcsService
-    implements Link, StreamSubscriber, SystemParametersProducer {
+public class UdpStreamOutProvider extends AbstractYamcsService implements Link, StreamSubscriber {
   String host;
   int port;
   DatagramSocket socket;
