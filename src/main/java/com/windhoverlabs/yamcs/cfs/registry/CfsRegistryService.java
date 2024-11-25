@@ -12,6 +12,7 @@ import org.yamcs.InitException;
 import org.yamcs.PluginManager;
 import org.yamcs.YConfiguration;
 import org.yamcs.YamcsServer;
+import org.yamcs.mdb.Mdb;
 import org.yamcs.parameter.AggregateValue;
 import org.yamcs.parameter.ParameterValue;
 import org.yamcs.parameter.SystemParametersProducer;
@@ -64,7 +65,7 @@ public class CfsRegistryService extends AbstractYamcsService implements SystemPa
   }
 
   void setupSystemParameters() {
-    mdb = YamcsServer.getServer().getInstance(yamcsInstance).getXtceDb();
+    mdb = YamcsServer.getServer().getInstance(yamcsInstance).getMdb();
     SystemParametersService collector = SystemParametersService.getInstance(yamcsInstance);
     if (collector != null) {
       makeParameterStatus();
@@ -76,10 +77,11 @@ public class CfsRegistryService extends AbstractYamcsService implements SystemPa
               .build();
 
       workspaceLinkHKParam =
-          mdb.createSystemParameter(
-              qualifiedName(YAMCS_SPACESYSTEM_NAME, "Registry/Workspace"),
-              spWorkspaceHKType,
-              "Current configuration of registry.");
+          ((Mdb) mdb)
+              .createSystemParameter(
+                  qualifiedName(YAMCS_SPACESYSTEM_NAME, "Registry/Workspace"),
+                  spWorkspaceHKType,
+                  "Current configuration of registry.");
 
       collector.registerProducer(this);
     }

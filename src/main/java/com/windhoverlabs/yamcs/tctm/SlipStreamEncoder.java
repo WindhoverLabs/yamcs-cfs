@@ -17,7 +17,6 @@ import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.logging.Log;
-import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.tctm.Link;
 import org.yamcs.time.SimulationTimeService;
 import org.yamcs.time.TimeService;
@@ -37,8 +36,7 @@ import org.yamcs.yarch.YarchDatabaseInstance;
  *
  * @author nm
  */
-public class SlipStreamEncoder extends AbstractYamcsService
-    implements Link, StreamSubscriber, SystemParametersProducer {
+public class SlipStreamEncoder extends AbstractYamcsService implements Link, StreamSubscriber {
   private final byte END = (byte) 0xc0;
   private final byte ESC = (byte) 0xdb;
   private final byte ESC_END = (byte) 0xdc;

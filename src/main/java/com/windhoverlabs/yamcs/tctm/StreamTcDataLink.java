@@ -83,7 +83,7 @@ public class StreamTcDataLink extends AbstractThreadedTcDataLink {
 
     this.stream.emitTuple(new Tuple(this.gftdef, Arrays.asList(pc.getGenerationTime(), binary)));
 
-    dataCount.getAndIncrement();
+    dataOut(1, binary.length);
     ackCommand(pc.getCommandId());
   }
 
