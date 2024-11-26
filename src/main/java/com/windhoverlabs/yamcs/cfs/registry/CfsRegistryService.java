@@ -25,7 +25,8 @@ public class CfsRegistryService extends AbstractYamcsService implements SystemPa
 
   private Parameter workspaceDirParam;
   //  private AggregateParameterType spWorkspaceHKType; // Housekeeping info for the workspace.
-  // Can't be as easily done after YAMCS Version 5.8.8. Need to write types to a writeable namespace.
+  // Can't be as easily done after YAMCS Version 5.8.8. Need to write types to a writeable
+  // namespace.
   // https://github.com/yamcs/yamcs/commit/7abba0a93013e8b4ec1020be3df592191614da33
   //  private AggregateParameterType spWorkspaceHKType; // Housekeeping info for the workspace.
   private XtceDb mdb;
