@@ -343,16 +343,15 @@ public class UdpToTcpProxy extends AbstractThreadedTcDataLink {
   }
 
   @Override
-  public List<ParameterValue> getSystemParameters() {
-    long time = getCurrentTime();
+  public List<ParameterValue> getSystemParameters(long gentime) {
     ArrayList<ParameterValue> list = new ArrayList<>();
 
-    list.add(org.yamcs.parameter.SystemParametersService.getPV(udpPortParam, time, udpPort));
+    list.add(org.yamcs.parameter.SystemParametersService.getPV(udpPortParam, gentime, udpPort));
 
-    list.add(org.yamcs.parameter.SystemParametersService.getPV(tcpPortParam, time, tcpPort));
+    list.add(org.yamcs.parameter.SystemParametersService.getPV(tcpPortParam, gentime, tcpPort));
 
     try {
-      super.collectSystemParameters(time, list);
+      super.collectSystemParameters(gentime, list);
     } catch (Exception e) {
       log.error("Exception caught when collecting link system parameters", e);
     }
@@ -368,7 +367,7 @@ public class UdpToTcpProxy extends AbstractThreadedTcDataLink {
   @Override
   public void uplinkCommand(PreparedCommand pc) throws IOException {
     log.info("Received command.");
-    dataCount.getAndIncrement();
+    dataOut(1, pc.getBinary().length);
     ackCommand(pc.getCommandId());
   }
 
