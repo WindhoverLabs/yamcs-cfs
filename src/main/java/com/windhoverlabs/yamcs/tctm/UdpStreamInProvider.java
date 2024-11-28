@@ -17,7 +17,6 @@ import org.yamcs.YamcsServer;
 import org.yamcs.events.EventProducer;
 import org.yamcs.events.EventProducerFactory;
 import org.yamcs.logging.Log;
-import org.yamcs.parameter.SystemParametersProducer;
 import org.yamcs.tctm.Link;
 import org.yamcs.time.SimulationTimeService;
 import org.yamcs.time.TimeService;
@@ -36,8 +35,7 @@ import org.yamcs.yarch.YarchDatabaseInstance;
  *
  * @author nm
  */
-public class UdpStreamInProvider extends AbstractYamcsService
-    implements Link, SystemParametersProducer, Runnable {
+public class UdpStreamInProvider extends AbstractYamcsService implements Link, Runnable {
   protected YConfiguration config;
   protected String linkName;
   protected AtomicBoolean disabled = new AtomicBoolean(false);

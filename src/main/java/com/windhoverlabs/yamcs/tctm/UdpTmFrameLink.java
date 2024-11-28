@@ -19,8 +19,6 @@ import org.yamcs.utils.StringConverter;
  * @author nm
  */
 public class UdpTmFrameLink extends AbstractTmFrameLink implements Runnable {
-  private volatile int invalidDatagramCount = 0;
-
   private DatagramSocket tmSocket;
   private int port;
 
@@ -100,7 +98,7 @@ public class UdpTmFrameLink extends AbstractTmFrameLink implements Runnable {
     } else {
       return String.format(
           "OK (%s) %nValid datagrams received: %d%nInvalid datagrams received: %d",
-          port, frameCount.get(), invalidDatagramCount);
+          port, validFrameCount.get(), invalidFrameCount.get());
     }
   }
 
