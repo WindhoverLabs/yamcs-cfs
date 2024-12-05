@@ -98,11 +98,13 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     System.out.println("Starting video streaming over RTP...");
 
     int ret, v_stream_idx = -1;
-    String inputFile = "/home/lgomez/Downloads/ginger_man.mp4";
-    String outputURL = "rtp://172.16.100.208:1234";
+    String inputFile = "/home/lgomez/Downloads/217115_small.mp4";
+    String outputURL = "rtp://127.0.0.1:5005";
 
     AVFormatContext inputCtx = avformat_alloc_context();
-    AVFormatContext outputCtx = new AVFormatContext(null);
+    //    AVFormatContext outputCtx = new AVFormatContext(null);
+
+    AVFormatContext outputCtx = avformat_alloc_context();
 
     // Open input video file
     System.out.println("Opening input file: " + inputFile);
@@ -143,6 +145,10 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     // Set up RTP output
     System.out.println("Setting up RTP output: " + outputURL);
+    //    if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
+    //      throw new IOException("Failed to create RTP output context");
+    //    }
+
     if (avformat_alloc_output_context2(outputCtx, null, "rtp", outputURL) < 0) {
       throw new IOException("Failed to create RTP output context");
     }
@@ -167,7 +173,11 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     System.out.println("Configuring encoder6...");
     encoderCtx.bit_rate(400000);
 
-    if (avcodec_open2(encoderCtx, codec, (PointerPointer) null) < 0) {
+    //    if (avcodec_open2(encoderCtx, codec, (PointerPointer) null) < 0) {
+    //      throw new IOException("Failed to open encoder");
+    //    }
+
+    if (avcodec_open2(encoderCtx, codec, new PointerPointer()) < 0) {
       throw new IOException("Failed to open encoder");
     }
 
@@ -176,11 +186,27 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     avcodec_parameters_from_context(outputStream.codecpar(), encoderCtx);
     System.out.println("Configuring encoder8...");
 
-        if (avio_open2(outputCtx.pb(), outputURL, AVIO_FLAG_WRITE, null, null) < 0) {
-          throw new IOException("Failed to open RTP output");
-        }
+    //    if (avio_open2(outputCtx.pb(), outputURL, AVIO_FLAG_WRITE, null, null) < 0) {
+    //      throw new IOException("Failed to open RTP output");
+    //    }
 
-    avformat_write_header(outputCtx, (PointerPointer) null);
+    // NOTE:This pattern seems to fix it as per
+    // https://github.com/bytedeco/javacpp-presets/issues/408#issuecomment-291711924
+
+    AVIOContext pb = new AVIOContext(null);
+
+    if (avio_open(pb, outputURL, AVIO_FLAG_WRITE) < 0) {
+      throw new IOException("Failed to open RTP output");
+    }
+
+    outputCtx.pb(pb);
+
+    System.out.println("Configuring encoder9...");
+
+    //    avformat_write_header(outputCtx, new AVDictionary());
+
+    avformat_write_header(outputCtx, new PointerPointer());
+
     System.out.println("RTP streaming setup complete, starting frame processing...");
 
     AVFrame frame = av_frame_alloc();
@@ -190,17 +216,28 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
       if (packet.stream_index() == v_stream_idx) {
         System.out.println("Decoding frame...");
         if (avcodec_send_packet(decoderCtx, packet) >= 0) {
-          while (avcodec_receive_frame(decoderCtx, frame) >= 0) {
+          ret = avcodec_receive_frame(decoderCtx, frame);
+          while (ret >= 0) {
             System.out.println("Encoding frame...");
-            if (avcodec_send_frame(encoderCtx, frame) >= 0) {
+            ret = avcodec_send_frame(encoderCtx, frame);
+
+            System.out.println("ret for avcodec_send_frame-->" + ret);
+            if (ret >= 0) {
               AVPacket outPacket = new AVPacket();
-              while (avcodec_receive_packet(encoderCtx, outPacket) >= 0) {
+              int recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
+
+              System.out.println("recv_packets-->" + recv_packets);
+              while (recv_packets >= 0) {
                 System.out.println("Writing encoded packet to RTP stream...");
                 outPacket.stream_index(outputStream.index());
                 av_write_frame(outputCtx, outPacket);
                 av_packet_unref(outPacket);
               }
             }
+            System.out.println("ret for avcodec_receive_frame1 -->" + ret);
+
+            ret = avcodec_receive_frame(decoderCtx, frame);
+            System.out.println("ret for avcodec_receive_frame2 -->" + ret);
           }
         }
       }
