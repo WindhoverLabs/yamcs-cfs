@@ -94,6 +94,131 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     notifyStopped();
   }
 
+  private void streamVideoOverRTP() throws IOException {
+    System.out.println("Starting video streaming over RTP...");
+
+    int ret, v_stream_idx = -1;
+    String inputFile = "/home/lgomez/Downloads/ginger_man.mp4";
+    String outputURL = "rtp://172.16.100.208:1234";
+
+    AVFormatContext inputCtx = avformat_alloc_context();
+    AVFormatContext outputCtx = new AVFormatContext(null);
+
+    // Open input video file
+    System.out.println("Opening input file: " + inputFile);
+    if (avformat_open_input(inputCtx, inputFile, null, null) < 0) {
+      throw new IOException("Failed to open input file");
+    }
+
+    System.out.println("Finding stream info...");
+    if (avformat_find_stream_info(inputCtx, (PointerPointer) null) < 0) {
+      throw new IOException("Failed to retrieve stream info");
+    }
+
+    av_dump_format(inputCtx, 0, inputFile, 0);
+
+    // Find video stream
+    System.out.println("Searching for video stream...");
+    for (int i = 0; i < inputCtx.nb_streams(); i++) {
+      if (inputCtx.streams(i).codecpar().codec_type() == AVMEDIA_TYPE_VIDEO) {
+        v_stream_idx = i;
+        System.out.println("Video stream found at index: " + v_stream_idx);
+        break;
+      }
+    }
+    if (v_stream_idx == -1) {
+      throw new IOException("Video stream not found");
+    }
+
+    AVStream inputStream = inputCtx.streams(v_stream_idx);
+    AVCodec codec = avcodec_find_decoder(inputStream.codecpar().codec_id());
+    if (codec == null) {
+      throw new IOException("Unsupported codec");
+    }
+
+    System.out.println("Allocating codec context...");
+    AVCodecContext decoderCtx = avcodec_alloc_context3(codec);
+    avcodec_parameters_to_context(decoderCtx, inputStream.codecpar());
+    avcodec_open2(decoderCtx, codec, (PointerPointer) null);
+
+    // Set up RTP output
+    System.out.println("Setting up RTP output: " + outputURL);
+    if (avformat_alloc_output_context2(outputCtx, null, "rtp", outputURL) < 0) {
+      throw new IOException("Failed to create RTP output context");
+    }
+
+    AVStream outputStream = avformat_new_stream(outputCtx, codec);
+    if (outputStream == null) {
+      throw new IOException("Failed to create output stream");
+    }
+
+    System.out.println("Configuring encoder...");
+    AVCodecContext encoderCtx = avcodec_alloc_context3(codec);
+    System.out.println("Configuring encoder2...");
+    encoderCtx.codec_id(codec.id());
+    System.out.println("Configuring encoder3...");
+    encoderCtx.codec_type(AVMEDIA_TYPE_VIDEO);
+    encoderCtx.pix_fmt(AV_PIX_FMT_YUV420P);
+    System.out.println("Configuring encoder4...");
+    encoderCtx.width(decoderCtx.width());
+    encoderCtx.height(decoderCtx.height());
+    System.out.println("Configuring encoder5...");
+    encoderCtx.time_base(av_inv_q(inputStream.time_base()));
+    System.out.println("Configuring encoder6...");
+    encoderCtx.bit_rate(400000);
+
+    if (avcodec_open2(encoderCtx, codec, (PointerPointer) null) < 0) {
+      throw new IOException("Failed to open encoder");
+    }
+
+    System.out.println("Configuring encoder7...");
+
+    avcodec_parameters_from_context(outputStream.codecpar(), encoderCtx);
+    System.out.println("Configuring encoder8...");
+
+        if (avio_open2(outputCtx.pb(), outputURL, AVIO_FLAG_WRITE, null, null) < 0) {
+          throw new IOException("Failed to open RTP output");
+        }
+
+    avformat_write_header(outputCtx, (PointerPointer) null);
+    System.out.println("RTP streaming setup complete, starting frame processing...");
+
+    AVFrame frame = av_frame_alloc();
+    AVPacket packet = new AVPacket();
+
+    while (av_read_frame(inputCtx, packet) >= 0) {
+      if (packet.stream_index() == v_stream_idx) {
+        System.out.println("Decoding frame...");
+        if (avcodec_send_packet(decoderCtx, packet) >= 0) {
+          while (avcodec_receive_frame(decoderCtx, frame) >= 0) {
+            System.out.println("Encoding frame...");
+            if (avcodec_send_frame(encoderCtx, frame) >= 0) {
+              AVPacket outPacket = new AVPacket();
+              while (avcodec_receive_packet(encoderCtx, outPacket) >= 0) {
+                System.out.println("Writing encoded packet to RTP stream...");
+                outPacket.stream_index(outputStream.index());
+                av_write_frame(outputCtx, outPacket);
+                av_packet_unref(outPacket);
+              }
+            }
+          }
+        }
+      }
+      av_packet_unref(packet);
+    }
+
+    System.out.println("Finalizing RTP stream...");
+    av_write_trailer(outputCtx);
+
+    avcodec_close(decoderCtx);
+    avcodec_close(encoderCtx);
+    avformat_close_input(inputCtx);
+    avio_closep(outputCtx.pb());
+    avformat_free_context(outputCtx);
+
+    System.out.println("Streaming finished successfully");
+  }
+
   static void save_frame(AVFrame pFrame, int width, int height, int f_idx) throws IOException {
     // Open file
     String szFilename = String.format("frame%d_.ppm", f_idx);
@@ -222,7 +347,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
       // if not check ret2, error occur [swscaler @ 0x1cb3c40] bad src image pointers
       // ret2 same as fi
       // if (fi && ++i <= 5) {
-      if (ret2 >= 0 && ++i <= 5) {
+      if (ret2 >= 0 && ++i <= 100) {
         sws_scale(
             sws_ctx,
             frm.data(),
@@ -236,7 +361,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
         // save_frame(frm, codec_ctx.width(), codec_ctx.height(), i);
       }
       av_packet_unref(pkt);
-      if (i >= 5) {
+      if (i >= 100) {
         break;
       }
     }
@@ -247,6 +372,8 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     avcodec_free_context(codec_ctx);
 
     avformat_close_input(fmt_ctx);
+
+    streamVideoOverRTP();
     System.out.println("Shutdown");
   }
 
