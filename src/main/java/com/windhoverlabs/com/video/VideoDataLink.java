@@ -66,8 +66,8 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
   public void doStart() {
     if (!isDisabled()) {
       try {
-//        readVideo();
-    	  streamVideoOverRTP();
+        //        readVideo();
+        streamVideoOverRTP();
       } catch (IOException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -97,17 +97,18 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
   private void streamVideoOverRTP() throws IOException {
     System.out.println("Starting video streaming over RTP...");
-    
+
     av_log_set_level(AV_LOG_DEBUG);
-    
-//    av_log_set_callback();
-    
-	avformat_network_init();
-//	avdevice_register_all();
+
+    //    av_log_set_callback();
+
+    avformat_network_init();
+    //	avdevice_register_all();
 
     int ret, v_stream_idx = -1;
     String inputFile = "/home/lgomez/Downloads/217115_small.mp4";
-    inputFile = "/home/lgomez/Downloads/vecteezy_vancouver-canada-september-16-2023-flight-by-fpv-drone_37202565.mp4";
+    inputFile =
+        "/home/lgomez/Downloads/vecteezy_vancouver-canada-september-16-2023-flight-by-fpv-drone_37202565.mp4";
     String outputURL = "rtp://127.0.0.1:5005";
 
     AVFormatContext inputCtx = avformat_alloc_context();
@@ -148,8 +149,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     System.out.println("Allocating codec context...");
     AVCodecContext decoderCtx = avcodec_alloc_context3(codec);
-    
-    
+
     avcodec_parameters_to_context(decoderCtx, inputStream.codecpar());
     avcodec_open2(decoderCtx, codec, (PointerPointer) null);
 
@@ -159,94 +159,167 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     //      throw new IOException("Failed to create RTP output context");
     //    }
 
-    if (avformat_alloc_output_context2(outputCtx, null, "rtp", outputURL) < 0) {
+    if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
       throw new IOException("Failed to create RTP output context");
     }
-    
-    
+
+    //    Codec = avcodec_find_encoder_by_name(Config->Name);
 
     AVStream outputStream = avformat_new_stream(outputCtx, codec);
     if (outputStream == null) {
       throw new IOException("Failed to create output stream");
     }
-    
+
     AVRational q = new AVRational();
-    
+
     q.num(1);
     q.den(30);
 
     System.out.println("Configuring encoder...");
-    AVCodecContext encoderCtx = avcodec_alloc_context3(codec);
+    
+    System.out.println("codec from input:" +codec.name().getString());
+    
+    
+//    av_codec_iterate();
+    
+    
+    AVCodec encoderCodec = avcodec_find_encoder_by_name("libx264");
+    
+//    AVCodec encoderCodec = avcodec_find_encoder_by_name("h264");
+    
+    if(encoderCodec == null) 
+    {
+    	throw new IOException("h264 codec not found");
+    }
+
+    AVCodecContext encoderCtx = avcodec_alloc_context3(encoderCodec);
     System.out.println("Configuring encoder2...");
-    System.out.println("codec.id()-->" + codec.id());
+    System.out.println("codec.id()-->" + encoderCodec.id());
     System.out.println("codec.id()-->" + decoderCtx.width());
     System.out.println("codec.id()-->" + decoderCtx.height());
     System.out.println("inputStream.time_num()-->" + inputStream.time_base().num());
     System.out.println("inputStream.time_den()-->" + inputStream.time_base().den());
     System.out.println("av_inv_q(inputStream.time_base())-->" + av_inv_q(inputStream.time_base()));
-    
-    
-    
-//	Context->width = Config->Width;
-//	Context->height = Config->Height;
-//	Context->time_base = (AVRational){1, (int)Config->FramesPerSecond};
-//	Context->pix_fmt = Config->PixelFormat;
-//	Context->framerate = (AVRational){(int)Config->FramesPerSecond, 1};
-//	Context->bit_rate = Config->BitRate;
-//	Context->gop_size = Config->GopSize;
-//	Context->max_b_frames = Config->MaxBFrames;
-//	Context->gop_size = Config->GopSize;
-//	Context->flags |= Config->Flags;
-    
-    encoderCtx.codec_id(codec.id());
+
+    //	Context->width = Config->Width;
+    //	Context->height = Config->Height;
+    //	Context->time_base = (AVRational){1, (int)Config->FramesPerSecond};
+    //	Context->pix_fmt = Config->PixelFormat;
+    //	Context->framerate = (AVRational){(int)Config->FramesPerSecond, 1};
+    //	Context->bit_rate = Config->BitRate;
+    //	Context->gop_size = Config->GopSize;
+    //	Context->max_b_frames = Config->MaxBFrames;
+    //	Context->gop_size = Config->GopSize;
+    //	Context->flags |= Config->Flags;
+
+    encoderCtx.codec_id(encoderCodec.id());
     System.out.println("Configuring encoder3...");
     encoderCtx.codec_type(AVMEDIA_TYPE_VIDEO);
     encoderCtx.pix_fmt(AV_PIX_FMT_YUV420P);
     System.out.println("Configuring encoder4...");
-//    encoderCtx.width(decoderCtx.width());
-//    encoderCtx.height(decoderCtx.height());
-//    
+    //    encoderCtx.width(decoderCtx.width());
+    //    encoderCtx.height(decoderCtx.height());
+    //
     encoderCtx.width(640);
     encoderCtx.height(480);
     System.out.println("Configuring encoder5...");
-//    encoderCtx.time_base(av_inv_q(inputStream.time_base()));
+    //    encoderCtx.time_base(av_inv_q(inputStream.time_base()));
     encoderCtx.time_base(q);
     AVRational fr = new AVRational();
-    
+
     fr.den(1);
     fr.num(30);
-    encoderCtx.framerate(q);
+    encoderCtx.framerate(fr);
     System.out.println("Configuring encoder6...");
     encoderCtx.bit_rate(400000);
     encoderCtx.gop_size(30);
     encoderCtx.max_b_frames(0);
 
+    System.out.println("Configuring encoder2...");
+    System.out.println("output codec.id()-->" + codec.id());
+    System.out.println("output codec.id()-->" + encoderCtx.width());
+    System.out.println("output codec.id()-->" + encoderCtx.height());
+    System.out.println("output inputStream.time_num()-->" + outputStream.time_base().num());
+    System.out.println("output inputStream.time_den()-->" + outputStream.time_base().den());
+    System.out.println(
+        "output av_inv_q(inputStream.time_base())-->" + av_inv_q(inputStream.time_base()));
+
     //    if (avcodec_open2(encoderCtx, codec, (PointerPointer) null) < 0) {
     //      throw new IOException("Failed to open encoder");
     //    }
 
-//    if (avcodec_open2(encoderCtx, codec, new PointerPointer()) < 0) {
-//      throw new IOException("Failed to open encoder");
-//    }
-    
-    
+    //    if (avcodec_open2(encoderCtx, codec, new PointerPointer()) < 0) {
+    //      throw new IOException("Failed to open encoder");
+    //    }
+
     AVBufferRef HWAccelDeviceContext = new AVBufferRef(null);
-	int avRC = av_hwdevice_ctx_create(
-    		HWAccelDeviceContext,
-    		AV_HWDEVICE_TYPE_CUDA,
-			"",
-			new AVDictionary(null),
-			0);
+    int avRC =
+        av_hwdevice_ctx_create(
+            HWAccelDeviceContext, AV_HWDEVICE_TYPE_CUDA, "0", new AVDictionary(null), 0);
+
+    //    if (avRC < 0) {
+    //		ReportAVError("CEncoder::Initialize", "av_hwdevice_ctx_create", avRC, __LINE__);
+    //    }
+    //    else
+    //    {
+    //		/* Select the first supported hardware pixel format */
+    //		for (int i = 0; Context->codec->hw_configs[i]; i++) {
+    //			const struct AVCodecHWConfig *config = avcodec_get_hw_config(Codec, i);
+    //			if (config->device_type == Config->HWAccelDeviceCfg.DeviceType)
+    //			{
+    //				Context->hw_device_ctx = av_buffer_ref(HWAccelDeviceContext);
+    //				if (!Context->hw_device_ctx)
+    //				{
+    //					ReportError("CDecoder::Initialize", "av_hwdevice_ctx_create", __LINE__, "Unable to enable
+    // hardware acceleration for the decoder.");
+    //				}
+    //				Context->get_format = MMC_GetHwFormat;
+    //				break;
+    //			}
+    //		}
+    //    }
+
+    //  if (avRC < 0) {
+    //		ReportAVError("CEncoder::Initialize", "av_hwdevice_ctx_create", avRC, __LINE__);
+    //  }
+    //  else
+    {
+      /* Select the first supported hardware pixel format */
+      //		for (int i = 0;encoderCtx.codec(). ; i++) {
+      //			const struct AVCodecHWConfig *config = avcodec_get_hw_config(Codec, i);
+      //			if (config->device_type == Config->HWAccelDeviceCfg.DeviceType)
+      //			{
+      //				Context->hw_device_ctx = av_buffer_ref(HWAccelDeviceContext);
+      //				if (!Context->hw_device_ctx)
+      //				{
+      //					ReportError("CDecoder::Initialize", "av_hwdevice_ctx_create", __LINE__, "Unable to
+      // enable hardware acceleration for the decoder.");
+      //				}
+      //				Context->get_format = MMC_GetHwFormat;
+      //				break;
+      //			}
+      //		}
+    }
+
+//     if (avcodec_get_hw_config(encoderCodec, 0) == null) 
+//     {
+//    	 throw new IOException("avcodec_get_hw_configq failed");
+//     }
+
+    if (avcodec_parameters_from_context(outputStream.codecpar(), encoderCtx) < 0) {
+      throw new IOException("avcodec_parameters_from_context failed");
+    }
     
+    System.out.println("outputStream.time_num()--> after context params" + outputStream.time_base().num());
+    System.out.println("outputStream.time_den()--> after context params" + outputStream.time_base().den());
+    System.out.println("av_inv_q(outputStream.time_base())--> after context params" + av_inv_q(outputStream.time_base()));
     
-    avcodec_parameters_from_context(outputStream.codecpar(), encoderCtx);
-    if (avcodec_open2(encoderCtx, codec, new PointerPointer()) < 0) {
-        throw new IOException("Failed to open encoder");
-      }
+    if (avcodec_open2(encoderCtx, encoderCodec, new PointerPointer()) < 0) {
+      throw new IOException("Failed to open encoder");
+    }
 
     System.out.println("Configuring encoder7...");
 
-    
     System.out.println("Configuring encoder8...");
 
     //    if (avio_open2(outputCtx.pb(), outputURL, AVIO_FLAG_WRITE, null, null) < 0) {
@@ -258,15 +331,15 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     AVIOContext pb = new AVIOContext(null);
 
-//    if (avio_open(pb, outputURL, AVIO_FLAG_WRITE) < 0) {
-//      throw new IOException("Failed to open RTP output");
-//    }
+    //    if (avio_open(pb, outputURL, AVIO_FLAG_WRITE) < 0) {
+    //      throw new IOException("Failed to open RTP output");
+    //    }
     AVDictionary options = new AVDictionary(null);
     if (avio_open2(pb, outputURL, AVIO_FLAG_WRITE, null, options) < 0) {
-        throw new IOException("Failed to open RTP output");
-      }
-    
-//    avio_open2(pb, filename, AVIO_FLAG_WRITE, null, options)
+      throw new IOException("Failed to open RTP output");
+    }
+
+    //    avio_open2(pb, filename, AVIO_FLAG_WRITE, null, options)
 
     outputCtx.pb(pb);
 
@@ -301,6 +374,8 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
                 outPacket.stream_index(outputStream.index());
                 av_write_frame(outputCtx, outPacket);
                 av_packet_unref(outPacket);
+                
+                recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
               }
             }
             System.out.println("ret for avcodec_receive_frame1 -->" + ret);
