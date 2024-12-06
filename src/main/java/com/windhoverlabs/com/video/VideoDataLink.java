@@ -145,7 +145,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     AVCodec codec = avcodec_find_decoder(inputStream.codecpar().codec_id());
     System.out.println("av_codec_is_decoder-->" + av_codec_is_decoder(codec));
 
-    System.out.println("av_codec_is_decoder-->" + av_codec_is_decoder(codec));
+    System.out.println("av_codec_is_encoder-->" + av_codec_is_encoder(codec));
     if (codec == null) {
       throw new IOException("Unsupported codec");
     }
@@ -158,9 +158,6 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     // Set up RTP output
     System.out.println("Setting up RTP output: " + outputURL);
-    //    if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
-    //      throw new IOException("Failed to create RTP output context");
-    //    }
 
     if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
       throw new IOException("Failed to create RTP output context");
