@@ -250,10 +250,23 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     encoderCtx.gop_size(30);
     encoderCtx.max_b_frames(0);
 
+    encoderCtx.hw_device_ctx(null);
+
     AVBufferRef HWAccelDeviceContext = new AVBufferRef(null);
+    //    int avRC =
+    //        av_hwdevice_ctx_create(
+    //            HWAccelDeviceContext, AV_HWDEVICE_TYPE_CUDA, "0", new AVDictionary(null), 0);
+
     int avRC =
         av_hwdevice_ctx_create(
-            HWAccelDeviceContext, AV_HWDEVICE_TYPE_CUDA, "", new AVDictionary(null), 0);
+            HWAccelDeviceContext,
+            AV_HWDEVICE_TYPE_VAAPI,
+            new BytePointer(),
+            new AVDictionary(null),
+            0);
+    if (avRC < 0) {
+      throw new IOException("Failed to create hw device.");
+    }
 
     avcodec_parameters_from_context(outputStream.codecpar(), encoderCtx);
     if (avcodec_open2(encoderCtx, encoderCodec, new PointerPointer()) < 0) {
@@ -304,35 +317,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
         // TODO:The commented section will execute when demux mode is on. This needs to be made
         // configurable.
-        //        if (avcodec_send_packet(decoderCtx, packet) >= 0) {
-        //          ret = avcodec_receive_frame(decoderCtx, frame);
-        //          while (ret >= 0) {
-        //            System.out.println("Encoding frame...");
-        //            ret = avcodec_send_frame(encoderCtx, frame);
-        //
-        //            System.out.println("ret for avcodec_send_frame-->" + ret);
-        //            if (ret >= 0) {
-        //              AVPacket outPacket = new AVPacket();
-        //              int recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
-        //
-        //              System.out.println("recv_packets-->" + recv_packets);
-        //              while (recv_packets >= 0) {
-        //                System.out.println("Writing encoded packet to RTP stream...");
-        //                outPacket.stream_index(outputStream.index());
-        //                av_write_frame(outputCtx, outPacket);
-        //                av_packet_unref(outPacket);
-        //
-        //                recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
-        //              }
-        //            }
-        //            System.out.println("ret for avcodec_receive_frame1 -->" + ret);
-        //
-        //            ret = avcodec_receive_frame(decoderCtx, frame);
-        //            System.out.println("ret for avcodec_receive_frame2 -->" + ret);
-        //          }
-        //        }
-
-        av_write_frame(outputCtx, packet);
+        writeFrame(outputCtx, decoderCtx, outputStream, encoderCtx, frame, packet);
         delayByPts(packet.pts(), inputStream.time_base(), ((int) StartTime));
         av_packet_unref(packet);
       }
@@ -349,6 +334,83 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     avformat_free_context(outputCtx);
 
     System.out.println("Streaming finished successfully");
+  }
+
+  private EReturnCode RestartInputSource(AVFormatContext Context) {
+    EReturnCode rc = EReturnCode.OK;
+    int avRC;
+
+    if (!(Context.flags() & AVFMTCTX_UNSEEKABLE)) {
+      /* Seek back to the beginning of the file */
+      avRC = av_seek_frame(Context, -1, 0, AVSEEK_FLAG_BACKWARD);
+      if (avRC < 0) {
+        ReportAVError("CInputFormat::GetPacket", "av_seek_frame", avRC, __LINE__);
+        rc = EReturnCode.FAILED_EXECUTE;
+        return rc;
+      }
+    }
+
+    return rc;
+  }
+
+  //  private void CInputFormat::Restart()
+  private void Restart(AVFormatContext Context) {
+    EReturnCode rc = EReturnCode.OK;
+    int avRC;
+
+    rc = RestartInputSource(Context);
+
+    /* Reset demuxer state */
+    avRC = avformat_flush(Context);
+    if (avRC < 0) {
+      ReportAVError("CInputFormat::Restart", "avformat_flush", avRC, __LINE__);
+      rc = EReturnCode.FAILED_EXECUTE;
+    }
+
+    StartTime = av_gettime_relative();
+    PtsOffset = NextPts;
+
+    end_of_function:
+    return rc;
+  }
+
+  private void writeFrame(
+      AVFormatContext outputCtx,
+      AVCodecContext decoderCtx,
+      AVStream outputStream,
+      AVCodecContext encoderCtx,
+      AVFrame frame,
+      AVPacket packet) {
+    int ret;
+    if (avcodec_send_packet(decoderCtx, packet) >= 0) {
+      ret = avcodec_receive_frame(decoderCtx, frame);
+      while (ret >= 0) {
+        System.out.println("Encoding frame...");
+        ret = avcodec_send_frame(encoderCtx, frame);
+
+        System.out.println("ret for avcodec_send_frame-->" + ret);
+        if (ret >= 0) {
+          AVPacket outPacket = new AVPacket();
+          int recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
+
+          System.out.println("recv_packets-->" + recv_packets);
+          while (recv_packets >= 0) {
+            System.out.println("Writing encoded packet to RTP stream...");
+            outPacket.stream_index(outputStream.index());
+            av_write_frame(outputCtx, outPacket);
+            av_packet_unref(outPacket);
+
+            recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
+          }
+        }
+        System.out.println("ret for avcodec_receive_frame1 -->" + ret);
+
+        ret = avcodec_receive_frame(decoderCtx, frame);
+        System.out.println("ret for avcodec_receive_frame2 -->" + ret);
+      }
+    }
+
+    //        av_write_frame(outputCtx, packet);
   }
 
   static void save_frame(AVFrame pFrame, int width, int height, int f_idx) throws IOException {
