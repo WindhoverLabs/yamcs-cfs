@@ -13,6 +13,7 @@ import java.net.SocketException;
 import org.bytedeco.ffmpeg.avcodec.*;
 import org.bytedeco.ffmpeg.avformat.*;
 import org.bytedeco.ffmpeg.avutil.*;
+import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.ffmpeg.swscale.*;
 import org.bytedeco.javacpp.*;
 import org.yamcs.ConfigurationException;
@@ -95,6 +96,24 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     notifyStopped();
   }
 
+  public void delayByPts(long pts, AVRational timeBase, int startTime) {
+    // Convert PTS to microseconds
+
+    AVRational r = new AVRational();
+    r.num(1);
+    r.den(avutil.AV_TIME_BASE);
+    int playbackTime = (int) av_rescale_q(pts, timeBase, r);
+    int currentTime = (int) (av_gettime_relative() - startTime);
+
+    if (playbackTime > currentTime) {
+      // Sleep until it's time to display/send this frame
+      int sleepTime = playbackTime - currentTime;
+      System.out.println("Sleeping for " + sleepTime + " us");
+      //			Thread.sleep(sleepTime);
+      av_usleep(sleepTime);
+    }
+  }
+
   private void streamVideoOverRTP() throws IOException {
     System.out.println("Starting video streaming over RTP...");
 
@@ -163,7 +182,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
       throw new IOException("Failed to create RTP output context");
     }
 
-    AVCodec encoderCodec = avcodec_find_encoder_by_name("libx264");
+    AVCodec encoderCodec = avcodec_find_encoder_by_name("mpeg4");
 
     //  AVCodec encoderCodec = avcodec_find_encoder_by_name("h264");
 
@@ -257,11 +276,13 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     //    if (avio_open(pb, outputURL, AVIO_FLAG_WRITE) < 0) {
     //      throw new IOException("Failed to open RTP output");
     //    }
+
+    avcodec_parameters_copy(outputStream.codecpar(), inputStream.codecpar());
+
     AVDictionary options = new AVDictionary(null);
     if (avio_open2(pb, outputURL, AVIO_FLAG_WRITE, null, options) < 0) {
       throw new IOException("Failed to open RTP output");
     }
-
     outputCtx.pb(pb);
 
     System.out.println("Configuring encoder9...");
@@ -273,36 +294,47 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     AVFrame frame = av_frame_alloc();
     AVPacket packet = new AVPacket();
 
+    //    TODO:Move StartTime assignment to an "Init" method
+
+    long StartTime = av_gettime_relative();
+
     while (av_read_frame(inputCtx, packet) >= 0) {
       if (packet.stream_index() == v_stream_idx) {
         System.out.println("Decoding frame...");
-        if (avcodec_send_packet(decoderCtx, packet) >= 0) {
-          ret = avcodec_receive_frame(decoderCtx, frame);
-          while (ret >= 0) {
-            System.out.println("Encoding frame...");
-            ret = avcodec_send_frame(encoderCtx, frame);
 
-            System.out.println("ret for avcodec_send_frame-->" + ret);
-            if (ret >= 0) {
-              AVPacket outPacket = new AVPacket();
-              int recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
+        // TODO:The commented section will execute when demux mode is on. This needs to be made
+        // configurable.
+        //        if (avcodec_send_packet(decoderCtx, packet) >= 0) {
+        //          ret = avcodec_receive_frame(decoderCtx, frame);
+        //          while (ret >= 0) {
+        //            System.out.println("Encoding frame...");
+        //            ret = avcodec_send_frame(encoderCtx, frame);
+        //
+        //            System.out.println("ret for avcodec_send_frame-->" + ret);
+        //            if (ret >= 0) {
+        //              AVPacket outPacket = new AVPacket();
+        //              int recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
+        //
+        //              System.out.println("recv_packets-->" + recv_packets);
+        //              while (recv_packets >= 0) {
+        //                System.out.println("Writing encoded packet to RTP stream...");
+        //                outPacket.stream_index(outputStream.index());
+        //                av_write_frame(outputCtx, outPacket);
+        //                av_packet_unref(outPacket);
+        //
+        //                recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
+        //              }
+        //            }
+        //            System.out.println("ret for avcodec_receive_frame1 -->" + ret);
+        //
+        //            ret = avcodec_receive_frame(decoderCtx, frame);
+        //            System.out.println("ret for avcodec_receive_frame2 -->" + ret);
+        //          }
+        //        }
 
-              System.out.println("recv_packets-->" + recv_packets);
-              while (recv_packets >= 0) {
-                System.out.println("Writing encoded packet to RTP stream...");
-                outPacket.stream_index(outputStream.index());
-                av_write_frame(outputCtx, outPacket);
-                av_packet_unref(outPacket);
-
-                recv_packets = avcodec_receive_packet(encoderCtx, outPacket);
-              }
-            }
-            System.out.println("ret for avcodec_receive_frame1 -->" + ret);
-
-            ret = avcodec_receive_frame(decoderCtx, frame);
-            System.out.println("ret for avcodec_receive_frame2 -->" + ret);
-          }
-        }
+        av_write_frame(outputCtx, packet);
+        delayByPts(packet.pts(), inputStream.time_base(), ((int) StartTime));
+        av_packet_unref(packet);
       }
       av_packet_unref(packet);
     }
