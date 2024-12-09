@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import org.bytedeco.ffmpeg.avcodec.*;
 import org.bytedeco.ffmpeg.avformat.*;
@@ -206,8 +205,9 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
         "/home/lgomez/Downloads/vecteezy_vancouver-canada-september-16-2023-flight-by-fpv-drone_37202565.mp4";
     String outputURL = "rtp://127.0.0.1:5005";
 
-//    outputURL =
-//        "/home/lgomez/projects/viper_sitl/squeaky-weasel/software/airliner/build/venus_aero/sassie/sitl_commander_workspace/new_video.mp4";
+    //    outputURL =
+    //
+    // "/home/lgomez/projects/viper_sitl/squeaky-weasel/software/airliner/build/venus_aero/sassie/sitl_commander_workspace/new_video.mp4";
 
     AVFormatContext inputCtx = avformat_alloc_context();
 
@@ -223,8 +223,6 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     if (avformat_find_stream_info(inputCtx, (PointerPointer) null) < 0) {
       throw new IOException("Failed to retrieve stream info");
     }
-
-    av_dump_format(inputCtx, 0, inputFile, 0);
 
     // Find video stream
     System.out.println("Searching for video stream...");
@@ -261,13 +259,13 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     //      throw new IOException("Failed to create RTP output context");
     //    }
 
-//    if (avformat_alloc_output_context2(outputCtx, null, null, outputURL) < 0) {
-//      throw new IOException("Failed to create RTP output context");
-//    }
-    
+    //    if (avformat_alloc_output_context2(outputCtx, null, null, outputURL) < 0) {
+    //      throw new IOException("Failed to create RTP output context");
+    //    }
+
     if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
-        throw new IOException("Failed to create RTP output context");
-      }
+      throw new IOException("Failed to create RTP output context");
+    }
 
     AVCodec encoderCodec = avcodec_find_encoder_by_name("libx264");
 
@@ -485,24 +483,17 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
           while (recv_packets >= 0) {
             System.out.println("Writing encoded packet to RTP stream...");
             outPacket.stream_index(outputStream.index());
-            
-//            System.out.println("Length of packet:" + outPacket.data().asBuffer().array().length);
-            System.out.println("Length of packet:" + outPacket.size());
-            
-//            outPacket.data().
-            
-            byte[] outPacketData = new byte[ outPacket.size()];
-        	System.out.println("Read data:" + outPacket.data().get(outPacketData));
-        	
-        	System.out.println("Length of array:" + outPacketData.length);
-        	
-        	writeFrameToDB(outPacketData);
 
-//            for(int i = 0;i<outPacket.size();i++) 
-//            {
-//            }
-            
-            
+            System.out.println("Length of packet:" + outPacket.size());
+
+
+            byte[] outPacketData = new byte[outPacket.size()];
+            System.out.println("Read data:" + outPacket.data().get(outPacketData));
+
+            System.out.println("Length of array:" + outPacketData.length);
+
+            writeFrameToDB(outPacketData);
+
             av_write_frame(outputCtx, outPacket);
             av_packet_unref(outPacket);
 
@@ -592,31 +583,31 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     tdef.addColumn(frameParam.getQualifiedName(), DataType.PARAMETER_VALUE);
 
-//    String filePath = "/home/lgomez/projects/viper_sitl/squeaky-weasel/software/airliner/build/venus_aero/sassie/sitl_commander_workspace/hello_world.txt";
-//
-//    try (FileInputStream fis = new FileInputStream(filePath)) {
-//      // Create a byte array large enough to hold the file contents
-//      byte[] fileBytes = new byte[fis.available()];
-//
-//      // Read the bytes into the array
-//      fis.read(fileBytes);
-//
-//      // Print the bytes (optional)
-//      //        for (byte b : fileBytes) {
-//      //            System.out.print(b + " ");
-//
-//      cols.add(getPV(frameParam, gentime, data));
-//
-//      //        }
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
+    //    String filePath =
+    // "/home/lgomez/projects/viper_sitl/squeaky-weasel/software/airliner/build/venus_aero/sassie/sitl_commander_workspace/hello_world.txt";
+    //
+    //    try (FileInputStream fis = new FileInputStream(filePath)) {
+    //      // Create a byte array large enough to hold the file contents
+    //      byte[] fileBytes = new byte[fis.available()];
+    //
+    //      // Read the bytes into the array
+    //      fis.read(fileBytes);
+    //
+    //      // Print the bytes (optional)
+    //      //        for (byte b : fileBytes) {
+    //      //            System.out.print(b + " ");
+    //
+    //      cols.add(getPV(frameParam, gentime, data));
+    //
+    //      //        }
+    //    } catch (IOException e) {
+    //      e.printStackTrace();
+    //    }
 
     //    cols.add(getPV(frameParam, gentime, ByteBuffer.allocate(4).putFloat(47.0f).array()));
 
     //    cols.add(getPV(frameParam, gentime, 47.0 ));
-    
-    
+
     cols.add(getPV(frameParam, gentime, data));
 
     pushTuple(tdef, cols);
@@ -848,23 +839,23 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     //    for (int i = 0; i < 10; i++) {
     //      writeFrameToDB(new byte[64]);
     //    }
-	  
-	  try {
-		streamVideoOverRTP();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+
+    try {
+      streamVideoOverRTP();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
     while (isRunningAndEnabled()) {
 
-//      scheduler.scheduleAtFixedRate(
-//          () -> {
-//            writeFrameToDB(new byte[(int) 1e9 ]);
-//          },
-//          1,
-//          1,
-//          TimeUnit.SECONDS);
+      //      scheduler.scheduleAtFixedRate(
+      //          () -> {
+      //            writeFrameToDB(new byte[(int) 1e9 ]);
+      //          },
+      //          1,
+      //          1,
+      //          TimeUnit.SECONDS);
       TmPacket tmpkt = getNextPacket();
       //      writeFrameToDB(new byte[64]);
       if (tmpkt != null) {
