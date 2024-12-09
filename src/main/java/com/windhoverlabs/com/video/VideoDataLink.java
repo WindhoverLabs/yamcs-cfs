@@ -10,6 +10,12 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import org.bytedeco.ffmpeg.avcodec.*;
 import org.bytedeco.ffmpeg.avformat.*;
 import org.bytedeco.ffmpeg.avutil.*;
@@ -17,9 +23,31 @@ import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.ffmpeg.swscale.*;
 import org.bytedeco.javacpp.*;
 import org.yamcs.ConfigurationException;
+import org.yamcs.StandardTupleDefinitions;
 import org.yamcs.TmPacket;
 import org.yamcs.YConfiguration;
+import org.yamcs.YamcsServer;
+import org.yamcs.mdb.Mdb;
+import org.yamcs.parameter.ParameterValue;
+import org.yamcs.protobuf.Event.EventSeverity;
+import org.yamcs.protobuf.Yamcs.Value.Type;
 import org.yamcs.tctm.AbstractTmDataLink;
+import org.yamcs.utils.ValueUtility;
+import org.yamcs.xtce.BooleanParameterType;
+import org.yamcs.xtce.FloatParameterType;
+import org.yamcs.xtce.IntegerParameterType;
+import org.yamcs.xtce.NameDescription;
+import org.yamcs.xtce.Parameter;
+import org.yamcs.xtce.ParameterType;
+import org.yamcs.xtce.StringParameterType;
+import org.yamcs.xtce.XtceDb;
+import org.yamcs.yarch.DataType;
+import org.yamcs.yarch.Stream;
+import org.yamcs.yarch.Tuple;
+import org.yamcs.yarch.TupleDefinition;
+import org.yamcs.yarch.YarchDatabase;
+import org.yamcs.yarch.YarchDatabaseInstance;
+import org.yamcs.yarch.protobuf.Db.Event;
 
 /**
  * Receives telemetry packets via UDP. One UDP datagram = one TM packet.
@@ -47,6 +75,16 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
   int initialBytesToStrip;
   int rcvBufferSize;
 
+  Mdb mdb;
+
+  private VariableParam frameParam;
+
+  private Stream videoStream;
+
+  private static TupleDefinition gftdef = StandardTupleDefinitions.PARAMETER.copy();
+
+  ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
   /**
    * Creates a new UDP TM Data Link
    *
@@ -61,18 +99,56 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     initialBytesToStrip = config.getInt("initialBytesToStrip", 0);
     rcvBufferSize = config.getInt("rcvBufferSize", 0);
     datagram = new DatagramPacket(new byte[maxLength], maxLength);
+
+    this.mdb = YamcsServer.getServer().getInstance(yamcsInstance).getMdb();
+
+    frameParam = VariableParam.getForFullyQualifiedName("/yamcs/pop-os/links/Video/frameData");
+
+    ParameterType ptype = getBasicType(mdb, Type.BINARY);
+
+    //    ParameterType ptype = getBasicType(mdb, Type.FLOAT);
+
+    frameParam.setParameterType(ptype);
+
+    if (mdb.getParameter(frameParam.getQualifiedName()) == null) {
+      log.debug("Adding OPCUA object as parameter to mdb:{}", frameParam.getQualifiedName());
+      try {
+        mdb.addParameter(frameParam, true, true);
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        //        internalLogger.info(e.toString());
+        //        internalLogger.info("Failed to add PV:" + p.getQualifiedName());
+        org.yamcs.yarch.protobuf.Db.Event ev =
+            Event.newBuilder()
+                .setGenerationTime(YamcsServer.getTimeService(yamcsInstance).getMissionTime())
+                .setGenerationTime(YamcsServer.getTimeService(yamcsInstance).getMissionTime())
+                .setSource(this.linkName)
+                .setType(this.linkName)
+                .setMessage("Failed to add PV:" + frameParam.getQualifiedName())
+                .setSeverity(EventSeverity.ERROR)
+                .build();
+        eventProducer.sendEvent(ev);
+      }
+    } else {
+      frameParam = (VariableParam) mdb.getParameter(frameParam.getQualifiedName());
+    }
+
+    YarchDatabaseInstance ydb = YarchDatabase.getInstance(yamcsInstance);
+
+    //    this.opcuaStreamName = config.getString("opcuaStream");
+    this.videoStream = getStream(ydb, "video_frames_stream");
   }
 
   @Override
   public void doStart() {
     if (!isDisabled()) {
-      try {
-        //        readVideo();
-        streamVideoOverRTP();
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+      //      try {
+      //        //        readVideo();
+      //        streamVideoOverRTP();
+      //      } catch (IOException e) {
+      //        // TODO Auto-generated catch block
+      //        e.printStackTrace();
+      //      }
       try {
         tmSocket = new DatagramSocket(port);
         if (rcvBufferSize > 0) {
@@ -130,6 +206,9 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
         "/home/lgomez/Downloads/vecteezy_vancouver-canada-september-16-2023-flight-by-fpv-drone_37202565.mp4";
     String outputURL = "rtp://127.0.0.1:5005";
 
+//    outputURL =
+//        "/home/lgomez/projects/viper_sitl/squeaky-weasel/software/airliner/build/venus_aero/sassie/sitl_commander_workspace/new_video.mp4";
+
     AVFormatContext inputCtx = avformat_alloc_context();
 
     AVFormatContext outputCtx = avformat_alloc_context();
@@ -178,11 +257,19 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     // Set up RTP output
     System.out.println("Setting up RTP output: " + outputURL);
 
-    if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
-      throw new IOException("Failed to create RTP output context");
-    }
+    //    if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
+    //      throw new IOException("Failed to create RTP output context");
+    //    }
 
-    AVCodec encoderCodec = avcodec_find_encoder_by_name("mpeg4");
+//    if (avformat_alloc_output_context2(outputCtx, null, null, outputURL) < 0) {
+//      throw new IOException("Failed to create RTP output context");
+//    }
+    
+    if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
+        throw new IOException("Failed to create RTP output context");
+      }
+
+    AVCodec encoderCodec = avcodec_find_encoder_by_name("libx264");
 
     //  AVCodec encoderCodec = avcodec_find_encoder_by_name("h264");
 
@@ -257,16 +344,16 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     //        av_hwdevice_ctx_create(
     //            HWAccelDeviceContext, AV_HWDEVICE_TYPE_CUDA, "0", new AVDictionary(null), 0);
 
-    int avRC =
-        av_hwdevice_ctx_create(
-            HWAccelDeviceContext,
-            AV_HWDEVICE_TYPE_VAAPI,
-            new BytePointer(),
-            new AVDictionary(null),
-            0);
-    if (avRC < 0) {
-      throw new IOException("Failed to create hw device.");
-    }
+    //    int avRC =
+    //        av_hwdevice_ctx_create(
+    //            HWAccelDeviceContext,
+    //            AV_HWDEVICE_TYPE_VAAPI,
+    //            new BytePointer(),
+    //            new AVDictionary(null),
+    //            0);
+    //    if (avRC < 0) {
+    //      throw new IOException("Failed to create hw device. Error code:" + avRC);
+    //    }
 
     avcodec_parameters_from_context(outputStream.codecpar(), encoderCtx);
     if (avcodec_open2(encoderCtx, encoderCodec, new PointerPointer()) < 0) {
@@ -319,6 +406,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
         // configurable.
         writeFrame(outputCtx, decoderCtx, outputStream, encoderCtx, frame, packet);
         delayByPts(packet.pts(), inputStream.time_base(), ((int) StartTime));
+
         av_packet_unref(packet);
       }
       av_packet_unref(packet);
@@ -340,15 +428,15 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     EReturnCode rc = EReturnCode.OK;
     int avRC;
 
-    if (!(Context.flags() & AVFMTCTX_UNSEEKABLE)) {
-      /* Seek back to the beginning of the file */
-      avRC = av_seek_frame(Context, -1, 0, AVSEEK_FLAG_BACKWARD);
-      if (avRC < 0) {
-        ReportAVError("CInputFormat::GetPacket", "av_seek_frame", avRC, __LINE__);
-        rc = EReturnCode.FAILED_EXECUTE;
-        return rc;
-      }
-    }
+    //    if (!(Context.flags() & AVFMTCTX_UNSEEKABLE)) {
+    //      /* Seek back to the beginning of the file */
+    //      avRC = av_seek_frame(Context, -1, 0, AVSEEK_FLAG_BACKWARD);
+    //      if (avRC < 0) {
+    //        ReportAVError("CInputFormat::GetPacket", "av_seek_frame", avRC, __LINE__);
+    //        rc = EReturnCode.FAILED_EXECUTE;
+    //        return rc;
+    //      }
+    //    }
 
     return rc;
   }
@@ -358,20 +446,20 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     EReturnCode rc = EReturnCode.OK;
     int avRC;
 
-    rc = RestartInputSource(Context);
-
-    /* Reset demuxer state */
-    avRC = avformat_flush(Context);
-    if (avRC < 0) {
-      ReportAVError("CInputFormat::Restart", "avformat_flush", avRC, __LINE__);
-      rc = EReturnCode.FAILED_EXECUTE;
-    }
-
-    StartTime = av_gettime_relative();
-    PtsOffset = NextPts;
-
-    end_of_function:
-    return rc;
+    //    rc = RestartInputSource(Context);
+    //
+    //    /* Reset demuxer state */
+    //    avRC = avformat_flush(Context);
+    //    if (avRC < 0) {
+    //      ReportAVError("CInputFormat::Restart", "avformat_flush", avRC, __LINE__);
+    //      rc = EReturnCode.FAILED_EXECUTE;
+    //    }
+    //
+    //    StartTime = av_gettime_relative();
+    //    PtsOffset = NextPts;
+    //
+    //    end_of_function:
+    //    return rc;
   }
 
   private void writeFrame(
@@ -397,6 +485,24 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
           while (recv_packets >= 0) {
             System.out.println("Writing encoded packet to RTP stream...");
             outPacket.stream_index(outputStream.index());
+            
+//            System.out.println("Length of packet:" + outPacket.data().asBuffer().array().length);
+            System.out.println("Length of packet:" + outPacket.size());
+            
+//            outPacket.data().
+            
+            byte[] outPacketData = new byte[ outPacket.size()];
+        	System.out.println("Read data:" + outPacket.data().get(outPacketData));
+        	
+        	System.out.println("Length of array:" + outPacketData.length);
+        	
+        	writeFrameToDB(outPacketData);
+
+//            for(int i = 0;i<outPacket.size();i++) 
+//            {
+//            }
+            
+            
             av_write_frame(outputCtx, outPacket);
             av_packet_unref(outPacket);
 
@@ -411,6 +517,150 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     }
 
     //        av_write_frame(outputCtx, packet);
+  }
+
+  private static ParameterType getOrCreateType(
+      XtceDb mdb, String name, Supplier<ParameterType.Builder<?>> supplier) {
+
+    String fqn = XtceDb.YAMCS_SPACESYSTEM_NAME + NameDescription.PATH_SEPARATOR + name;
+    ParameterType ptype = mdb.getParameterType(fqn);
+    if (ptype != null) {
+      return ptype;
+    }
+    ParameterType.Builder<?> typeb = supplier.get().setName(name);
+
+    ptype = typeb.build();
+    ((NameDescription) ptype).setQualifiedName(fqn);
+
+    return ((Mdb) mdb).addSystemParameterType(ptype);
+  }
+
+  public static ParameterType getBasicType(XtceDb mdb, Type type) {
+    ParameterType pType = null;
+    switch (type) {
+      case BOOLEAN:
+        return getOrCreateType(mdb, "boolean", () -> new BooleanParameterType.Builder());
+      case STRING:
+        return getOrCreateType(mdb, "string", () -> new StringParameterType.Builder());
+
+      case FLOAT:
+        return getOrCreateType(
+            mdb, "float32", () -> new FloatParameterType.Builder().setSizeInBits(32));
+      case DOUBLE:
+        return getOrCreateType(
+            mdb, "float64", () -> new FloatParameterType.Builder().setSizeInBits(64));
+      case SINT32:
+        return getOrCreateType(
+            mdb,
+            "sint32",
+            () -> new IntegerParameterType.Builder().setSizeInBits(32).setSigned(true));
+      case SINT64:
+        return getOrCreateType(
+            mdb,
+            "sint64",
+            () -> new IntegerParameterType.Builder().setSizeInBits(64).setSigned(true));
+      case UINT32:
+        return getOrCreateType(
+            mdb,
+            "uint32",
+            () -> new IntegerParameterType.Builder().setSizeInBits(32).setSigned(false));
+      case UINT64:
+        return getOrCreateType(
+            mdb,
+            "uint64",
+            () -> new IntegerParameterType.Builder().setSizeInBits(64).setSigned(false));
+      default:
+        break;
+    }
+
+    return pType;
+  }
+
+  private void writeFrameToDB(byte data[]) {
+    TupleDefinition tdef = gftdef.copy();
+
+    int numberfRecords = 1;
+
+    List<Object> cols = new ArrayList<>(4 + numberfRecords);
+
+    tdef = gftdef.copy();
+    long gentime = timeService.getMissionTime();
+    cols.add(gentime);
+    cols.add("/yamcs/pop-os/");
+    cols.add(0);
+    cols.add(gentime);
+
+    tdef.addColumn(frameParam.getQualifiedName(), DataType.PARAMETER_VALUE);
+
+//    String filePath = "/home/lgomez/projects/viper_sitl/squeaky-weasel/software/airliner/build/venus_aero/sassie/sitl_commander_workspace/hello_world.txt";
+//
+//    try (FileInputStream fis = new FileInputStream(filePath)) {
+//      // Create a byte array large enough to hold the file contents
+//      byte[] fileBytes = new byte[fis.available()];
+//
+//      // Read the bytes into the array
+//      fis.read(fileBytes);
+//
+//      // Print the bytes (optional)
+//      //        for (byte b : fileBytes) {
+//      //            System.out.print(b + " ");
+//
+//      cols.add(getPV(frameParam, gentime, data));
+//
+//      //        }
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+
+    //    cols.add(getPV(frameParam, gentime, ByteBuffer.allocate(4).putFloat(47.0f).array()));
+
+    //    cols.add(getPV(frameParam, gentime, 47.0 ));
+    
+    
+    cols.add(getPV(frameParam, gentime, data));
+
+    pushTuple(tdef, cols);
+  }
+
+  private static Stream getStream(YarchDatabaseInstance ydb, String streamName) {
+    Stream stream = ydb.getStream(streamName);
+    if (stream == null) {
+      try {
+        ydb.execute("create stream " + streamName + gftdef.getStringDefinition());
+      } catch (Exception e) {
+        throw new ConfigurationException(e);
+      }
+
+      stream = ydb.getStream(streamName);
+    }
+    return stream;
+  }
+
+  private synchronized void pushTuple(TupleDefinition tdef, List<Object> cols) {
+    Tuple t;
+    t = new Tuple(tdef, cols);
+    videoStream.emitTuple(t);
+  }
+
+  public ParameterValue getNewPv(Parameter parameter, long time) {
+    ParameterValue pv = new ParameterValue(parameter);
+    pv.setAcquisitionTime(YamcsServer.getTimeService(yamcsInstance).getMissionTime());
+    pv.setGenerationTime(time);
+    return pv;
+  }
+
+  public ParameterValue getPV(Parameter parameter, long time, double v) {
+    ParameterValue pv = getNewPv(parameter, time);
+    pv.setEngValue(ValueUtility.getDoubleValue(v));
+    pv.setRawValue(ValueUtility.getDoubleValue(v));
+    return pv;
+  }
+
+  public ParameterValue getPV(Parameter parameter, long time, byte v[]) {
+    ParameterValue pv = getNewPv(parameter, time);
+    pv.setEngValue(ValueUtility.getBinaryValue(v));
+    pv.setRawValue(ValueUtility.getBinaryValue(v));
+    return pv;
   }
 
   static void save_frame(AVFrame pFrame, int width, int height, int f_idx) throws IOException {
@@ -432,6 +682,27 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     // Close file
     pFile.close();
+  }
+
+  /**
+   * Concatenates the root with the subsystems and returns a qualified name
+   *
+   * @param root
+   */
+  public static String qualifiedName(String root, String... subsystems) {
+    if (root.charAt(0) != NameDescription.PATH_SEPARATOR) {
+      throw new IllegalArgumentException(
+          "root has to start with " + NameDescription.PATH_SEPARATOR);
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append(root);
+    for (String s : subsystems) {
+      if (s.charAt(0) != NameDescription.PATH_SEPARATOR) {
+        sb.append(NameDescription.PATH_SEPARATOR);
+      }
+      sb.append(s);
+    }
+    return sb.toString();
   }
 
   private void readVideo() throws IOException {
@@ -574,8 +845,28 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
   @Override
   public void run() {
 
+    //    for (int i = 0; i < 10; i++) {
+    //      writeFrameToDB(new byte[64]);
+    //    }
+	  
+	  try {
+		streamVideoOverRTP();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+
     while (isRunningAndEnabled()) {
+
+//      scheduler.scheduleAtFixedRate(
+//          () -> {
+//            writeFrameToDB(new byte[(int) 1e9 ]);
+//          },
+//          1,
+//          1,
+//          TimeUnit.SECONDS);
       TmPacket tmpkt = getNextPacket();
+      //      writeFrameToDB(new byte[64]);
       if (tmpkt != null) {
         processPacket(tmpkt);
       }
