@@ -1,5 +1,3 @@
 package com.windhoverlabs.com.video;
 
-public class CFilterGraph {
-
-}
+public class CFilterGraph {}

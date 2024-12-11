@@ -224,6 +224,8 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
       throw new IOException("Failed to retrieve stream info");
     }
 
+    sws_freeContext();
+
     // Find video stream
     System.out.println("Searching for video stream...");
     for (int i = 0; i < inputCtx.nb_streams(); i++) {
@@ -320,6 +322,16 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     encoderCtx.width(decoderCtx.width());
     encoderCtx.height(decoderCtx.height());
+
+    //    av_opt_set()
+    //
+    //    av_opt_find()
+    //
+    //    avcodec.av_packet_ref()
+    //
+    //    av_frame_ref();
+    //
+    //    av_packet_alloc()
 
     System.out.println("Configuring encoder5...");
     encoderCtx.time_base(av_inv_q(inputStream.time_base()));
@@ -485,7 +497,6 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
             outPacket.stream_index(outputStream.index());
 
             System.out.println("Length of packet:" + outPacket.size());
-
 
             byte[] outPacketData = new byte[outPacket.size()];
             System.out.println("Read data:" + outPacket.data().get(outPacketData));
