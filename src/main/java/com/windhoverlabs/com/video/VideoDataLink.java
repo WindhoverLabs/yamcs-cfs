@@ -224,8 +224,6 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
       throw new IOException("Failed to retrieve stream info");
     }
 
-    sws_freeContext();
-
     // Find video stream
     System.out.println("Searching for video stream...");
     for (int i = 0; i < inputCtx.nb_streams(); i++) {
@@ -264,8 +262,6 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     //    if (avformat_alloc_output_context2(outputCtx, null, null, outputURL) < 0) {
     //      throw new IOException("Failed to create RTP output context");
     //    }
-
-    av_interleaved_write_frame();
 
     if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
       throw new IOException("Failed to create RTP output context");
@@ -726,8 +722,6 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     String vf_path = "/home/lgomez/Downloads/ginger_man.mp4";
     AVFormatContext fmt_ctx = new AVFormatContext(null);
     AVPacket pkt = new AVPacket();
-
-    av_find_best_stream();
 
     ret = avformat_open_input(fmt_ctx, vf_path, null, null);
     if (ret < 0) {
