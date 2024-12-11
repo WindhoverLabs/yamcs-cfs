@@ -105,8 +105,6 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     ParameterType ptype = getBasicType(mdb, Type.BINARY);
 
-    //    ParameterType ptype = getBasicType(mdb, Type.FLOAT);
-
     frameParam.setParameterType(ptype);
 
     if (mdb.getParameter(frameParam.getQualifiedName()) == null) {
@@ -134,7 +132,6 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(yamcsInstance);
 
-    //    this.opcuaStreamName = config.getString("opcuaStream");
     this.videoStream = getStream(ydb, "video_frames_stream");
   }
 
