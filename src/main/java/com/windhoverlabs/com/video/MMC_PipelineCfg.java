@@ -206,7 +206,6 @@ public class MMC_PipelineCfg {
     MMC_CustomFrameProcessorCfg_t CustomFrameProcessorCfg;
     String FilterBufferSrcArgs;
   }
-  ;
 
   // Additional structures can be added here following the same pattern
 }

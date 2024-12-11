@@ -30,4 +30,19 @@ public class FilterGraph {
     // TODO Auto-generated method stub
 
   }
+
+  public static void Initialize() {
+    // TODO Auto-generated method stub
+
+  }
+
+  public static void Start() {
+    // TODO Auto-generated method stub
+
+  }
+
+  public void Execute() {
+    // TODO Auto-generated method stub
+
+  }
 }
