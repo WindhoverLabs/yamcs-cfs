@@ -265,6 +265,8 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     //      throw new IOException("Failed to create RTP output context");
     //    }
 
+    av_interleaved_write_frame();
+
     if (avformat_alloc_output_context2(outputCtx, null, "rtp_mpegts", outputURL) < 0) {
       throw new IOException("Failed to create RTP output context");
     }
@@ -313,6 +315,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     encoderCtx.codec_type(AVMEDIA_TYPE_VIDEO);
     encoderCtx.pix_fmt(AV_PIX_FMT_YUV420P);
     System.out.println("Configuring encoder4...");
+
     //    encoderCtx.width(decoderCtx.width());
     //    encoderCtx.height(decoderCtx.height());
     //
@@ -323,6 +326,12 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     encoderCtx.width(decoderCtx.width());
     encoderCtx.height(decoderCtx.height());
 
+    //    AV_TIME_BASE
+
+    //    avutil.av_get_time_base_q()
+
+    //    AVMEDIA_TYPE_VIDEO
+
     //    av_opt_set()
     //
     //    av_opt_find()
@@ -331,7 +340,7 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     //
     //    av_frame_ref();
     //
-    //    av_packet_alloc()
+    av_packet_alloc();
 
     System.out.println("Configuring encoder5...");
     encoderCtx.time_base(av_inv_q(inputStream.time_base()));
@@ -717,6 +726,8 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     String vf_path = "/home/lgomez/Downloads/ginger_man.mp4";
     AVFormatContext fmt_ctx = new AVFormatContext(null);
     AVPacket pkt = new AVPacket();
+
+    av_find_best_stream();
 
     ret = avformat_open_input(fmt_ctx, vf_path, null, null);
     if (ret < 0) {

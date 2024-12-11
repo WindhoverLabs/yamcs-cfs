@@ -1,7 +1,9 @@
 package com.windhoverlabs.com.video;
 
 public enum EReturnCode {
+  OK_CONGESTED,
   OK_NO_OUTPUT,
+  OK_FRAME_SKIPPED,
   OK_QUEUE_EMPTY,
   OK_EOF,
   OK,
@@ -10,5 +12,5 @@ public enum EReturnCode {
   INVALID_PARAM,
   INVALID_INPUT_REF,
   FAILED_EXECUTE,
-  UNUSED_PARAM,
+  UNUSED_PARAM
 };

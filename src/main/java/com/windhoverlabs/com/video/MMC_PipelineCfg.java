@@ -82,9 +82,9 @@ public class MMC_PipelineCfg {
   public static class MMC_InputFormatCfg {
     public MMC_EntryState state;
     public String url;
-    public MMC_KeyValue[] params = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
-    public MMC_KeyValue[] privateParams = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
-    public MMC_KeyValue[] streamParams = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
+    public HashMap<String, String> params = new HashMap<String, String>();
+    public HashMap<String, String> privateParams = new HashMap<String, String>();
+    public HashMap<String, String> streamParams = new HashMap<String, String>();
   }
 
   public static class MMC_DecoderCfg {
@@ -94,8 +94,8 @@ public class MMC_PipelineCfg {
     public int errorConcealment;
     public MMC_HWAccelDeviceCfg hwAccelDeviceCfg;
     public int flags;
-    public MMC_KeyValue[] params = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
-    public MMC_KeyValue[] privateParams = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
+    public HashMap<String, String> params = new HashMap<String, String>();
+    public HashMap<String, String> privateParams = new HashMap<String, String>();
   }
 
   public static class MMC_EncoderCfg {
@@ -111,16 +111,16 @@ public class MMC_PipelineCfg {
     public int maxBFrames;
     public MMC_HWAccelDeviceCfg hwAccelDeviceCfg;
     public int flags;
-    public MMC_KeyValue[] params = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
-    public MMC_KeyValue[] privateParams = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
+    public HashMap<String, String> params = new HashMap<String, String>();
+    public HashMap<String, String> privateParams = new HashMap<String, String>();
   }
 
   public static class MMC_OutputFormatCfg {
     public MMC_EntryState state;
     public String name;
     public String url;
-    public MMC_KeyValue[] params = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
-    public MMC_KeyValue[] privateParams = new MMC_KeyValue[MMC_MAX_CONFIG_PARAMS];
+    public HashMap<String, String> params = new HashMap<String, String>();
+    public HashMap<String, String> privateParams = new HashMap<String, String>();
   }
 
   public static class MMC_ScaleCfg_t {
@@ -179,6 +179,16 @@ public class MMC_PipelineCfg {
     MMC_EncoderCfg_t EncoderCfg;
     MMC_CustomPacketProcessorCfg_t CustomPacketProcessorCfg;
     MMC_OutputFormatCfg_t OutputFormatCfg;
+  }
+
+  public static class MMC_InputPipelineCfg_t {
+    MMC_EntryState State;
+    MMC_InputFormatCfg InputFormatCfg;
+    MMC_CustomPacketProcessorCfg_t CustomPacketProcessorCfg;
+    MMC_DecoderCfg DecoderCfg;
+    MMC_ScaleCfg_t ScaleCfg;
+    MMC_CustomFrameProcessorCfg_t CustomFrameProcessorCfg;
+    String FilterBufferSrcArgs;
   }
   ;
 
