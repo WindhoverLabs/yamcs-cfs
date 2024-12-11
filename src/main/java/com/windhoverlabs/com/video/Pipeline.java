@@ -1,3 +1,5 @@
+package com.windhoverlabs.com.video;
+
 import static org.bytedeco.ffmpeg.global.avutil.*;
 
 import org.bytedeco.ffmpeg.avutil.*;
@@ -27,14 +29,14 @@ public class Pipeline {
 
     for (int i = 0; i < MAX_INPUT_PIPELINES; i++) {
       inputPipelines[i] = new InputPipeline();
-      inputPipelines[i].setConfig(config.getInputPipelineCfg(i));
+      inputPipelines[i].SetConfig(config.InputPipelineCfg.get(i));
     }
 
-    filterGraph.setConfig(config.getFilterGraphCfg());
+    filterGraph.SetConfig(config.FilterGraphCfg);
 
     for (int i = 0; i < MAX_OUTPUT_PIPELINES; i++) {
       outputPipelines[i] = new OutputPipeline();
-      outputPipelines[i].setConfig(config.getOutputPipelineCfg(i));
+      outputPipelines[i].setConfig(config.OutputPipelineCfg.get(i));
     }
 
     return rc;
@@ -44,8 +46,8 @@ public class Pipeline {
     int avRC =
         av_hwdevice_ctx_create(
             hwAccelDeviceContext,
-            config.getHWAccelDeviceCfg().getDeviceType(),
-            config.getHWAccelDeviceCfg().getDeviceID(),
+            config.HWAccelDeviceCfg.deviceType,
+            config.HWAccelDeviceCfg.deviceID,
             null,
             0);
 

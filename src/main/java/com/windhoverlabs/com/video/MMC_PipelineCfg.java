@@ -1,5 +1,6 @@
 package com.windhoverlabs.com.video;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MMC_PipelineCfg {
@@ -11,6 +12,21 @@ public class MMC_PipelineCfg {
   public static final int MMC_MAX_HW_ACCEL_DEVICE_ID_LENGTH =
       128; // Example value, replace with actual
   public static final int MMC_MAX_CONFIG_PARAMS = 10; // Example value, replace with actual
+
+  boolean PacketLevelRemux;
+  boolean RestartOnEOF;
+  MMC_HWAccelDeviceCfg HWAccelDeviceCfg;
+  ArrayList<MMC_InputPipelineCfg_t> InputPipelineCfg = new ArrayList<MMC_InputPipelineCfg_t>();
+  MMC_FilterGraphCfg_t FilterGraphCfg;
+  ArrayList<MMC_OutputPipelineCfg_t> OutputPipelineCfg = new ArrayList<MMC_OutputPipelineCfg_t>();
+
+  class MMC_FilterGraphCfg_t {
+    MMC_EntryState State;
+    MMC_HWAccelDeviceCfg HWAccelDeviceCfg;
+    String Description;
+    HashMap<String, String> Params;
+    //	    MMC_FilterCfg_t          FilterCfg[MAX_FILTERS];
+  }
 
   // Enums
   public static enum MMC_AVComponentType {
