@@ -3,8 +3,8 @@ package com.windhoverlabs.com.video;
 import static org.bytedeco.ffmpeg.global.avcodec.*;
 import static org.bytedeco.ffmpeg.global.avutil.*;
 
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_EncoderCfg_t;
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_EntryState;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_EncoderCfg_t;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_EntryState;
 import org.bytedeco.ffmpeg.avcodec.AVCodec;
 import org.bytedeco.ffmpeg.avcodec.AVCodecContext;
 import org.bytedeco.ffmpeg.avcodec.AVCodecContext.Get_format_AVCodecContext_IntPointer;

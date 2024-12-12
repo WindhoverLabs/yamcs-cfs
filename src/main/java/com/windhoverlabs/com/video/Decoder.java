@@ -1,7 +1,7 @@
 package com.windhoverlabs.com.video;
 
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_DecoderCfg;
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_EntryState;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_DecoderCfg;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_EntryState;
 import org.bytedeco.ffmpeg.avcodec.AVCodec;
 import org.bytedeco.ffmpeg.avcodec.AVCodecContext;
 import org.bytedeco.ffmpeg.avcodec.AVCodecContext.Get_format_AVCodecContext_IntPointer;

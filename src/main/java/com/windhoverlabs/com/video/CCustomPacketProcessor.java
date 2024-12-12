@@ -1,6 +1,6 @@
 package com.windhoverlabs.com.video;
 
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_CustomPacketProcessorCfg_t;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_CustomPacketProcessorCfg_t;
 import org.bytedeco.ffmpeg.avcodec.AVPacket;
 
 public class CCustomPacketProcessor {

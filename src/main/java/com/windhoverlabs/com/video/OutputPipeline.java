@@ -1,7 +1,7 @@
 package com.windhoverlabs.com.video;
 
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_EntryState;
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_OutputPipelineCfg_t;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_EntryState;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_OutputPipelineCfg_t;
 import org.bytedeco.ffmpeg.avcodec.AVPacket;
 import org.bytedeco.ffmpeg.avfilter.AVFilterContext;
 import org.bytedeco.ffmpeg.avformat.AVStream;
@@ -53,7 +53,7 @@ public class OutputPipeline {
     if (config == null) {
       // TODO: Handle null configuration case
     } else {
-      if (config.State == MMC_PipelineCfg.MMC_EntryState.ACTIVE) {
+      if (config.State == PipelineCfg.MMC_EntryState.ACTIVE) {
         encoder.reset();
 
         rc = outputFormat.Restart();
@@ -263,7 +263,7 @@ public class OutputPipeline {
   // Placeholder for CustomFrameProcessor class
   static class CustomFrameProcessor {
     public EReturnCode setConfig(
-        MMC_PipelineCfg.MMC_CustomFrameProcessorCfg_t customFrameProcessorCfg) {
+        PipelineCfg.MMC_CustomFrameProcessorCfg_t customFrameProcessorCfg) {
       // TODO: Set custom frame processor configuration logic
       return EReturnCode.OK;
     }

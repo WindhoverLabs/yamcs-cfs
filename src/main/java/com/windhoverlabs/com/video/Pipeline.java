@@ -9,7 +9,7 @@ import org.bytedeco.ffmpeg.global.avcodec;
 
 public class Pipeline extends ComponentBase {
 
-  private MMC_PipelineCfg config;
+  private PipelineCfg config;
   private AVBufferRef hwAccelDeviceContext;
   //  TODO:It might make more sense to change these arrays to ArrayList(s)
   private InputPipeline[] inputPipelines = new InputPipeline[MAX_INPUT_PIPELINES];
@@ -31,7 +31,7 @@ public class Pipeline extends ComponentBase {
     super.finalize();
   }
 
-  public EReturnCode setConfig(MMC_PipelineCfg config) {
+  public EReturnCode setConfig(PipelineCfg config) {
     EReturnCode rc = EReturnCode.OK;
 
     this.config = config;

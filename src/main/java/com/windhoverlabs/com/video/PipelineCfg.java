@@ -3,7 +3,7 @@ package com.windhoverlabs.com.video;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MMC_PipelineCfg {
+public class PipelineCfg {
 
   // Constants
   public static final int MMC_URL_LENGTH = 255;
@@ -61,17 +61,6 @@ public class MMC_PipelineCfg {
 
     public int getValue() {
       return value;
-    }
-  }
-
-  // Classes for structures
-  public static class MMC_KeyValue {
-    public String key;
-    public String value;
-
-    public MMC_KeyValue(String key, String value) {
-      this.key = key;
-      this.value = value;
     }
   }
 

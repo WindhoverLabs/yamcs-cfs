@@ -133,6 +133,10 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
     YarchDatabaseInstance ydb = YarchDatabase.getInstance(yamcsInstance);
 
     this.videoStream = getStream(ydb, "video_frames_stream");
+
+    List<Object> pipelines = config.getList("Pipelines");
+
+    System.out.println("pipelines-->" + pipelines);
   }
 
   @Override

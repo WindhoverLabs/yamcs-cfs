@@ -1,8 +1,8 @@
 package com.windhoverlabs.com.video;
 
 import com.windhoverlabs.com.video.Encoder.SHK;
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_EntryState;
-import com.windhoverlabs.com.video.MMC_PipelineCfg.MMC_OutputFormatCfg_t;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_EntryState;
+import com.windhoverlabs.com.video.PipelineCfg.MMC_OutputFormatCfg_t;
 import org.bytedeco.ffmpeg.avcodec.AVCodecParameters;
 import org.bytedeco.ffmpeg.avcodec.AVPacket;
 import org.bytedeco.ffmpeg.avformat.AVFormatContext;
