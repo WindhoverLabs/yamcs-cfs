@@ -136,6 +136,8 @@ public class VideoDataLink extends AbstractTmDataLink implements Runnable {
 
     List<Object> pipelines = config.getList("Pipelines");
 
+    Initialize();
+
     System.out.println("pipelines-->" + pipelines);
   }
 
