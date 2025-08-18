@@ -35,7 +35,6 @@ import org.yamcs.http.MediaType;
 import org.yamcs.http.api.ManagementApi;
 import org.yamcs.http.api.ParameterReplayListener;
 import org.yamcs.http.api.ReplayFactory;
-import org.yamcs.mdb.XtceDbFactory;
 import org.yamcs.parameter.ParameterValueWithId;
 import org.yamcs.protobuf.Archive.ExportParameterValuesRequest;
 import org.yamcs.protobuf.Yamcs.NamedObjectId;
@@ -180,7 +179,7 @@ public class CSVExporter extends AbstractYamcsService implements Runnable {
     ReplayOptions repl = ReplayOptions.getAfapReplay();
     //
     List<NamedObjectId> ids = new ArrayList<>();
-    XtceDb mdb = XtceDbFactory.getInstance(instance);
+    XtceDb mdb = org.yamcs.mdb.MdbFactory.getInstance(instance);
     String namespace = null;
 
     if (request.hasStart()) {
